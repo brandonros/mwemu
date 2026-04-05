@@ -10,7 +10,7 @@ use iced_x86::{Formatter as _, IntelFormatter};
 use std::collections::BTreeSet;
 
 use crate::emu::disassemble::InstructionCache;
-use crate::emu::Emu;
+use crate::emu::{ArchState, Emu};
 use crate::maps::mem64::Permission;
 use crate::loaders::pe::pe64;
 use crate::windows::peb::{peb32, peb64};
@@ -61,7 +61,12 @@ impl Emu {
         formatter.options_mut().set_digit_separator("");
         formatter.options_mut().set_first_operand_char_index(6);
         Emu {
-            formatter,
+            arch_state: ArchState::X86 {
+                instruction: None,
+                formatter,
+                instruction_cache: InstructionCache::new(),
+                decoder_position: 0,
+            },
             maps: Maps::default(),
             hooks: Hooks::new(),
             exp: 0,
@@ -88,14 +93,13 @@ impl Emu {
             now: Instant::now(),
             skip_apicall: false,
             its_apicall: None,
+            last_decoded: None,
             last_instruction_size: 0,
             pe64: None,
             pe32: None,
             elf64: None,
             elf32: None,
             macho64: None,
-            instruction: None,
-            decoder_position: 0,
             memory_operations: vec![],
             rep: None,
             tick: 0,
@@ -107,7 +111,6 @@ impl Emu {
             threads: vec![ThreadContext::new(0x1000, crate::arch::Arch::X86)],
             current_thread_id: 0,
             global_locks: GlobalLocks::new(),
-            instruction_cache: InstructionCache::new(),
             definitions: HashMap::new(),
             stored_contexts: HashMap::new(),
             entropy: 0.0,
@@ -347,10 +350,20 @@ impl Emu {
         self.pos = 0;
         self.maps.is_64bits = self.cfg.arch.is_64bits();
 
-        // Ensure thread context has aarch64 regs if needed
-        if self.cfg.arch.is_aarch64() && self.threads[self.current_thread_id].regs_aarch64.is_none() {
-            self.threads[self.current_thread_id].regs_aarch64 =
-                Some(Box::new(crate::regs_aarch64::RegsAarch64::new()));
+        // Ensure thread context matches the target architecture
+        if self.cfg.arch.is_aarch64() {
+            if matches!(self.threads[self.current_thread_id].arch, crate::threading::context::ArchThreadState::X86 { .. }) {
+                let id = self.threads[self.current_thread_id].id;
+                self.threads[self.current_thread_id] = crate::threading::context::ThreadContext::new(id, self.cfg.arch);
+            }
+        }
+
+        // Ensure arch_state matches the target architecture
+        if self.cfg.arch.is_aarch64() && matches!(self.arch_state, super::ArchState::X86 { .. }) {
+            self.arch_state = super::ArchState::AArch64 {
+                instruction: None,
+                instruction_cache: crate::emu::disassemble::InstructionCache::new(),
+            };
         }
 
         if self.cfg.arch.is_aarch64() {
@@ -365,10 +378,10 @@ impl Emu {
 
     /// Initialize linux aarch64 simulation for ELF loading.
     pub fn init_linux64_aarch64(&mut self) {
-        // Ensure aarch64 regs exist
-        if self.threads[self.current_thread_id].regs_aarch64.is_none() {
-            self.threads[self.current_thread_id].regs_aarch64 =
-                Some(Box::new(crate::regs_aarch64::RegsAarch64::new()));
+        // Ensure thread context is aarch64
+        if matches!(self.threads[self.current_thread_id].arch, crate::threading::context::ArchThreadState::X86 { .. }) {
+            let id = self.threads[self.current_thread_id].id;
+            self.threads[self.current_thread_id] = crate::threading::context::ThreadContext::new(id, self.cfg.arch);
         }
 
         self.init_stack_aarch64();
@@ -378,10 +391,10 @@ impl Emu {
     pub fn init_macos_aarch64(&mut self) {
         self.os = crate::arch::OperatingSystem::MacOS;
 
-        // Ensure aarch64 regs exist
-        if self.threads[self.current_thread_id].regs_aarch64.is_none() {
-            self.threads[self.current_thread_id].regs_aarch64 =
-                Some(Box::new(crate::regs_aarch64::RegsAarch64::new()));
+        // Ensure thread context is aarch64
+        if matches!(self.threads[self.current_thread_id].arch, crate::threading::context::ArchThreadState::X86 { .. }) {
+            let id = self.threads[self.current_thread_id].id;
+            self.threads[self.current_thread_id] = crate::threading::context::ThreadContext::new(id, self.cfg.arch);
         }
 
         self.init_stack_aarch64();

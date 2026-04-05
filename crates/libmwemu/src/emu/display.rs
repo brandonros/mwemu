@@ -1,5 +1,4 @@
-use iced_x86::{Formatter as _, Instruction};
-
+use crate::emu::decoded_instruction::DecodedInstruction;
 use crate::emu::Emu;
 
 impl Emu {
@@ -37,22 +36,39 @@ impl Emu {
         self.regs().show_r15(&self.maps, 0);
     }
 
+    /// display aarch64 main registers
+    pub fn featured_regs_aarch64(&self) {
+        let regs = self.regs_aarch64();
+        for i in (0..31).step_by(2) {
+            if i + 1 < 31 {
+                log::trace!("\tx{:<2}: 0x{:016x}  x{:<2}: 0x{:016x}", i, regs.x[i], i + 1, regs.x[i + 1]);
+            } else {
+                log::trace!("\tx{:<2}: 0x{:016x}", i, regs.x[i]);
+            }
+        }
+        log::trace!("\tsp:  0x{:016x}", regs.sp);
+        log::trace!("\tpc:  0x{:016x}", regs.pc);
+        log::trace!("\tlr:  0x{:016x} (x30)", regs.x[30]);
+        log::trace!("\tfp:  0x{:016x} (x29)", regs.x[29]);
+        log::trace!("\tNZCV: N={} Z={} C={} V={}", regs.nzcv.n, regs.nzcv.z, regs.nzcv.c, regs.nzcv.v);
+    }
+
     #[inline]
-    pub fn show_instruction_comment(&mut self, color: &str, ins: &Instruction, comment: &str) {
+    pub fn show_instruction_comment(&mut self, color: &str, ins: &DecodedInstruction, comment: &str) {
         if self.cfg.verbose < 2 {
             return;
         }
-        let mut out: String = String::new();
-        self.formatter.format(ins, &mut out);
+        let out = self.format_instruction(ins);
+        let addr = if ins.is_x86() { ins.address() } else { self.pc() };
         if self.cfg.verbose >= 2 {
             if self.cfg.nocolors {
-                log::trace!("{} 0x{:x}: {} ; {}", self.pos, ins.ip(), out, comment);
+                log::trace!("{} 0x{:x}: {} ; {}", self.pos, addr, out, comment);
             } else {
                 log::trace!(
                     "{}{} 0x{:x}: {} ; {}{}",
                     color,
                     self.pos,
-                    ins.ip(),
+                    addr,
                     out,
                     comment,
                     self.colors.nc
@@ -63,21 +79,21 @@ impl Emu {
     }
 
     #[inline]
-    pub fn show_instruction(&mut self, color: &str, ins: &Instruction) {
+    pub fn show_instruction(&mut self, color: &str, ins: &DecodedInstruction) {
         if self.cfg.verbose < 2 {
             return;
         }
-        let mut out: String = String::new();
-        self.formatter.format(ins, &mut out);
+        let out = self.format_instruction(ins);
+        let addr = if ins.is_x86() { ins.address() } else { self.pc() };
         if self.cfg.verbose >= 2 {
             if self.cfg.nocolors {
-                log::trace!("{} 0x{:x}: {}", self.pos, ins.ip(), out);
+                log::trace!("{} 0x{:x}: {}", self.pos, addr, out);
             } else {
                 log::trace!(
                     "{}{} 0x{:x}: {}{}",
                     color,
                     self.pos,
-                    ins.ip(),
+                    addr,
                     out,
                     self.colors.nc
                 );
@@ -87,20 +103,20 @@ impl Emu {
     }
 
     #[inline]
-    pub fn show_instruction_ret(&mut self, color: &str, ins: &Instruction, addr: u64) {
+    pub fn show_instruction_ret(&mut self, color: &str, ins: &DecodedInstruction, ret_addr: u64) {
         if self.cfg.verbose < 2 {
             return;
         }
-        let mut out: String = String::new();
-        self.formatter.format(ins, &mut out);
+        let out = self.format_instruction(ins);
+        let addr = if ins.is_x86() { ins.address() } else { self.pc() };
         if self.cfg.verbose >= 2 {
             if self.cfg.nocolors {
                 log::trace!(
                     "{} 0x{:x}: {} ; ret-addr: 0x{:x} ret-value: 0x{:x}",
                     self.pos,
-                    ins.ip(),
-                    out,
                     addr,
+                    out,
+                    ret_addr,
                     self.regs().rax
                 );
             } else {
@@ -108,9 +124,9 @@ impl Emu {
                     "{}{} 0x{:x}: {} ; ret-addr: 0x{:x} ret-value: 0x{:x} {}",
                     color,
                     self.pos,
-                    ins.ip(),
-                    out,
                     addr,
+                    out,
+                    ret_addr,
                     self.regs().rax,
                     self.colors.nc
                 );
@@ -120,21 +136,21 @@ impl Emu {
     }
 
     #[inline]
-    pub fn show_instruction_pushpop(&mut self, color: &str, ins: &Instruction, value: u64) {
+    pub fn show_instruction_pushpop(&mut self, color: &str, ins: &DecodedInstruction, value: u64) {
         if self.cfg.verbose < 2 {
             return;
         }
-        let mut out: String = String::new();
-        self.formatter.format(ins, &mut out);
+        let out = self.format_instruction(ins);
+        let addr = if ins.is_x86() { ins.address() } else { self.pc() };
         if self.cfg.verbose >= 2 {
             if self.cfg.nocolors {
-                log::trace!("{} 0x{:x}: {} ;0x{:x}", self.pos, ins.ip(), out, value);
+                log::trace!("{} 0x{:x}: {} ;0x{:x}", self.pos, addr, out, value);
             } else {
                 log::trace!(
                     "{}{} 0x{:x}: {} ;0x{:x} {}",
                     color,
                     self.pos,
-                    ins.ip(),
+                    addr,
                     out,
                     value,
                     self.colors.nc
@@ -145,21 +161,21 @@ impl Emu {
     }
 
     #[inline]
-    pub fn show_instruction_taken(&mut self, color: &str, ins: &Instruction) {
+    pub fn show_instruction_taken(&mut self, color: &str, ins: &DecodedInstruction) {
         if self.cfg.verbose < 2 {
             return;
         }
-        let mut out: String = String::new();
-        self.formatter.format(ins, &mut out);
+        let out = self.format_instruction(ins);
+        let addr = if ins.is_x86() { ins.address() } else { self.pc() };
         if self.cfg.verbose >= 2 {
             if self.cfg.nocolors {
-                log::trace!("{} 0x{:x}: {} taken", self.pos, ins.ip(), out);
+                log::trace!("{} 0x{:x}: {} taken", self.pos, addr, out);
             } else {
                 log::trace!(
                     "{}{} 0x{:x}: {} taken {}",
                     color,
                     self.pos,
-                    ins.ip(),
+                    addr,
                     out,
                     self.colors.nc
                 );
@@ -168,21 +184,21 @@ impl Emu {
         }
     }
 
-    pub fn show_instruction_not_taken(&mut self, color: &str, ins: &Instruction) {
+    pub fn show_instruction_not_taken(&mut self, color: &str, ins: &DecodedInstruction) {
         if self.cfg.verbose < 2 {
             return;
         }
-        let mut out: String = String::new();
-        self.formatter.format(ins, &mut out);
+        let out = self.format_instruction(ins);
+        let addr = if ins.is_x86() { ins.address() } else { self.pc() };
         if self.cfg.verbose >= 2 {
             if self.cfg.nocolors {
-                log::trace!("{} 0x{:x}: {} not taken", self.pos, ins.ip(), out);
+                log::trace!("{} 0x{:x}: {} not taken", self.pos, addr, out);
             } else {
                 log::trace!(
                     "{}{} 0x{:x}: {} not taken {}",
                     color,
                     self.pos,
-                    ins.ip(),
+                    addr,
                     out,
                     self.colors.nc
                 );
