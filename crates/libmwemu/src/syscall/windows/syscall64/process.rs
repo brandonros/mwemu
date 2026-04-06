@@ -467,3 +467,60 @@ pub fn nt_raise_exception(emu: &mut Emu) {
         emu.regs_mut().rax = STATUS_ACCESS_VIOLATION;
     }
 }
+
+/// `NtQuerySecurityAttributesToken` — syscall 0x167.
+/// x64: RCX=`TokenHandle`, RDX=`Attributes` (PUNICODE_STRING array, may be NULL),
+///      R8=`NumberOfAttributes`, R9=`Buffer` (PVOID),
+///      `[rsp+0x28]`=`Length` (ULONG), `[rsp+0x30]`=`ReturnLength` (PULONG).
+///
+/// Returns an empty TOKEN_SECURITY_ATTRIBUTES_INFORMATION (Version=1, AttributeCount=0).
+/// Called by ntdll during LdrInitializeThunk to probe token security attributes.
+pub fn nt_query_security_attributes_token(emu: &mut Emu) {
+    let token_handle = emu.regs().rcx;
+    let _attributes = emu.regs().rdx;
+    let num_attrs = emu.regs().r8;
+    let buffer = emu.regs().r9;
+    let rsp = emu.regs().rsp;
+    let length = emu.maps.read_dword(rsp + 0x28).unwrap_or(0) as u64;
+    let return_length_ptr = emu.maps.read_qword(rsp + 0x30).unwrap_or(0);
+
+    log_orange!(
+        emu,
+        "syscall 0x{:x}: NtQuerySecurityAttributesToken h: 0x{:x} num_attrs: {} buf: 0x{:x} len: {}",
+        WIN64_NTQUERYSECURITYATTRIBUTESTOKEN,
+        token_handle,
+        num_attrs,
+        buffer,
+        length
+    );
+
+    // TOKEN_SECURITY_ATTRIBUTES_INFORMATION (x64):
+    //   USHORT Version         = 1  (offset 0)
+    //   USHORT Reserved        = 0  (offset 2)
+    //   ULONG  AttributeCount  = 0  (offset 4)
+    //   PVOID  pAttributeV1    = 0  (offset 8)
+    // Total: 16 bytes
+    const STRUCT_SIZE: u64 = 16;
+
+    if return_length_ptr != 0 && emu.maps.is_mapped(return_length_ptr) {
+        let _ = emu.maps.write_dword(return_length_ptr, STRUCT_SIZE as u32);
+    }
+
+    if buffer == 0 || length < STRUCT_SIZE {
+        emu.regs_mut().rax = STATUS_BUFFER_TOO_SMALL;
+        return;
+    }
+
+    if !emu.maps.is_mapped(buffer) {
+        emu.regs_mut().rax = STATUS_ACCESS_VIOLATION;
+        return;
+    }
+
+    // Version = 1, Reserved = 0, AttributeCount = 0, pAttributeV1 = NULL
+    let _ = emu.maps.write_word(buffer, 1);          // Version
+    let _ = emu.maps.write_word(buffer + 2, 0);      // Reserved
+    let _ = emu.maps.write_dword(buffer + 4, 0);     // AttributeCount
+    let _ = emu.maps.write_qword(buffer + 8, 0);     // pAttributeV1
+
+    emu.regs_mut().rax = STATUS_SUCCESS;
+}

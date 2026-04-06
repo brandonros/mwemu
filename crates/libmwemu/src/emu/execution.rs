@@ -194,7 +194,7 @@ impl Emu {
         if self.cfg.arch.is_aarch64() {
             return self.step_aarch64();
         }
-        if !self.linux && self.cfg.is_x64() && self.cfg.ssdt_use_ldr_initialize_thunk {
+        if !self.linux && self.cfg.is_x64() && self.cfg.emulate_winapi {
             peb64::ensure_peb_system_dependent_07(self);
         }
 
@@ -555,7 +555,7 @@ impl Emu {
         if self.cfg.arch.is_aarch64() {
             return self.run_aarch64(end_addr);
         }
-        if !self.linux && self.cfg.is_x64() && self.cfg.ssdt_use_ldr_initialize_thunk && self.maps.get_map_by_name("peb").is_some() {
+        if !self.linux && self.cfg.is_x64() && self.cfg.emulate_winapi && self.maps.get_map_by_name("peb").is_some() {
             peb64::ensure_peb_system_dependent_07(self);
         }
         let instruction_cache = InstructionCache::new();
@@ -724,6 +724,19 @@ impl Emu {
                         self.cfg.verbose = 3;
                         self.cfg.trace_mem = true;
                         self.cfg.trace_regs = true;
+                    }
+                }
+
+                if self.cfg.verbose_start != 0 {
+                    let in_range = self.pos >= self.cfg.verbose_start
+                        && (self.cfg.verbose_end == 0 || self.pos <= self.cfg.verbose_end);
+                    if in_range {
+                        if self.cfg.verbose_range_saved.is_none() {
+                            self.cfg.verbose_range_saved = Some(self.cfg.verbose);
+                        }
+                        self.cfg.verbose = 3;
+                    } else if let Some(orig) = self.cfg.verbose_range_saved.take() {
+                        self.cfg.verbose = orig;
                     }
                 }
 

@@ -88,8 +88,9 @@ fn main() {
         .author("@sha0coder")
         .arg(clap_arg!("filename", "f", "filename", "set the shellcode binary file.", "FILE"))
         .arg(clap_arg!("dump", "d", "dump", "load from dump.", "FILE"))
-        .arg(clap_arg!("verbose", "v", "verbose", "-vv for view the assembly, -v only messages, without verbose only see the api calls and goes faster", multiple: true))
+        .arg(clap_arg!("verbose", "v", "verbose", "-v syscalls+api calls, -vv assembly, -vvv reps; default shows only syscalls", multiple: true))
         .arg(clap_arg!("verbose_at", "V", "verbose_at", "start displaying assembly at specific position (is like -vv enabled in specific moment)", "NUMBER"))
+        .arg(clap_arg!("verbose_range", "X", "verbose_range", "enable verbose only between positions a and b: -X a,b or from a onwards: -X a,", "RANGE"))
         .arg(clap_arg!("64bits", "6", "64bits", "enable 64bits architecture emulation"))
         .arg(clap_arg!("aarch64", "", "aarch64", "enable AArch64/ARM64 architecture emulation"))
         .arg(clap_arg!("trace_memory", "m", "trace_memory", "trace all the memory accesses read and write."))
@@ -143,7 +144,6 @@ fn main() {
         .arg(clap_arg!("multithread", "", "multithread", "enable multithread emulation"))
         .arg(clap_arg!("is_shellcode", "", "is_shellcode", "Force the binary to be shellcode"))
         .arg(clap_arg!("ssdt", "", "ssdt", "emulate winapi, use ssdt syscall implementation instead"))
-        .arg(clap_arg!("init", "", "init", "ssdt: minimal init + call ntdll!LdrInitializeThunk to bootstrap loader"))
         .arg(clap_arg!("gdb", "g", "gdb", "enable GDB remote debugging server"))
         .arg(clap_arg!("gdb_port", "P", "gdb-port", "set GDB server port (default: 9001)", "PORT"))
         .arg(clap_arg!("gdb_wait", "W", "gdb-wait", "wait for GDB connection before starting"))
@@ -236,10 +236,6 @@ fn main() {
         }
         emu.cfg.emulate_winapi = true;
     }
-    if matches.is_present("init") {
-        emu.cfg.ssdt_use_ldr_initialize_thunk = true;
-    }
-
     // verbose_at
     if matches.is_present("verbose_at") {
         emu.cfg.verbose_at = Some(
@@ -249,6 +245,24 @@ fn main() {
                 .parse::<u64>()
                 .expect("select a valid number where to enable verbosity"),
         );
+    }
+
+    // verbose_range
+    if matches.is_present("verbose_range") {
+        let range_str = matches
+            .value_of("verbose_range")
+            .expect("select the range like 123,456 or 123,");
+        let parts: Vec<&str> = range_str.splitn(2, ',').collect();
+        emu.cfg.verbose_start = parts[0]
+            .trim()
+            .parse::<u64>()
+            .expect("verbose_range: invalid start position");
+        if parts.len() == 2 && !parts[1].trim().is_empty() {
+            emu.cfg.verbose_end = parts[1]
+                .trim()
+                .parse::<u64>()
+                .expect("verbose_range: invalid end position");
+        }
     }
 
     // console

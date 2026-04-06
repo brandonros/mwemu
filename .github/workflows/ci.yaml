@@ -61,18 +61,18 @@ jobs:
           cargo test --package libmwemu --verbose
           cargo test --release --package libmwemu --verbose
 
-      - name: Install cargo-tarpaulin
-        if: runner.os == 'Linux'
-        run: cargo install cargo-tarpaulin
+   #   - name: Install cargo-tarpaulin
+   #     if: runner.os == 'Linux'
+   #     run: cargo install cargo-tarpaulin
 
-      - name: Run coverage
-        if: runner.os == 'Linux'
-        run: |
-          cargo tarpaulin --no-default-features --out Xml --timeout 200
+   #   - name: Run coverage
+   #     if: runner.os == 'Linux'
+   #     run: |
+   #       cargo tarpaulin --no-default-features --out Xml --timeout 200
 
-      - name: Upload coverage reports to Codecov
-        if: runner.os == 'Linux'
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          slug: sha0coder/mwemu
+   #   - name: Upload coverage reports to Codecov
+   #     if: runner.os == 'Linux'
+   #     uses: codecov/codecov-action@v5
+   #     with:
+   #       token: ${{ secrets.CODECOV_TOKEN }}
+   #       slug: sha0coder/mwemu

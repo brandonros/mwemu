@@ -43,7 +43,7 @@ fn align_up_page(size: u64) -> u64 {
 /// Prime a self-linked sentinel at that offset for large private regions (observed with
 /// `maps64/ntdll.dll` during `LdrInitializeThunk` under `--ssdt --init`).
 fn patch_ldr_heap_list_sentinel(emu: &mut Emu, base: u64, size: u64) {
-    if !emu.cfg.ssdt_use_ldr_initialize_thunk {
+    if !emu.cfg.emulate_winapi {
         return;
     }
     const OFF: u64 = 0xb000;
@@ -62,7 +62,7 @@ fn patch_ldr_heap_list_sentinel(emu: &mut Emu, base: u64, size: u64) {
 /// emulated heap backing (`ALLOC64_*`).  ntdll `memset`s after `NtAllocateVirtualMemory*` and
 /// clears Flink/Blink; self-link when both are still zero.
 pub fn ntdll_heap_list_walk_fixup(emu: &mut Emu, ins: &Instruction, rip: u64) {
-    if !emu.cfg.ssdt_use_ldr_initialize_thunk || !emu.cfg.emulate_winapi {
+    if !emu.cfg.emulate_winapi || !emu.cfg.emulate_winapi {
         return;
     }
     // Code lives in per-section maps (`ntdll.text`, …), not only the small `ntdll.pe` header map.
@@ -521,22 +521,23 @@ pub fn nt_free_virtual_memory(emu: &mut Emu) {
         if !released {
             // ntdll may call MEM_RELEASE on a range already torn down by a prior successful free or
             // on an address our single-map model treats as unmapped; real kernel often accepts the
-            // no-op. Match `trace_LdrInitializeThunk.txt` forward progress under `--ssdt --init`.
-            if emu.cfg.ssdt_use_ldr_initialize_thunk
+            // no-op.
+            if emu.cfg.emulate_winapi
                 && base >= ALLOC64_MIN
                 && base < ALLOC64_MAX
             {
-                let _ = emu.maps.write_qword(base_ptr, 0);
-                if region_sz_ptr != 0 {
-                    let _ = emu.maps.write_qword(region_sz_ptr, 0);
-                }
+                // Windows writes back the page-aligned freed base (not zero) so callers can
+                // inspect what was released. Do not zero *BaseAddress.
                 emu.regs_mut().rax = STATUS_SUCCESS;
                 return;
             }
             emu.regs_mut().rax = STATUS_INVALID_ADDRESS;
             return;
         }
-        let _ = emu.maps.write_qword(base_ptr, 0);
+        // Windows writes back the page-aligned freed base address and zeroes RegionSize.
+        // Do NOT write 0 to *BaseAddress — ntdll reads it after MEM_RELEASE to derive the
+        // effective heap start (freed_base + trim_amount). Leave *BaseAddress unchanged so the
+        // caller still sees the address that was freed.
         if region_sz_ptr != 0 {
             let _ = emu.maps.write_qword(region_sz_ptr, 0);
         }
@@ -753,4 +754,33 @@ pub fn nt_map_view_of_section(emu: &mut Emu) {
         WIN64_NTMAPVIEWOFSECTION
     );
     emu.regs_mut().rax = STATUS_SUCCESS;
+}
+
+/// `NtAllocateUserPhysicalPagesEx` — syscall 0x76.
+/// x64: RCX=`ProcessHandle`, RDX=`NumberOfPages` (PULONG_PTR in/out),
+///      R8=`UserPfnArray` (PULONG_PTR), R9=`ExtendedParameters`,
+///      `[rsp+0x28]`=`ExtendedParameterCount` (ULONG).
+///
+/// AWE physical-page allocation requires SE_LOCK_MEMORY_PRIVILEGE.
+/// Return STATUS_PRIVILEGE_NOT_HELD so ntdll falls back to non-AWE heap.
+pub fn nt_allocate_user_physical_pages_ex(emu: &mut Emu) {
+    let process_handle = emu.regs().rcx;
+    let num_pages_ptr = emu.regs().rdx;
+    let _pfn_array = emu.regs().r8;
+    let num_pages = emu.maps.read_qword(num_pages_ptr).unwrap_or(0);
+
+    log_orange!(
+        emu,
+        "syscall 0x{:x}: NtAllocateUserPhysicalPagesEx h: 0x{:x} num_pages: {}",
+        WIN64_NTALLOCATEUSERPHYSICALPAGESEX,
+        process_handle,
+        num_pages
+    );
+
+    // Write back 0 pages allocated before returning the error.
+    if num_pages_ptr != 0 && emu.maps.is_mapped(num_pages_ptr) {
+        let _ = emu.maps.write_qword(num_pages_ptr, 0);
+    }
+
+    emu.regs_mut().rax = STATUS_PRIVILEGE_NOT_HELD;
 }

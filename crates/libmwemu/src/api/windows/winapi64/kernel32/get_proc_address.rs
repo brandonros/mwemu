@@ -46,8 +46,7 @@ pub fn GetProcAddress(emu: &mut emu::Emu) {
             }
         }
 
-        flink.next(emu);
-        if flink.get_ptr() == first_flink {
+        if !flink.next(emu) || flink.get_ptr() == first_flink {
             break;
         }
     }

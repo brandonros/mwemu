@@ -76,7 +76,7 @@ pub struct PEB64 {
 
 impl PEB64 {
     pub fn size() -> usize {
-        800 // std::mem::size_of_val
+        0x1000 // Windows 10 x64 PEB extends to ~0x7B8; use a full page
     }
 
     pub fn new(image_base_addr: u64, ldr: u64, process_parameters: u64) -> PEB64 {

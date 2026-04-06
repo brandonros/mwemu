@@ -251,13 +251,13 @@ impl Emu {
             let is_write = charistic & 0x80000000 != 0x0;
             let permission = Permission::from_flags(is_read, is_write, is_exec);
 
-            let sz: u64 = if sect.virtual_size > sect.size_of_raw_data {
+            let map_sz: u64 = if sect.virtual_size > 0 {
                 sect.virtual_size as u64
             } else {
                 sect.size_of_raw_data as u64
             };
 
-            if sz == 0 {
+            if map_sz == 0 {
                 log::trace!("size of section {} is 0", sect.get_name());
                 continue;
             }
@@ -276,7 +276,7 @@ impl Emu {
             let map = match self.maps.create_map(
                 &format!("{}{}", map_name, sect_name),
                 base + sect.virtual_address as u64,
-                align_up!(sz, sec_allign as u64),
+                align_up!(map_sz, sec_allign as u64),
                 permission,
             ) {
                 Ok(m) => m,
@@ -290,18 +290,9 @@ impl Emu {
                 }
             };
 
-            if ptr.len() > sz as usize {
-                panic!(
-                    "overflow {} {} {} {}",
-                    map_name,
-                    sect.get_name(),
-                    ptr.len(),
-                    sz
-                );
-            }
-
-            if !ptr.is_empty() {
-                map.memcpy(ptr, ptr.len());
+            let copy_len = (sect.size_of_raw_data as usize).min(map_sz as usize).min(ptr.len());
+            if copy_len > 0 {
+                map.memcpy(&ptr[..copy_len], copy_len);
             }
         }
 
@@ -401,13 +392,17 @@ impl Emu {
             let is_write = charistic & 0x80000000 != 0x0;
             let permission = Permission::from_flags(is_read, is_write, is_exec);
 
-            let sz: u64 = if sect.virtual_size > sect.size_of_raw_data {
+            // Virtual size determines how much address space the section occupies.
+            // Raw size is the on-disk data size and may exceed virtual size for
+            // packed/overlay sections — using raw size would create an oversized map
+            // that overlaps subsequent sections.
+            let map_sz: u64 = if sect.virtual_size > 0 {
                 sect.virtual_size as u64
             } else {
                 sect.size_of_raw_data as u64
             };
 
-            if sz == 0 {
+            if map_sz == 0 {
                 log::trace!("size of section {} is 0", sect.get_name());
                 continue;
             }
@@ -426,7 +421,7 @@ impl Emu {
             let map = match self.maps.create_map(
                 &format!("{}{}", filename2, sect_name),
                 base + sect.virtual_address as u64,
-                align_up!(sz, sec_allign as u64),
+                align_up!(map_sz, sec_allign as u64),
                 permission,
             ) {
                 Ok(m) => m,
@@ -440,18 +435,11 @@ impl Emu {
                 }
             };
 
-            if ptr.len() > sz as usize {
-                panic!(
-                    "overflow {} {} {} {}",
-                    filename2,
-                    sect.get_name(),
-                    ptr.len(),
-                    sz
-                );
-            }
+            // Copy only as many bytes as fit in the virtual mapping.
+            let copy_len = (sect.size_of_raw_data as usize).min(map_sz as usize).min(ptr.len());
 
-            if !ptr.is_empty() {
-                map.memcpy(ptr, ptr.len());
+            if copy_len > 0 {
+                map.memcpy(&ptr[..copy_len], copy_len);
             }
         }
 
@@ -461,7 +449,7 @@ impl Emu {
         if set_entry || self.cfg.emulate_winapi {
             if !is_maps || self.cfg.emulate_winapi {
                 // In SSDT + LdrInitializeThunk bootstrap mode, skip eager IAT binding for the main image.
-                if !(set_entry && self.cfg.emulate_winapi && self.cfg.ssdt_use_ldr_initialize_thunk) {
+                if !(set_entry && self.cfg.emulate_winapi && self.cfg.emulate_winapi) {
                     pe64.iat_binding(self, base);
                     pe64.delay_load_binding(self, base);
                 }
@@ -470,7 +458,7 @@ impl Emu {
 
         // 5. ldr table entry creation and link
         if set_entry {
-            if !(self.cfg.emulate_winapi && self.cfg.ssdt_use_ldr_initialize_thunk) {
+            if !(self.cfg.emulate_winapi && self.cfg.emulate_winapi) {
                 let _space_addr = peb64::create_ldr_entry(
                     self,
                     base,
@@ -482,7 +470,7 @@ impl Emu {
                 let exe_name = self.cfg.exe_name.clone();
                 peb64::update_ldr_entry_base(&exe_name, base, self);
             }
-            if self.cfg.emulate_winapi && self.cfg.ssdt_use_ldr_initialize_thunk {
+            if self.cfg.emulate_winapi && self.cfg.emulate_winapi {
                 peb64::update_peb_image_base(self, base);
             }
         }
@@ -815,7 +803,7 @@ impl Emu {
                 }
             }
             // Optional SSDT loader bootstrap: call ntdll!LdrInitializeThunk to perform loader init.
-            if self.cfg.emulate_winapi && self.cfg.ssdt_use_ldr_initialize_thunk {
+            if self.cfg.emulate_winapi && self.cfg.emulate_winapi {
                 let ldr_init = winapi64::kernel32::resolve_api_name_in_module(
                     self,
                     "ntdll.dll",

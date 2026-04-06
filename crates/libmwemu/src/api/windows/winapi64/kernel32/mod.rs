@@ -668,9 +668,7 @@ pub fn dump_module_iat(emu: &mut emu::Emu, module: &str) {
                 );
             }
         }
-        flink.next(emu);
-
-        if flink.get_ptr() == first_ptr {
+        if !flink.next(emu) || flink.get_ptr() == first_ptr {
             break;
         }
     }
@@ -695,9 +693,7 @@ pub fn resolve_api_addr_to_name(emu: &mut emu::Emu, addr: u64) -> String {
                 }
             }
         }
-        flink.next(emu);
-
-        if flink.get_ptr() == first_ptr {
+        if !flink.next(emu) || flink.get_ptr() == first_ptr {
             break;
         }
     }
@@ -749,9 +745,7 @@ fn resolve_in_module_exports_depth(
                 return ordinal.func_va;
             }
         }
-        flink.next(emu);
-
-        if flink.get_ptr() == first_ptr {
+        if !flink.next(emu) || flink.get_ptr() == first_ptr {
             break;
         }
     }
@@ -854,11 +848,9 @@ pub fn resolve_api_name(emu: &mut emu::Emu, name: &str) -> u64 {
                 }
             }
         }
-        flink.next(emu);
-
         //log::trace!("flink: 0x{:x} first_ptr: 0x{:x}", flink.get_ptr(), first_ptr);
 
-        if flink.get_ptr() == first_ptr {
+        if !flink.next(emu) || flink.get_ptr() == first_ptr {
             break;
         }
     }
@@ -888,9 +880,7 @@ pub fn search_api_name(emu: &mut emu::Emu, name: &str) -> (u64, String, String) 
                 }
             }
         }
-        flink.next(emu);
-
-        if flink.get_ptr() == first_ptr {
+        if !flink.next(emu) || flink.get_ptr() == first_ptr {
             break;
         }
     }
@@ -927,9 +917,7 @@ pub fn guess_api_name(emu: &mut emu::Emu, addr: u64) -> String {
             }
         }
 
-        flink.next(emu);
-
-        if flink.get_ptr() == first_ptr {
+        if !flink.next(emu) || flink.get_ptr() == first_ptr {
             break;
         }
     }

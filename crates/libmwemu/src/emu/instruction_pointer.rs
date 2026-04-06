@@ -87,7 +87,7 @@ impl Emu {
             if self.cfg.emulate_winapi {
                 let api_name = winapi64::kernel32::guess_api_name(self, addr);
                 if !api_name.is_empty() {
-                    log_red!(self, "emulating {}", api_name);
+                    if self.cfg.verbose >= 1 { log_red!(self, "emulating {}", api_name); }
                 }
                 self.regs_mut().rip = addr;
                 return true;
@@ -199,7 +199,7 @@ impl Emu {
                     // winapi emulation case
                     if self.cfg.emulate_winapi {
                         let api_name = winapi32::kernel32::guess_api_name(self, addr as u32);
-                        log_red!(self, "emulating {}", api_name);
+                        if self.cfg.verbose >= 1 { log_red!(self, "emulating {}", api_name); }
                         self.regs_mut().set_eip(addr);
                         return true;
                     }
@@ -244,7 +244,7 @@ impl Emu {
             if self.cfg.emulate_winapi {
                 let api_name = winapi32::kernel32::guess_api_name(self, addr as u32);
                 if !api_name.is_empty() {
-                    log_red!(self, "emulating {}", api_name);
+                    if self.cfg.verbose >= 1 { log_red!(self, "emulating {}", api_name); }
                 }
                 self.regs_mut().set_eip(addr);
                 return true;

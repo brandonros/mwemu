@@ -328,6 +328,7 @@ pub fn get_module_base(libname: &str, emu: &mut emu::Emu) -> Option<u64> {
     let mut flink = Flink::new(emu);
     flink.load(emu);
     let first_flink = flink.get_ptr();
+    let mut iters = 0usize;
     loop {
         //log::trace!("{} == {}", libname2, flink.mod_name);
 
@@ -337,8 +338,9 @@ pub fn get_module_base(libname: &str, emu: &mut emu::Emu) -> Option<u64> {
             return Some(flink.mod_base);
         }
         flink.next(emu);
+        iters += 1;
 
-        if flink.get_ptr() == first_flink {
+        if flink.get_ptr() == first_flink || flink.get_ptr() == 0 || iters > 4096 {
             break;
         }
     }
@@ -372,7 +374,7 @@ pub fn show_linked_modules(emu: &mut emu::Emu) {
             pe2
         );
         flink.next(emu);
-        if flink.get_ptr() == first_flink {
+        if flink.get_ptr() == first_flink || flink.get_ptr() == 0 {
             return;
         }
     }
@@ -418,16 +420,20 @@ pub fn dynamic_link_module(base: u64, pe_off: u32, libname: &str, emu: &mut emu:
      * LoadLibary* family triggers this.
      */
 
-    let mut last_flink: u64;
     let mut flink = Flink::new(emu);
     flink.load(emu);
     let first_flink = flink.get_ptr();
 
-    // get last element
+    // get last element (walk the circular list to find the node whose Flink == first_flink)
+    let mut iters = 0usize;
     loop {
-        //last_flink = flink.get_ptr();  commented on 64bits
+        let next_addr = flink.get_next_flink(emu);
+        if next_addr == 0 || next_addr == first_flink {
+            break;
+        }
         flink.next(emu);
-        if flink.get_next_flink(emu) == first_flink {
+        iters += 1;
+        if flink.get_next_flink(emu) == first_flink || iters > 4096 {
             break;
         }
     }

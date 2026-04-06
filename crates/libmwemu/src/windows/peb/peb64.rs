@@ -417,7 +417,7 @@ impl Flink {
         let flink = emu
             .maps
             .read_qword(ldr + 0x10)
-            .expect("peb64::new() error reading flink");
+            .unwrap_or(0);
 
         Flink {
             flink_addr: flink,
@@ -456,7 +456,7 @@ impl Flink {
         self.mod_base = emu
             .maps
             .read_qword(self.flink_addr + 0x30)
-            .expect("error reading mod_addr");
+            .unwrap_or(0);
         if self.mod_base == 0 {
             // During early loader bootstrap (e.g. SSDT + `LdrInitializeThunk`), the list can contain
             // placeholder entries with base==0. Treat as "no module" and let callers skip it.
@@ -475,7 +475,7 @@ impl Flink {
         let mod_name_ptr = emu
             .maps
             .read_qword(self.flink_addr + 0x60)
-            .expect("error reading mod_name_ptr");
+            .unwrap_or(0);
         self.mod_name = emu.maps.read_wide_string(mod_name_ptr);
     }
 
@@ -536,11 +536,11 @@ impl Flink {
         self.num_of_funcs = emu
             .maps
             .read_dword(self.export_table + 0x18)
-            .expect("error reading the num_of_funcs") as u64;
+            .unwrap_or(0) as u64;
         self.func_name_tbl_rva = emu
             .maps
             .read_dword(self.export_table + 0x20)
-            .expect(" error reading func_name_tbl_rva") as u64;
+            .unwrap_or(0) as u64;
         self.func_name_tbl = self.func_name_tbl_rva + self.mod_base;
     }
 
@@ -559,26 +559,26 @@ impl Flink {
         let func_name_rva = emu
             .maps
             .read_dword(self.func_name_tbl + function_id * 4)
-            .expect("error reading func_rva") as u64;
+            .unwrap_or(0) as u64;
         ordinal.func_name = emu.maps.read_string(func_name_rva + self.mod_base);
         ordinal.ordinal_tbl_rva = emu
             .maps
             .read_dword(self.export_table + 0x24)
-            .expect("error reading ordinal_tbl_rva") as u64;
+            .unwrap_or(0) as u64;
         ordinal.ordinal_tbl = ordinal.ordinal_tbl_rva + self.mod_base;
         ordinal.ordinal = emu
             .maps
             .read_word(ordinal.ordinal_tbl + 2 * function_id)
-            .expect("error reading ordinal") as u64;
+            .unwrap_or(0) as u64;
         ordinal.func_addr_tbl_rva = emu
             .maps
             .read_dword(self.export_table + 0x1c)
-            .expect("error reading func_addr_tbl_rva") as u64;
+            .unwrap_or(0) as u64;
         ordinal.func_addr_tbl = ordinal.func_addr_tbl_rva + self.mod_base;
         ordinal.func_rva = emu
             .maps
             .read_dword(ordinal.func_addr_tbl + 4 * ordinal.ordinal)
-            .expect("error reading func_rva") as u64;
+            .unwrap_or(0) as u64;
 
         // Forwarded export: RVA falls inside the export directory → ASCII "TARGETDLL.SymbolName".
         if self.export_dir_size > 0
@@ -617,19 +617,27 @@ impl Flink {
         return emu
             .maps
             .read_qword(self.flink_addr)
-            .expect("error reading next flink");
+            .unwrap_or(0);
     }
 
     pub fn get_prev_flink(&self, emu: &mut emu::Emu) -> u64 {
         return emu
             .maps
             .read_qword(self.flink_addr + 8)
-            .expect("error reading prev flink");
+            .unwrap_or(0);
     }
 
-    pub fn next(&mut self, emu: &mut emu::Emu) {
-        self.flink_addr = self.get_next_flink(emu);
+    /// Advance to the next LDR entry. Returns `false` if the chain is broken
+    /// (null pointer or self-loop) so callers can detect termination.
+    pub fn next(&mut self, emu: &mut emu::Emu) -> bool {
+        let next = self.get_next_flink(emu);
+        if next == 0 || next == self.flink_addr {
+            // Broken chain or self-loop — refuse to advance.
+            return false;
+        }
+        self.flink_addr = next;
         self.load(emu);
+        true
     }
 }
 
@@ -643,6 +651,7 @@ pub fn get_module_base(libname: &str, emu: &mut emu::Emu) -> Option<u64> {
     flink.load(emu);
 
     let first_flink = flink.get_ptr();
+    let mut iters = 0usize;
     loop {
         //log::trace!("{} == {}", libname2, flink.mod_name);
 
@@ -651,9 +660,12 @@ pub fn get_module_base(libname: &str, emu: &mut emu::Emu) -> Option<u64> {
         {
             return Some(flink.mod_base);
         }
-        flink.next(emu);
+        if !flink.next(emu) {
+            break;
+        }
+        iters += 1;
 
-        if flink.get_ptr() == first_flink {
+        if flink.get_ptr() == first_flink || iters > 4096 {
             break;
         }
     }
@@ -686,8 +698,7 @@ pub fn show_linked_modules(emu: &mut emu::Emu) {
             pe1,
             pe2
         );
-        flink.next(emu);
-        if flink.get_ptr() == first_flink {
+        if !flink.next(emu) || flink.get_ptr() == first_flink {
             return;
         }
     }
@@ -696,10 +707,16 @@ pub fn show_linked_modules(emu: &mut emu::Emu) {
 pub fn update_ldr_entry_base(libname: &str, base: u64, emu: &mut emu::Emu) {
     let mut flink = Flink::new(emu);
     flink.load(emu);
-    while flink.mod_name.to_lowercase() != libname.to_lowercase() {
-        flink.next(emu);
+    let first = flink.get_ptr();
+    loop {
+        if flink.mod_name.to_lowercase() == libname.to_lowercase() {
+            flink.set_mod_base(base, emu);
+            return;
+        }
+        if !flink.next(emu) || flink.get_ptr() == first {
+            break;
+        }
     }
-    flink.set_mod_base(base, emu);
 }
 
 pub fn dynamic_unlink_module(libname: &str, emu: &mut emu::Emu) {
@@ -707,10 +724,16 @@ pub fn dynamic_unlink_module(libname: &str, emu: &mut emu::Emu) {
 
     let mut flink = Flink::new(emu);
     flink.load(emu);
-    while flink.mod_name != libname {
+    let first = flink.get_ptr();
+    loop {
+        if flink.mod_name == libname {
+            break;
+        }
         log::trace!("{}", flink.mod_name);
         prev_flink = flink.get_ptr();
-        flink.next(emu);
+        if !flink.next(emu) || flink.get_ptr() == first {
+            return; // not found
+        }
     }
 
     flink.next(emu);
@@ -733,16 +756,23 @@ pub fn dynamic_link_module(base: u64, pe_off: u32, libname: &str, emu: &mut emu:
      * LoadLibary* family triggers this.
      */
     //log::trace!("************ dynamic_link_module {}", libname);
-    let mut last_flink: u64;
     let mut flink = Flink::new(emu);
     flink.load(emu);
     let first_flink = flink.get_ptr();
 
-    // get last element
+    // get last element (walk the circular list to find the node whose Flink == first_flink)
+    let mut iters = 0usize;
     loop {
-        //last_flink = flink.get_ptr();
-        flink.next(emu);
-        if flink.get_next_flink(emu) == first_flink {
+        let next_addr = flink.get_next_flink(emu);
+        // Already pointing back to head (or broken chain caught by next()): stop here.
+        if next_addr == first_flink {
+            break;
+        }
+        if !flink.next(emu) {
+            break;
+        }
+        iters += 1;
+        if flink.get_next_flink(emu) == first_flink || iters > 4096 {
             break;
         }
     }

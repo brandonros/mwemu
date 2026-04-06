@@ -166,7 +166,7 @@ impl Emu {
     /// This inits the 64bits stack, it's called from init_cpu() and init()
     pub fn init_stack64(&mut self) {
         // Large stack only when booting through `ntdll!LdrInitializeThunk` (needs >2 MB).
-        let stack_size = if self.cfg.emulate_winapi && self.cfg.ssdt_use_ldr_initialize_thunk {
+        let stack_size = if self.cfg.emulate_winapi && self.cfg.emulate_winapi {
             0x400000
         } else {
             0x100000
@@ -174,7 +174,7 @@ impl Emu {
 
         // default if not set via clap args
         if self.cfg.stack_addr == 0 {
-            self.cfg.stack_addr = if self.cfg.emulate_winapi && self.cfg.ssdt_use_ldr_initialize_thunk {
+            self.cfg.stack_addr = if self.cfg.emulate_winapi && self.cfg.emulate_winapi {
                 0x10000
             } else {
                 0x22a000
@@ -580,7 +580,7 @@ impl Emu {
 
         // In SSDT mode we can optionally let `ntdll!LdrInitializeThunk` bootstrap the loader.
         // This path intentionally maps far fewer DLLs up front.
-        if self.cfg.emulate_winapi && self.cfg.ssdt_use_ldr_initialize_thunk {
+        if self.cfg.emulate_winapi && self.cfg.emulate_winapi {
             // Empty PEB + TEB only; `ntdll!LdrInitializeThunk` is expected to initialize loader state.
             peb64::init_peb_teb_empty(self);
             kuser_shared::init_kuser_shared_data(self);

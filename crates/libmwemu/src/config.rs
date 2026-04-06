@@ -42,6 +42,9 @@ pub struct Config {
     pub arguments: String,
     pub enable_threading: bool, // Enable multi-threading support
     pub verbose_at: Option<u64>,
+    pub verbose_start: u64,        // enable verbose when pos >= verbose_start (0 = disabled)
+    pub verbose_end: u64,          // disable verbose when pos > verbose_end (0 = no end)
+    pub verbose_range_saved: Option<u32>, // saved verbose level while inside the range
     pub command: Option<String>,
     pub definitions: HashMap<u64, Definition>,
     pub entropy: bool,
@@ -80,10 +83,6 @@ pub struct Config {
     /// Some samples intentionally execute/scan zero-filled regions.
     pub allow_empty_code_blocks: bool,
 
-    /// If true, use a minimal PEB/TEB bootstrap and call ntdll!LdrInitializeThunk to
-    /// initialize the Windows loader before jumping to the sample entry point.
-    /// Only effective when `emulate_winapi` is also true and the target is PE64.
-    pub ssdt_use_ldr_initialize_thunk: bool,
 }
 
 impl Default for Config {
@@ -131,6 +130,9 @@ impl Config {
             arguments: "".to_string(),
             enable_threading: false, // Default to single-threaded for backward compatibility
             verbose_at: None,
+            verbose_start: 0,
+            verbose_end: 0,
+            verbose_range_saved: None,
             command: None,
             definitions: HashMap::new(),
             entropy: false,
@@ -152,7 +154,6 @@ impl Config {
             heap_alloc_min_size: 0,
             heap_free_soft: false,
             allow_empty_code_blocks: false,
-            ssdt_use_ldr_initialize_thunk: false,
         }
     }
 
