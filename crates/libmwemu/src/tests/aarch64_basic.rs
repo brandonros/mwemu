@@ -138,30 +138,30 @@ fn aarch64_cbz_taken() {
     assert_eq!(emu.regs_aarch64().x[1], 1);
 }
 
-/// AArch64 shellcode creada desde Rust: bucle que suma 1+2+3+4+5 = 15.
+/// AArch64 shellcode defined inline in Rust: loop that computes 1+2+3+4+5 = 15.
 ///
 /// ```asm
-/// mov x0, #0         ; acumulador
-/// mov x1, #5         ; contador
+/// mov x0, #0         ; accumulator
+/// mov x1, #5         ; counter
 /// loop:
 ///   add x0, x0, x1  ; x0 += x1
 ///   sub x1, x1, #1  ; x1--
-///   cbnz x1, #-8    ; si x1 != 0, vuelve al add
+///   cbnz x1, #-8    ; if x1 != 0, jump back to add
 /// ```
 ///
-/// 2 instrucciones de setup + 3×5 iteraciones = 17 pasos en total.
-/// Al final: x0 == 15, x1 == 0.
+/// 2 setup instructions + 3×5 loop iterations = 17 steps total.
+/// Expected on exit: x0 == 15, x1 == 0.
 #[test]
 fn aarch64_shellcode_sum_loop() {
     helpers::setup();
 
-    // Codificaciones little-endian verificadas:
+    // Verified little-endian encodings:
     //   mov x0, #0       -> D2 80 00 00  (0xd2800000)
     //   mov x1, #5       -> D2 80 00 A1  (0xd28000a1)
     //   add x0, x0, x1   -> 8B 01 00 00  (0x8b010000)
     //   sub x1, x1, #1   -> D1 00 04 21  (0xd1000421)
     //   cbnz x1, #-8     -> B5 FF FF C1  (0xb5ffffc1)
-    //                        ^ offset=-8: imm19=-2 → 0x7FFFE, back to add
+    //                        offset=-8: imm19=-2 -> 0x7FFFE, branches back to add
     let code: [u8; 20] = [
         0x00, 0x00, 0x80, 0xd2, // mov x0, #0
         0xa1, 0x00, 0x80, 0xd2, // mov x1, #5
@@ -173,24 +173,24 @@ fn aarch64_shellcode_sum_loop() {
     let mut emu = emu_aarch64();
     emu.load_code_bytes(&code);
 
-    // Ejecutar exactamente 17 pasos: 2 setup + 3 instrucciones × 5 iteraciones
+    // 2 setup + 3 instructions x 5 iterations = 17 steps
     for _ in 0..17 {
         emu.step();
     }
 
     assert_eq!(
         emu.regs_aarch64().x[0], 15,
-        "x0 debe ser 1+2+3+4+5=15, got {}",
+        "x0 should be 1+2+3+4+5=15, got {}",
         emu.regs_aarch64().x[0]
     );
     assert_eq!(
         emu.regs_aarch64().x[1], 0,
-        "x1 (contador) debe ser 0 al terminar"
+        "x1 (counter) should be 0 after loop"
     );
 }
 
-/// Igual que `aarch64_shellcode_sum_loop` pero usando `run_to` en lugar de `step` por paso.
-/// Verifica que el modo AArch64 funciona correctamente con la API de alto nivel.
+/// Same as `aarch64_shellcode_sum_loop` but using `run_to` instead of per-step calls.
+/// Verifies AArch64 works correctly with the high-level execution API.
 #[test]
 fn aarch64_shellcode_sum_loop_run_to() {
     helpers::setup();
@@ -208,7 +208,7 @@ fn aarch64_shellcode_sum_loop_run_to() {
 
     emu.run_to(17).unwrap_or_else(|e| {
         panic!(
-            "run_to(17) falló: {} (pos={} pc=0x{:x})",
+            "run_to(17) failed: {} (pos={} pc=0x{:x})",
             e,
             emu.pos,
             emu.regs_aarch64().pc
@@ -217,13 +217,13 @@ fn aarch64_shellcode_sum_loop_run_to() {
 
     assert!(
         emu.pos >= 17,
-        "se esperaban ≥17 instrucciones, pos={}",
+        "expected >= 17 instructions, got pos={}",
         emu.pos
     );
     assert_eq!(
         emu.regs_aarch64().x[0], 15,
-        "x0 debe ser 15, got {}",
+        "x0 should be 15, got {}",
         emu.regs_aarch64().x[0]
     );
-    assert_eq!(emu.regs_aarch64().x[1], 0, "x1 debe ser 0 al terminar");
+    assert_eq!(emu.regs_aarch64().x[1], 0, "x1 should be 0 after loop");
 }
