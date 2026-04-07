@@ -17,8 +17,9 @@ use gdbstub::stub::run_blocking::{BlockingEventLoop, Event, WaitForStopReasonErr
 use gdbstub::stub::{DisconnectReason, GdbStub, SingleThreadStopReason};
 use gdbstub::target::Target;
 
+use crate::arch::Arch;
 use crate::emu::Emu;
-use target::{MwemuTarget32, MwemuTarget64};
+use target::{MwemuTarget32, MwemuTarget64, MwemuTargetAarch64};
 
 /// Error type for GDB server operations
 #[derive(Debug)]
@@ -49,13 +50,13 @@ impl From<io::Error> for GdbServerError {
 /// GDB Server for mwemu
 pub struct GdbServer {
     port: u16,
-    is_64bits: bool,
+    arch: Arch,
 }
 
 impl GdbServer {
     /// Create a new GDB server instance
-    pub fn new(port: u16, is_64bits: bool) -> Self {
-        Self { port, is_64bits }
+    pub fn new(port: u16, arch: Arch) -> Self {
+        Self { port, arch }
     }
 
     /// Start the GDB server and wait for a connection
@@ -70,10 +71,10 @@ impl GdbServer {
         // Disable console spawning when in GDB mode
         emu.cfg.console_enabled = false;
 
-        if self.is_64bits {
-            run_64bit(emu, stream)
-        } else {
-            run_32bit(emu, stream)
+        match self.arch {
+            Arch::Aarch64 => run_aarch64(emu, stream),
+            Arch::X86_64 => run_64bit(emu, stream),
+            Arch::X86 => run_32bit(emu, stream),
         }
     }
 }
@@ -89,6 +90,38 @@ fn run_64bit(emu: &mut Emu, stream: TcpStream) -> Result<(), GdbServerError> {
     let gdb = GdbStub::new(conn);
 
     match gdb.run_blocking::<MwemuEventLoop64>(&mut target) {
+        Ok(disconnect_reason) => {
+            match disconnect_reason {
+                DisconnectReason::Disconnect => {
+                    log::info!("GDB client disconnected");
+                }
+                DisconnectReason::TargetExited(code) => {
+                    log::info!("Target exited with code {}", code);
+                }
+                DisconnectReason::TargetTerminated(sig) => {
+                    log::info!("Target terminated with signal {:?}", sig);
+                }
+                DisconnectReason::Kill => {
+                    log::info!("GDB sent kill command");
+                }
+            }
+            Ok(())
+        }
+        Err(e) => Err(GdbServerError::Protocol(format!("GDB error: {:?}", e))),
+    }
+}
+
+fn run_aarch64(emu: &mut Emu, stream: TcpStream) -> Result<(), GdbServerError> {
+    let conn: Box<dyn ConnectionExt<Error = io::Error>> = Box::new(GdbConnection::new(stream));
+
+    // SAFETY: We're extending the lifetime to 'static because the gdbstub library requires it.
+    // The emulator reference remains valid for the duration of the run_blocking call.
+    let emu_static: &'static mut Emu = unsafe { std::mem::transmute(emu) };
+    let mut target = MwemuTargetAarch64::new(emu_static);
+
+    let gdb = GdbStub::new(conn);
+
+    match gdb.run_blocking::<MwemuEventLoopAarch64>(&mut target) {
         Ok(disconnect_reason) => {
             match disconnect_reason {
                 DisconnectReason::Disconnect => {
@@ -301,6 +334,97 @@ impl BlockingEventLoop for MwemuEventLoop64 {
             // Check for breakpoint after step
             let rip = target.emu.regs().rip;
             if target.emu.bp.is_bp(rip) {
+                return Ok(Event::TargetStopped(SingleThreadStopReason::SwBreak(())));
+            }
+        }
+    }
+
+    fn on_interrupt(
+        _target: &mut Self::Target,
+    ) -> Result<Option<Self::StopReason>, <Self::Target as Target>::Error> {
+        Ok(Some(SingleThreadStopReason::Signal(Signal::SIGINT)))
+    }
+}
+
+/// Event loop implementation for AArch64 targets
+struct MwemuEventLoopAarch64;
+
+impl BlockingEventLoop for MwemuEventLoopAarch64 {
+    type Target = MwemuTargetAarch64<'static>;
+    type Connection = Box<dyn ConnectionExt<Error = io::Error>>;
+    type StopReason = SingleThreadStopReason<u64>;
+
+    fn wait_for_stop_reason(
+        target: &mut Self::Target,
+        conn: &mut Self::Connection,
+    ) -> Result<
+        Event<Self::StopReason>,
+        WaitForStopReasonError<
+            <Self::Target as Target>::Error,
+            <Self::Connection as gdbstub::conn::Connection>::Error,
+        >,
+    > {
+        loop {
+            // Check for interrupt from GDB (Ctrl+C)
+            match conn.peek() {
+                Ok(Some(0x03)) => {
+                    let _ = conn.read();
+                    return Ok(Event::TargetStopped(SingleThreadStopReason::Signal(Signal::SIGINT)));
+                }
+                Ok(Some(byte)) => {
+                    return Ok(Event::IncomingData(byte));
+                }
+                Ok(None) => {}
+                Err(e) => return Err(WaitForStopReasonError::Connection(e)),
+            }
+
+            // Check if we hit a breakpoint before executing
+            let pc = target.emu.regs_aarch64().pc;
+            if target.emu.bp.is_bp(pc) && !target.single_step {
+                return Ok(Event::TargetStopped(SingleThreadStopReason::SwBreak(())));
+            }
+
+            // Single step mode - return after one instruction
+            if target.single_step {
+                target.single_step = false;
+                return Ok(Event::TargetStopped(SingleThreadStopReason::DoneStep));
+            }
+
+            // Execute one instruction
+            let result = target.emu.step();
+            if !result {
+                return Ok(Event::TargetStopped(SingleThreadStopReason::Terminated(
+                    Signal::SIGTERM,
+                )));
+            }
+
+            // Check if a library was loaded during this step
+            if target.emu.library_loaded {
+                target.emu.library_loaded = false;
+                return Ok(Event::TargetStopped(SingleThreadStopReason::Library(())));
+            }
+
+            // Check for memory watchpoints
+            for mem_op in &target.emu.memory_operations {
+                if target.emu.bp.is_bp_mem_read(mem_op.address) {
+                    return Ok(Event::TargetStopped(SingleThreadStopReason::Watch {
+                        tid: (),
+                        kind: gdbstub::target::ext::breakpoints::WatchKind::Read,
+                        addr: mem_op.address,
+                    }));
+                }
+                if target.emu.bp.is_bp_mem_write_addr(mem_op.address) {
+                    return Ok(Event::TargetStopped(SingleThreadStopReason::Watch {
+                        tid: (),
+                        kind: gdbstub::target::ext::breakpoints::WatchKind::Write,
+                        addr: mem_op.address,
+                    }));
+                }
+            }
+
+            // Check for breakpoint after step
+            let pc = target.emu.regs_aarch64().pc;
+            if target.emu.bp.is_bp(pc) {
                 return Ok(Event::TargetStopped(SingleThreadStopReason::SwBreak(())));
             }
         }

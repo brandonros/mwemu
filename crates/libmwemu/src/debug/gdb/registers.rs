@@ -3,9 +3,36 @@
 //! This module handles the conversion between mwemu's register representation
 //! and the GDB protocol's register format.
 
+use gdbstub_arch::aarch64::reg::AArch64CoreRegs;
 use gdbstub_arch::x86::reg::{X86CoreRegs, X86SegmentRegs, X87FpuInternalRegs};
 
 use crate::emu::Emu;
+
+/// Read AArch64 registers from mwemu into gdbstub's AArch64CoreRegs format
+pub fn read_regs_aarch64(emu: &Emu) -> AArch64CoreRegs {
+    let regs = emu.regs_aarch64();
+    let mut gdb_regs = AArch64CoreRegs::default();
+    gdb_regs.x = regs.x;
+    gdb_regs.sp = regs.sp;
+    gdb_regs.pc = regs.pc;
+    gdb_regs.cpsr = regs.nzcv.as_u64() as u32;
+    gdb_regs.v = regs.v;
+    gdb_regs.fpcr = regs.fpcr as u32;
+    gdb_regs.fpsr = regs.fpsr as u32;
+    gdb_regs
+}
+
+/// Write AArch64 registers from gdbstub's format back to mwemu
+pub fn write_regs_aarch64(emu: &mut Emu, gdb_regs: &AArch64CoreRegs) {
+    let regs = emu.regs_aarch64_mut();
+    regs.x = gdb_regs.x;
+    regs.sp = gdb_regs.sp;
+    regs.pc = gdb_regs.pc;
+    regs.nzcv.from_u64(gdb_regs.cpsr as u64);
+    regs.v = gdb_regs.v;
+    regs.fpcr = gdb_regs.fpcr as u64;
+    regs.fpsr = gdb_regs.fpsr as u64;
+}
 
 /// Read 64-bit registers from mwemu into gdbstub's X86_64CoreRegs format
 pub fn read_regs_64(emu: &Emu) -> gdbstub_arch::x86::reg::X86_64CoreRegs {

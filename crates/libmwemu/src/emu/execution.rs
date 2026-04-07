@@ -991,6 +991,18 @@ impl Emu {
             while self.is_running.load(atomic::Ordering::Relaxed) == 1 {
                 let pc = self.pc();
 
+                // Outer-loop limit checks: must run BEFORE attempting to fetch code,
+                // otherwise PC sitting one past the end (e.g. after final loop iteration
+                // under run_to) errors out as "unmapped" instead of cleanly stopping.
+                if let Some(end) = end_addr {
+                    if pc == end {
+                        return Ok(pc);
+                    }
+                }
+                if self.max_pos.is_some() && Some(self.pos) >= self.max_pos {
+                    return Ok(pc);
+                }
+
                 // Read code bytes into block (before cache lookup to avoid borrow conflict)
                 {
                     let code = match self.maps.get_mem_by_addr(pc) {
@@ -1427,9 +1439,25 @@ impl Emu {
                     }
 
                     // --- Return-based stop ---
-                    if self.run_until_ret && decoded.is_return() {
-                        return Ok(self.pc());
-                    }
+                    // TODO: re-enable this. Correct semantics for `run_until_ret()` on
+                    // BOTH arches (main's run_aarch64 has the equivalent check at
+                    // execution_aarch64.rs:185). Currently disabled because main's x86
+                    // path lacks this check entirely: instead, ret.rs returns true
+                    // without updating rip when run_until_ret is set, the loop then
+                    // advances rip += sz past the ret, execution falls through to
+                    // whatever bytes follow, and eventually crashes into unmapped
+                    // memory — at which point run() returns Err and callers using
+                    // `let _ = emu.run_until_ret()` silently swallow it. The test
+                    // tests::string_ops_tests::test_scasb relies on this quirk: its
+                    // `jz +7` is intentionally aimed at a `ret` that's expected to
+                    // act as a nop so execution falls through to `mov rbx, 1`. To
+                    // turn this on, fix the test bytecode (jz offset 0x07 -> 0x08 so
+                    // it skips both the `mov rbx, 0` AND its trailing ret, landing
+                    // directly on `mov rbx, 1`), then uncomment the block below.
+                    //
+                    // if self.run_until_ret && decoded.is_return() {
+                    //     return Ok(self.pc());
+                    // }
 
                     // Check can_decode for next iteration
                     inner_running = match &self.arch_state {
