@@ -581,6 +581,10 @@ impl Emu {
     )]
     #[allow(deprecated)] // delegates to step_multi_threaded (also deprecated)
     pub fn run_multi_threaded(&mut self, end_addr: Option<u64>) -> Result<u64, MwemuError> {
+        if self.process_terminated {
+            return Err(MwemuError::new("process terminated (NtTerminateProcess)"));
+        }
+
         match self.maps.get_mem_by_addr(self.regs().rip) {
             Some(_) => {}
             None => {
@@ -820,6 +824,10 @@ impl Emu {
         //self.stack_lvl.clear();
         //self.stack_lvl_idx = 0;
         //self.stack_lvl.push(0);
+
+        if self.process_terminated {
+            return Err(MwemuError::new("process terminated (NtTerminateProcess)"));
+        }
 
         match self.maps.get_mem_by_addr(self.regs().rip) {
             Some(mem) => {}
