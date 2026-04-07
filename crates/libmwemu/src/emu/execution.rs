@@ -988,7 +988,7 @@ impl Emu {
             return Err(MwemuError::new("process terminated (NtTerminateProcess)"));
         }
 
-        match self.maps.get_mem_by_addr(self.regs().pc()) {
+        match self.maps.get_mem_by_addr(self.pc()) {
             Some(_) => {}
             None => {
                 log::trace!("Cannot start emulation, pc pointing to unmapped area");
