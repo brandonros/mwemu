@@ -1,4 +1,3 @@
-use iced_x86::Formatter as _;
 use std::cell::RefCell;
 
 use crate::emu::Emu;
@@ -49,74 +48,84 @@ pub fn log_emu_state(emu: &mut Emu) {
     log::error!("=== EMULATOR STATE ===");
     log::error!("Current position: {}", emu.pos);
 
-    let mut out: String = String::new();
     let color = "\x1b[0;31m";
-    match emu.instruction {
-        Some(ins) => {
-            let ins = ins.clone();
-            emu.formatter.format(&ins, &mut out);
-            log::trace!(
-                "{}{} 0x{:x}: {}{}",
-                color,
-                emu.pos,
-                ins.ip(),
-                out,
-                emu.colors.nc
-            );
-        }
-        None => {}
-    };
+    if let Some(decoded) = emu.last_decoded {
+        let out = emu.format_instruction(&decoded);
+        log::trace!(
+            "{}{} 0x{:x}: {}{}",
+            color,
+            emu.pos,
+            emu.pc(),
+            out,
+            emu.colors.nc
+        );
+    }
 
-    // Log general purpose registers
+    // Log registers
     log::error!("Registers:");
-    log::error!(
-        "  RAX: 0x{:016x}  RBX: 0x{:016x}",
-        emu.regs().rax,
-        emu.regs().rbx
-    );
-    log::error!(
-        "  RCX: 0x{:016x}  RDX: 0x{:016x}",
-        emu.regs().rcx,
-        emu.regs().rdx
-    );
-    log::error!(
-        "  RSI: 0x{:016x}  RDI: 0x{:016x}",
-        emu.regs().rsi,
-        emu.regs().rdi
-    );
-    log::error!(
-        "  RBP: 0x{:016x}  RSP: 0x{:016x}",
-        emu.regs().rbp,
-        emu.regs().rsp
-    );
-    log::error!(
-        "  R8:  0x{:016x}  R9:  0x{:016x}",
-        emu.regs().r8,
-        emu.regs().r9
-    );
-    log::error!(
-        "  R10: 0x{:016x}  R11: 0x{:016x}",
-        emu.regs().r10,
-        emu.regs().r11
-    );
-    log::error!(
-        "  R12: 0x{:016x}  R13: 0x{:016x}",
-        emu.regs().r12,
-        emu.regs().r13
-    );
-    log::error!(
-        "  R14: 0x{:016x}  R15: 0x{:016x}",
-        emu.regs().r14,
-        emu.regs().r15
-    );
-    log::error!("  RIP: 0x{:016x}", emu.regs().rip);
+    if emu.cfg.arch.is_aarch64() {
+        let regs = emu.regs_aarch64();
+        for i in 0..31 {
+            if i % 2 == 0 && i + 1 < 31 {
+                log::error!("  X{:<2}: 0x{:016x}  X{:<2}: 0x{:016x}", i, regs.x[i], i + 1, regs.x[i + 1]);
+            } else if i % 2 == 0 {
+                log::error!("  X{:<2}: 0x{:016x}", i, regs.x[i]);
+            }
+        }
+        log::error!("  SP:  0x{:016x}", regs.sp);
+        log::error!("  PC:  0x{:016x}", regs.pc);
+        log::error!("  NZCV: N={} Z={} C={} V={}", regs.nzcv.n, regs.nzcv.z, regs.nzcv.c, regs.nzcv.v);
+    } else {
+        log::error!(
+            "  RAX: 0x{:016x}  RBX: 0x{:016x}",
+            emu.regs().rax,
+            emu.regs().rbx
+        );
+        log::error!(
+            "  RCX: 0x{:016x}  RDX: 0x{:016x}",
+            emu.regs().rcx,
+            emu.regs().rdx
+        );
+        log::error!(
+            "  RSI: 0x{:016x}  RDI: 0x{:016x}",
+            emu.regs().rsi,
+            emu.regs().rdi
+        );
+        log::error!(
+            "  RBP: 0x{:016x}  RSP: 0x{:016x}",
+            emu.regs().rbp,
+            emu.regs().rsp
+        );
+        log::error!(
+            "  R8:  0x{:016x}  R9:  0x{:016x}",
+            emu.regs().r8,
+            emu.regs().r9
+        );
+        log::error!(
+            "  R10: 0x{:016x}  R11: 0x{:016x}",
+            emu.regs().r10,
+            emu.regs().r11
+        );
+        log::error!(
+            "  R12: 0x{:016x}  R13: 0x{:016x}",
+            emu.regs().r12,
+            emu.regs().r13
+        );
+        log::error!(
+            "  R14: 0x{:016x}  R15: 0x{:016x}",
+            emu.regs().r14,
+            emu.regs().r15
+        );
+        log::error!("  RIP: 0x{:016x}", emu.regs().rip);
 
-    // Log flags
-    log::error!("EFLAGS: 0x{:08x}", emu.flags().dump());
+        // Log flags
+        log::error!("EFLAGS: 0x{:08x}", emu.flags().dump());
+    }
 
     // Log last instruction if available
-    if let Some(ref instruction) = emu.instruction {
-        log::error!("Last instruction: {:?}", instruction.mnemonic());
+    if let Some(decoded) = emu.last_decoded {
+        let out = emu.format_instruction(&decoded);
+        log::error!("Last instruction: {}", out);
         log::error!("Instruction size: {}", emu.last_instruction_size);
     }
 

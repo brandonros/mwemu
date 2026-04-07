@@ -579,7 +579,7 @@ fn main() {
 
         log::info!("Starting GDB remote debugging server...");
 
-        let mut server = libmwemu::gdb::GdbServer::new(port, emu.cfg.arch.is_64bits());
+        let mut server = libmwemu::gdb::GdbServer::new(port, emu.cfg.arch);
         match server.run(&mut emu) {
             Ok(()) => {
                 log::info!("GDB session ended normally");
