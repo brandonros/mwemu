@@ -8,7 +8,7 @@ use crate::*;
 ///   mov x8, #93
 ///   svc #0
 /// Compiled with: zig cc -target aarch64-linux -static -nostdlib -Wl,--strip-all
-const ELF64_AARCH64_ADD: &[u8] = include_bytes!("fixtures/elf64_aarch64_add.bin");
+const ELF64_AARCH64_ADD: &[u8] = include_bytes!("../../fixtures/elf64_aarch64_add.bin");
 
 #[test]
 fn elf64_aarch64_load_and_execute() {

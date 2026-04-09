@@ -5,12 +5,12 @@ use crate::*;
 ///   mov x0, #1; adrp x1, msg@PAGE; add x1, x1, msg@PAGEOFF; mov x2, #14;
 ///   mov x16, #4; svc #0x80; mov x0, #0; mov x16, #1; svc #0x80
 /// Compiled with: cc -arch arm64 -nostdlib -static -e _start -o test hello_raw.s
-const HELLO_RAW: &[u8] = include_bytes!("fixtures/macho64_aarch64_hello_raw.bin");
+const HELLO_RAW: &[u8] = include_bytes!("../../fixtures/macho64_aarch64_hello_raw.bin");
 
 /// Standard hello world using printf and libSystem.B.dylib:
 ///   int main() { printf("Hello, World!\n"); return 0; }
 /// Compiled with: cc -arch arm64 -o test hello.c
-const HELLO_LIBC: &[u8] = include_bytes!("fixtures/macho64_aarch64_hello.bin");
+const HELLO_LIBC: &[u8] = include_bytes!("../../fixtures/macho64_aarch64_hello.bin");
 
 #[test]
 fn macho64_hello_raw_syscall() {
