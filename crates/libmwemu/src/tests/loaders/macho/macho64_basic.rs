@@ -3,7 +3,7 @@ use crate::*;
 
 /// Full Mach-O binary for: int main() { int a=2; int b=2; return a+b; }
 /// Compiled with: cc -arch arm64 -nostdlib -static -e _main -o test main.c
-const MACHO64_ADD: &[u8] = include_bytes!("fixtures/macho64_aarch64_add.bin");
+const MACHO64_ADD: &[u8] = include_bytes!("../../fixtures/macho64_aarch64_add.bin");
 
 #[test]
 fn macho64_aarch64_load_and_execute() {
