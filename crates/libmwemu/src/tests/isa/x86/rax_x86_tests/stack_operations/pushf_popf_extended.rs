@@ -24,14 +24,25 @@ fn test_pushfq_basic() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.run(None).unwrap();
 
     assert_eq!(emu.regs().rsp, 0x0FF8, "RSP decremented by 8");
 
     let mut stack_val = [0u8; 8];
-    stack_val = emu.maps.read_bytes(0x0FF8, stack_val.len()).try_into().unwrap();
+    stack_val = emu
+        .maps
+        .read_bytes(0x0FF8, stack_val.len())
+        .try_into()
+        .unwrap();
     let pushed_flags = u64::from_le_bytes(stack_val);
     assert_ne!(pushed_flags, 0, "Flags should be pushed");
 }
@@ -45,12 +56,23 @@ fn test_pushfq_with_carry_set() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.run(None).unwrap();
 
     let mut stack_val = [0u8; 8];
-    stack_val = emu.maps.read_bytes(0x0FF8, stack_val.len()).try_into().unwrap();
+    stack_val = emu
+        .maps
+        .read_bytes(0x0FF8, stack_val.len())
+        .try_into()
+        .unwrap();
     let pushed_flags = u64::from_le_bytes(stack_val);
     assert_ne!(pushed_flags & 0x01, 0, "CF should be set in pushed flags");
 }
@@ -64,12 +86,23 @@ fn test_pushfq_with_zero_set() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.run(None).unwrap();
 
     let mut stack_val = [0u8; 8];
-    stack_val = emu.maps.read_bytes(0x0FF8, stack_val.len()).try_into().unwrap();
+    stack_val = emu
+        .maps
+        .read_bytes(0x0FF8, stack_val.len())
+        .try_into()
+        .unwrap();
     let pushed_flags = u64::from_le_bytes(stack_val);
     assert_ne!(pushed_flags & 0x40, 0, "ZF should be set in pushed flags");
 }
@@ -84,12 +117,23 @@ fn test_pushfq_with_sign_set() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.run(None).unwrap();
 
     let mut stack_val = [0u8; 8];
-    stack_val = emu.maps.read_bytes(0x0FF8, stack_val.len()).try_into().unwrap();
+    stack_val = emu
+        .maps
+        .read_bytes(0x0FF8, stack_val.len())
+        .try_into()
+        .unwrap();
     let pushed_flags = u64::from_le_bytes(stack_val);
     assert_ne!(pushed_flags & 0x80, 0, "SF should be set in pushed flags");
 }
@@ -105,12 +149,23 @@ fn test_pushfq_multiple_flags() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.run(None).unwrap();
 
     let mut stack_val = [0u8; 8];
-    stack_val = emu.maps.read_bytes(0x0FF8, stack_val.len()).try_into().unwrap();
+    stack_val = emu
+        .maps
+        .read_bytes(0x0FF8, stack_val.len())
+        .try_into()
+        .unwrap();
     let pushed_flags = u64::from_le_bytes(stack_val);
     assert_ne!(pushed_flags & 0x01, 0, "CF should be set");
     assert_ne!(pushed_flags & 0x40, 0, "ZF should be set");
@@ -126,7 +181,14 @@ fn test_pushfq_preserves_registers() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.run(None).unwrap();
 
@@ -145,16 +207,31 @@ fn test_pushfq_multiple_times() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.run(None).unwrap();
 
     assert_eq!(emu.regs().rsp, 0x1000 - 16, "RSP decremented twice");
 
     let mut stack_val = [0u8; 8];
-    stack_val = emu.maps.read_bytes(0x0FF8, stack_val.len()).try_into().unwrap();
+    stack_val = emu
+        .maps
+        .read_bytes(0x0FF8, stack_val.len())
+        .try_into()
+        .unwrap();
     let first_flags = u64::from_le_bytes(stack_val);
-    stack_val = emu.maps.read_bytes(0x0FF0, stack_val.len()).try_into().unwrap();
+    stack_val = emu
+        .maps
+        .read_bytes(0x0FF0, stack_val.len())
+        .try_into()
+        .unwrap();
     let second_flags = u64::from_le_bytes(stack_val);
 
     assert_ne!(first_flags & 0x01, 0, "First PUSHFQ has CF set");
@@ -175,7 +252,14 @@ fn test_popfq_basic() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.run(None).unwrap();
 
@@ -193,7 +277,14 @@ fn test_popfq_restore_carry() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.run(None).unwrap();
 
@@ -212,7 +303,14 @@ fn test_popfq_restore_zero() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.run(None).unwrap();
 
@@ -231,7 +329,14 @@ fn test_popfq_restore_sign() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.run(None).unwrap();
 
@@ -253,7 +358,14 @@ fn test_popfq_restore_all_flags() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.run(None).unwrap();
 
@@ -272,7 +384,14 @@ fn test_popfq_preserves_registers() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.run(None).unwrap();
 
@@ -295,7 +414,14 @@ fn test_pushfq_popfq_roundtrip() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.run(None).unwrap();
 
@@ -316,7 +442,14 @@ fn test_pushfq_popfq_nested() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.run(None).unwrap();
 
@@ -338,7 +471,14 @@ fn test_pushfq_popfq_with_arithmetic() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.run(None).unwrap();
 
@@ -359,11 +499,21 @@ fn test_pushfq_modify_on_stack() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.run(None).unwrap();
 
-    assert!(emu.flags().f_cf, "CF should be set from modified stack value");
+    assert!(
+        emu.flags().f_cf,
+        "CF should be set from modified stack value"
+    );
 }
 
 #[test]
@@ -380,7 +530,14 @@ fn test_multiple_pushfq_popfq() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.run(None).unwrap();
 
@@ -400,7 +557,14 @@ fn test_pushf_16bit() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.run(None).unwrap();
 
@@ -416,7 +580,14 @@ fn test_popf_16bit() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.run(None).unwrap();
 
@@ -435,7 +606,14 @@ fn test_pushfq_at_stack_boundary() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x08-(0x08 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x08 - (0x08 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x08; // Near bottom of memory
     emu.run(None).unwrap();
 
@@ -450,7 +628,14 @@ fn test_popfq_from_prepared_stack() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x3000-(0x3000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x3000 - (0x3000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x3000;
 
     let flags_with_cf = 0x0001u64;
@@ -471,12 +656,23 @@ fn test_pushfq_popfq_preserves_reserved_bits() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.run(None).unwrap();
 
     let mut stack_val = [0u8; 8];
-    stack_val = emu.maps.read_bytes(emu.regs().rsp, stack_val.len()).try_into().unwrap();
+    stack_val = emu
+        .maps
+        .read_bytes(emu.regs().rsp, stack_val.len())
+        .try_into()
+        .unwrap();
     let pushed_flags = u64::from_le_bytes(stack_val);
 
     assert_ne!(pushed_flags & 0x02, 0, "Reserved bit 1 should be set");
@@ -494,12 +690,23 @@ fn test_pushfq_with_overflow() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.run(None).unwrap();
 
     let mut stack_val = [0u8; 8];
-    stack_val = emu.maps.read_bytes(0x0FF8, stack_val.len()).try_into().unwrap();
+    stack_val = emu
+        .maps
+        .read_bytes(0x0FF8, stack_val.len())
+        .try_into()
+        .unwrap();
     let pushed_flags = u64::from_le_bytes(stack_val);
     assert_ne!(pushed_flags & 0x800, 0, "OF should be set in pushed flags");
 }
@@ -517,7 +724,14 @@ fn test_popfq_restore_overflow() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.run(None).unwrap();
 
@@ -533,12 +747,23 @@ fn test_pushfq_with_direction_flag() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.run(None).unwrap();
 
     let mut stack_val = [0u8; 8];
-    stack_val = emu.maps.read_bytes(0x0FF8, stack_val.len()).try_into().unwrap();
+    stack_val = emu
+        .maps
+        .read_bytes(0x0FF8, stack_val.len())
+        .try_into()
+        .unwrap();
     let pushed_flags = u64::from_le_bytes(stack_val);
     assert_ne!(pushed_flags & 0x400, 0, "DF should be set in pushed flags");
 }
@@ -554,7 +779,14 @@ fn test_popfq_restore_direction_flag() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.run(None).unwrap();
 
@@ -582,7 +814,14 @@ fn test_pushfq_popfq_with_all_status_flags() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.run(None).unwrap();
 
@@ -602,16 +841,31 @@ fn test_pushfq_after_comparison() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.run(None).unwrap();
 
     let mut stack_val = [0u8; 8];
-    stack_val = emu.maps.read_bytes(0x0FF8, stack_val.len()).try_into().unwrap();
+    stack_val = emu
+        .maps
+        .read_bytes(0x0FF8, stack_val.len())
+        .try_into()
+        .unwrap();
     let pushed_flags = u64::from_le_bytes(stack_val);
     assert_eq!(pushed_flags & 0x01, 0, "CF should be clear (10 >= 5)");
     assert_eq!(pushed_flags & 0x40, 0, "ZF should be clear (10 != 5)");
-    assert_eq!(pushed_flags & 0x80, 0, "SF should be clear (positive result)");
+    assert_eq!(
+        pushed_flags & 0x80,
+        0,
+        "SF should be clear (positive result)"
+    );
 }
 
 #[test]
@@ -629,11 +883,21 @@ fn test_popfq_after_comparison() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.run(None).unwrap();
 
-    assert!(emu.flags().f_cf, "CF should be restored from first comparison");
+    assert!(
+        emu.flags().f_cf,
+        "CF should be restored from first comparison"
+    );
 }
 
 #[test]
@@ -657,11 +921,21 @@ fn test_pushfq_popfq_in_loop_simulation() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.run(None).unwrap();
 
-    assert!(emu.flags().f_cf, "CF should be preserved through multiple save/restore");
+    assert!(
+        emu.flags().f_cf,
+        "CF should be preserved through multiple save/restore"
+    );
     assert_eq!(emu.regs().rsp, 0x1000, "Stack should be balanced");
 }
 
@@ -675,12 +949,23 @@ fn test_pushfq_with_parity_flag() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.run(None).unwrap();
 
     let mut stack_val = [0u8; 8];
-    stack_val = emu.maps.read_bytes(0x0FF8, stack_val.len()).try_into().unwrap();
+    stack_val = emu
+        .maps
+        .read_bytes(0x0FF8, stack_val.len())
+        .try_into()
+        .unwrap();
     let pushed_flags = u64::from_le_bytes(stack_val);
     assert_ne!(pushed_flags & 0x04, 0, "PF should be set in pushed flags");
 }
@@ -698,7 +983,14 @@ fn test_popfq_restore_parity() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.run(None).unwrap();
 
@@ -715,12 +1007,23 @@ fn test_pushfq_with_auxiliary_carry() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.run(None).unwrap();
 
     let mut stack_val = [0u8; 8];
-    stack_val = emu.maps.read_bytes(0x0FF8, stack_val.len()).try_into().unwrap();
+    stack_val = emu
+        .maps
+        .read_bytes(0x0FF8, stack_val.len())
+        .try_into()
+        .unwrap();
     let pushed_flags = u64::from_le_bytes(stack_val);
     assert_ne!(pushed_flags & 0x10, 0, "AF should be set in pushed flags");
 }
@@ -737,7 +1040,14 @@ fn test_popfq_restore_auxiliary_carry() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.run(None).unwrap();
 

@@ -32,7 +32,7 @@ fn test_and_al_imm8_basic() {
     let mut emu = emu64();
     let code = [
         0x24, 0x0F, // AND AL, 0x0F
-        0xf4,       // HLT
+        0xf4, // HLT
     ];
     emu.regs_mut().rax = 0xAB; // AL = 0xAB (10101011)
     emu.load_code_bytes(&code);
@@ -100,7 +100,11 @@ fn test_and_ax_imm16_basic() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFF, 0x0004, "AX: 0x1234 AND 0x000F = 0x0004");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0x0004,
+        "AX: 0x1234 AND 0x000F = 0x0004"
+    );
 }
 
 #[test]
@@ -165,7 +169,11 @@ fn test_and_rm16_imm16_basic() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rbx & 0xFFFF, 0x0FF0, "BX: 0xFFFF AND 0x0FF0 = 0x0FF0");
+    assert_eq!(
+        emu.regs().rbx & 0xFFFF,
+        0x0FF0,
+        "BX: 0xFFFF AND 0x0FF0 = 0x0FF0"
+    );
 }
 
 #[test]
@@ -212,7 +220,11 @@ fn test_and_rm16_imm8_sign_extended() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rbx & 0xFFFF, 0x1234, "BX: AND with 0xFFFF (no change)");
+    assert_eq!(
+        emu.regs().rbx & 0xFFFF,
+        0x1234,
+        "BX: AND with 0xFFFF (no change)"
+    );
 }
 
 #[test]
@@ -228,7 +240,11 @@ fn test_and_rm32_imm8_sign_extended() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rbx, 0x0000000F, "EBX: AND with sign-extended imm8");
+    assert_eq!(
+        emu.regs().rbx,
+        0x0000000F,
+        "EBX: AND with sign-extended imm8"
+    );
 }
 
 // ============================================================================
@@ -264,7 +280,11 @@ fn test_and_rm16_r16_basic() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFF, 0x00FF, "AX: 0xFFFF AND 0x00FF = 0x00FF");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0x00FF,
+        "AX: 0xFFFF AND 0x00FF = 0x00FF"
+    );
 }
 
 #[test]
@@ -296,7 +316,11 @@ fn test_and_rm64_r64_basic() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x00000000FFFFFFFF, "RAX: mask to low 32 bits");
+    assert_eq!(
+        emu.regs().rax,
+        0x00000000FFFFFFFF,
+        "RAX: mask to low 32 bits"
+    );
 }
 
 // ============================================================================
@@ -316,7 +340,11 @@ fn test_and_r8_rm8_basic() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFF, 0, "AL: 0xAA AND 0x55 = 0 (no common bits)");
+    assert_eq!(
+        emu.regs().rax & 0xFF,
+        0,
+        "AL: 0xAA AND 0x55 = 0 (no common bits)"
+    );
     assert!(emu.flags().f_zf, "ZF should be set (zero result)");
 }
 
@@ -383,7 +411,11 @@ fn test_and_mask_low_nibble() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFF, 0x07, "Extract low nibble: 0xB7 & 0x0F = 0x07");
+    assert_eq!(
+        emu.regs().rax & 0xFF,
+        0x07,
+        "Extract low nibble: 0xB7 & 0x0F = 0x07"
+    );
 }
 
 #[test]
@@ -599,7 +631,8 @@ fn test_and_dword_ptr_mem() {
     let DATA_ADDR = 0x7000;
     let mut emu = emu64();
     let code = [
-        0x81, 0x25, 0xf6, 0x0f, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, // AND DWORD PTR [rip+0x0FF6], 0x000000FF
+        0x81, 0x25, 0xf6, 0x0f, 0x00, 0x00, 0xFF, 0x00, 0x00,
+        0x00, // AND DWORD PTR [rip+0x0FF6], 0x000000FF
         0xf4,
     ];
     emu.load_code_bytes(&code);
@@ -616,7 +649,8 @@ fn test_and_qword_ptr_mem() {
     let DATA_ADDR = 0x7000;
     let mut emu = emu64();
     let code = [
-        0x48, 0x81, 0x25, 0xf5, 0x0f, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, // AND QWORD PTR [rip+0x0FF5], 0x0000FFFF
+        0x48, 0x81, 0x25, 0xf5, 0x0f, 0x00, 0x00, 0xFF, 0xFF, 0x00,
+        0x00, // AND QWORD PTR [rip+0x0FF5], 0x0000FFFF
         0xf4,
     ];
     emu.load_code_bytes(&code);
@@ -670,6 +704,10 @@ fn test_and_align_to_boundary() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x123456789ABCDEF0, "Aligned to 16-byte boundary");
+    assert_eq!(
+        emu.regs().rax,
+        0x123456789ABCDEF0,
+        "Aligned to 16-byte boundary"
+    );
     assert_eq!(emu.regs().rax & 0x0F, 0, "Low 4 bits cleared");
 }

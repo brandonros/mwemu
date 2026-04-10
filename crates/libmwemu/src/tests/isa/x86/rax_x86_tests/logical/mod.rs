@@ -1,10 +1,10 @@
 // Logical instruction tests module
 
 mod and;
-mod or;
-mod xor;
 mod not;
-mod test;
+mod or;
+mod sar;
 mod shl_sal;
 mod shr;
-mod sar;
+mod test;
+mod xor;

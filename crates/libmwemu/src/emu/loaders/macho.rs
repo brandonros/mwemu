@@ -5,11 +5,17 @@ use crate::emu::Emu;
 use crate::loaders::macho::macho64::Macho64;
 
 impl Emu {
-    /// Load a Mach-O 64-bit AArch64 binary.
+    /// Load a 64-bit Mach-O binary.
     pub fn load_macho64(&mut self, filename: &str) {
         let mut macho = Macho64::parse(filename).expect("cannot parse macho64 binary");
         macho.load(&mut self.maps);
-        self.init_macos_aarch64();
+        if self.cfg.arch.is_aarch64() {
+            self.init_macos_aarch64();
+        } else if self.cfg.arch.is_x64() {
+            self.init_macos64();
+        } else {
+            panic!("unsupported Mach-O architecture: {:?}", self.cfg.arch);
+        }
         self.set_pc(macho.entry);
         log::info!("macho64: entry point set to 0x{:x}", macho.entry);
 

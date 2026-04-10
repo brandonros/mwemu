@@ -33,14 +33,18 @@ fn test_aam_basic_decimal() {
     // AAM with base 10 (standard): AL = 35
     let code = [
         0xD4, 0x0A, // AAM (base 10)
-        0xf4,       // HLT
+        0xf4, // HLT
     ];
     emu.regs_mut().rax = 0x0023; // AL = 35 decimal
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
     // AH = 35 / 10 = 3, AL = 35 % 10 = 5
-    assert_eq!((emu.regs().rax >> 8) & 0xFF, 0x03, "AH should be 3 (quotient)");
+    assert_eq!(
+        (emu.regs().rax >> 8) & 0xFF,
+        0x03,
+        "AH should be 3 (quotient)"
+    );
     assert_eq!(emu.regs().rax & 0xFF, 0x05, "AL should be 5 (remainder)");
     assert!(!emu.flags().f_zf, "ZF should be clear");
     assert!(!emu.flags().f_sf, "SF should be clear");
@@ -99,14 +103,26 @@ fn test_aam_all_single_digit_products() {
             let code = [0xD4, 0x0A, 0xf4]; // AAM, HLT
             emu.regs_mut().rax = product as u64;
             emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+            emu.run(None).unwrap();
 
             let expected_ah = product / 10;
             let expected_al = product % 10;
-            assert_eq!((emu.regs().rax >> 8) & 0xFF, expected_ah as u64,
-                "AH wrong for {} * {} = {}", i, j, product);
-            assert_eq!(emu.regs().rax & 0xFF, expected_al as u64,
-                "AL wrong for {} * {} = {}", i, j, product);
+            assert_eq!(
+                (emu.regs().rax >> 8) & 0xFF,
+                expected_ah as u64,
+                "AH wrong for {} * {} = {}",
+                i,
+                j,
+                product
+            );
+            assert_eq!(
+                emu.regs().rax & 0xFF,
+                expected_al as u64,
+                "AL wrong for {} * {} = {}",
+                i,
+                j,
+                product
+            );
         }
     }
 }
@@ -180,7 +196,11 @@ fn test_aam_preserves_high_bits() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax >> 16, 0xDEADBEEF_1234, "High bits should be preserved");
+    assert_eq!(
+        emu.regs().rax >> 16,
+        0xDEADBEEF_1234,
+        "High bits should be preserved"
+    );
 }
 
 #[test]
@@ -234,7 +254,7 @@ fn test_aad_basic_decimal() {
     // AAD with base 10: AH=3, AL=5 (representing 35 in unpacked BCD)
     let code = [
         0xD5, 0x0A, // AAD (base 10)
-        0xf4,       // HLT
+        0xf4, // HLT
     ];
     emu.regs_mut().rax = 0x0305; // AH=3, AL=5
     emu.load_code_bytes(&code);
@@ -299,13 +319,23 @@ fn test_aad_all_two_digit_values() {
             let code = [0xD5, 0x0A, 0xf4]; // AAD, HLT
             emu.regs_mut().rax = ((tens << 8) | ones) as u64;
             emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+            emu.run(None).unwrap();
 
             let expected = tens * 10 + ones;
-            assert_eq!(emu.regs().rax & 0xFF, expected as u64,
-                "Wrong result for AH={}, AL={}", tens, ones);
-            assert_eq!((emu.regs().rax >> 8) & 0xFF, 0,
-                "AH should be 0 for AH={}, AL={}", tens, ones);
+            assert_eq!(
+                emu.regs().rax & 0xFF,
+                expected as u64,
+                "Wrong result for AH={}, AL={}",
+                tens,
+                ones
+            );
+            assert_eq!(
+                (emu.regs().rax >> 8) & 0xFF,
+                0,
+                "AH should be 0 for AH={}, AL={}",
+                tens,
+                ones
+            );
         }
     }
 }
@@ -364,7 +394,11 @@ fn test_aad_preserves_high_bits() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax >> 16, 0xDEADBEEF_1234, "High bits should be preserved");
+    assert_eq!(
+        emu.regs().rax >> 16,
+        0xDEADBEEF_1234,
+        "High bits should be preserved"
+    );
 }
 
 #[test]
@@ -405,15 +439,19 @@ fn test_aam_aad_roundtrip() {
     let code = [
         0xD4, 0x0A, // AAM
         0xD5, 0x0A, // AAD
-        0xf4,       // HLT
+        0xf4, // HLT
     ];
     for val in 0..100 {
         emu.regs_mut().rax = val;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
         assert_eq!(emu.regs().rax & 0xFF, val, "Roundtrip failed for {}", val);
-        assert_eq!((emu.regs().rax >> 8) & 0xFF, 0, "AH should be 0 after roundtrip");
+        assert_eq!(
+            (emu.regs().rax >> 8) & 0xFF,
+            0,
+            "AH should be 0 after roundtrip"
+        );
     }
 }
 
@@ -425,7 +463,7 @@ fn test_aad_aam_sequence() {
     let code = [
         0xD5, 0x0A, // AAD (unpacked -> binary)
         0xD4, 0x0A, // AAM (binary -> unpacked)
-        0xf4,       // HLT
+        0xf4, // HLT
     ];
     emu.regs_mut().rax = 0x0807; // 87 in unpacked BCD
     emu.load_code_bytes(&code);
@@ -441,7 +479,7 @@ fn test_multiply_with_aam() {
     let mut emu = emu64();
     let code = [
         0xD4, 0x0A, // AAM
-        0xf4,       // HLT
+        0xf4, // HLT
     ];
     emu.regs_mut().rax = 42; // Product of 6 * 7
     emu.load_code_bytes(&code);
@@ -457,13 +495,17 @@ fn test_division_with_aad() {
     let mut emu = emu64();
     let code = [
         0xD5, 0x0A, // AAD
-        0xf4,       // HLT
+        0xf4, // HLT
     ];
     emu.regs_mut().rax = 0x0807; // 87 in unpacked BCD
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFF, 87, "AL should be 87 (ready for division)");
+    assert_eq!(
+        emu.regs().rax & 0xFF,
+        87,
+        "AL should be 87 (ready for division)"
+    );
     assert_eq!((emu.regs().rax >> 8) & 0xFF, 0, "AH should be 0");
 }
 
@@ -534,14 +576,22 @@ fn test_aam_all_bases() {
         let test_val = 100u8;
         emu.regs_mut().rax = test_val as u64;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
         let expected_ah = test_val / base;
         let expected_al = test_val % base;
-        assert_eq!((emu.regs().rax >> 8) & 0xFF, expected_ah as u64,
-            "AH wrong for base {}", base);
-        assert_eq!(emu.regs().rax & 0xFF, expected_al as u64,
-            "AL wrong for base {}", base);
+        assert_eq!(
+            (emu.regs().rax >> 8) & 0xFF,
+            expected_ah as u64,
+            "AH wrong for base {}",
+            base
+        );
+        assert_eq!(
+            emu.regs().rax & 0xFF,
+            expected_al as u64,
+            "AL wrong for base {}",
+            base
+        );
     }
 }
 
@@ -572,10 +622,14 @@ fn test_aam_zero_flag_combinations() {
         let code = [0xD4, 0x0A, 0xf4]; // AAM
         emu.regs_mut().rax = val as u64;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
-        assert_eq!(emu.flags().f_zf, expect_zf,
-            "ZF incorrect for value {}", val);
+        assert_eq!(
+            emu.flags().f_zf,
+            expect_zf,
+            "ZF incorrect for value {}",
+            val
+        );
     }
 }
 
@@ -584,18 +638,22 @@ fn test_aad_zero_flag_combinations() {
     let DATA_ADDR = 0x7000;
     let mut emu = emu64();
     let test_cases = vec![
-        (0x0000u16, true),   // Should set ZF
-        (0x0100u16, false),  // Should clear ZF (AH=1, AL=0 -> 10)
-        (0x0A00u16, false),  // Should clear ZF
+        (0x0000u16, true),  // Should set ZF
+        (0x0100u16, false), // Should clear ZF (AH=1, AL=0 -> 10)
+        (0x0A00u16, false), // Should clear ZF
     ];
 
     for (val, expect_zf) in test_cases {
         let code = [0xD5, 0x0A, 0xf4]; // AAD
         emu.regs_mut().rax = val as u64;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
-        assert_eq!(emu.flags().f_zf, expect_zf,
-            "ZF incorrect for value 0x{:04X}", val);
+        assert_eq!(
+            emu.flags().f_zf,
+            expect_zf,
+            "ZF incorrect for value 0x{:04X}",
+            val
+        );
     }
 }

@@ -25,7 +25,6 @@
 // - AF: Undefined for non-zero count
 // - Count is 0: No flags affected
 
-
 use crate::*;
 
 // ============================================================================
@@ -45,7 +44,11 @@ fn test_sar_al_1_positive() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFF, 0x21, "AL: 0x42 >> 1 = 0x21 (sign extended)");
+    assert_eq!(
+        emu.regs().rax & 0xFF,
+        0x21,
+        "AL: 0x42 >> 1 = 0x21 (sign extended)"
+    );
     assert!(!emu.flags().f_cf, "CF: LSB shifted out was 0");
     assert!(!emu.flags().f_of, "OF: always cleared for 1-bit SAR");
     assert!(!emu.flags().f_sf, "SF: result is positive");
@@ -65,7 +68,11 @@ fn test_sar_al_1_negative() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFF, 0xC1, "AL: 0x82 >> 1 = 0xC1 (sign bit extended)");
+    assert_eq!(
+        emu.regs().rax & 0xFF,
+        0xC1,
+        "AL: 0x82 >> 1 = 0xC1 (sign bit extended)"
+    );
     assert!(!emu.flags().f_cf, "CF: LSB shifted out was 0");
     assert!(!emu.flags().f_of, "OF: always cleared for 1-bit SAR");
     assert!(emu.flags().f_sf, "SF: result is still negative");
@@ -103,7 +110,11 @@ fn test_sar_al_cl() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFF, 0xFF, "AL: 0x80 >> 7 = 0xFF (all bits set by sign extension)");
+    assert_eq!(
+        emu.regs().rax & 0xFF,
+        0xFF,
+        "AL: 0x80 >> 7 = 0xFF (all bits set by sign extension)"
+    );
     assert!(!emu.flags().f_cf, "CF: last bit shifted out");
     assert!(emu.flags().f_sf, "SF: result is negative");
 }
@@ -121,7 +132,11 @@ fn test_sar_al_imm8() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFF, 0xF1, "AL: 0x88 >> 3 = 0xF1 (sign extended)");
+    assert_eq!(
+        emu.regs().rax & 0xFF,
+        0xF1,
+        "AL: 0x88 >> 3 = 0xF1 (sign extended)"
+    );
     assert!(!emu.flags().f_cf, "CF: last bit shifted out was 0");
     assert!(emu.flags().f_sf, "SF: result is negative");
 }
@@ -157,7 +172,11 @@ fn test_sar_count_masked_8bit() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFF, 0xF1, "AL: 0x88 >> 3 = 0xF1 (count masked)");
+    assert_eq!(
+        emu.regs().rax & 0xFF,
+        0xF1,
+        "AL: 0x88 >> 3 = 0xF1 (count masked)"
+    );
 }
 
 #[test]
@@ -169,13 +188,18 @@ fn test_sar_count_zero_preserves_flags() {
         0xf4,
     ];
     emu.regs_mut().rax = 0x42;
-    emu.flags_mut().load(0x2 | flags::F_CF | flags::F_ZF | flags::F_OF);
+    emu.flags_mut()
+        .load(0x2 | flags::F_CF | flags::F_ZF | flags::F_OF);
     let initial_flags = emu.flags().dump();
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
     assert_eq!(emu.regs().rax & 0xFF, 0x42, "AL unchanged");
-    assert_eq!(emu.flags().dump(), initial_flags, "Flags unchanged when count is 0");
+    assert_eq!(
+        emu.flags().dump(),
+        initial_flags,
+        "Flags unchanged when count is 0"
+    );
 }
 
 // ============================================================================
@@ -213,7 +237,11 @@ fn test_sar_ax_1_negative() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFF, 0xC000, "AX: 0x8000 >> 1 = 0xC000 (sign extended)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0xC000,
+        "AX: 0x8000 >> 1 = 0xC000 (sign extended)"
+    );
     assert!(!emu.flags().f_cf, "CF: LSB was 0");
     assert!(emu.flags().f_sf, "SF: result is negative");
 }
@@ -232,7 +260,11 @@ fn test_sar_ax_cl() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFF, 0xFFFF, "AX: 0xFF00 >> 8 = 0xFFFF (sign extended)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0xFFFF,
+        "AX: 0xFF00 >> 8 = 0xFFFF (sign extended)"
+    );
     assert!(emu.flags().f_sf, "SF: result is negative");
 }
 
@@ -270,7 +302,11 @@ fn test_sar_eax_1_positive() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x091A2B3C, "EAX: 0x12345678 >> 1 = 0x091A2B3C");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x091A2B3C,
+        "EAX: 0x12345678 >> 1 = 0x091A2B3C"
+    );
     assert!(!emu.flags().f_cf, "CF: LSB was 0");
     assert!(!emu.flags().f_of, "OF: cleared for 1-bit SAR");
 }
@@ -288,7 +324,11 @@ fn test_sar_eax_1_negative() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xC0000000, "EAX: 0x80000000 >> 1 = 0xC0000000");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xC0000000,
+        "EAX: 0x80000000 >> 1 = 0xC0000000"
+    );
     assert!(!emu.flags().f_cf, "CF: LSB was 0");
     assert!(emu.flags().f_sf, "SF: result is still negative");
 }
@@ -307,7 +347,11 @@ fn test_sar_eax_cl() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xFFFFFFFF, "EAX: 0xFFFF0000 >> 16 = 0xFFFFFFFF");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xFFFFFFFF,
+        "EAX: 0xFFFF0000 >> 16 = 0xFFFFFFFF"
+    );
     assert!(emu.flags().f_sf, "SF: result is negative");
 }
 
@@ -324,7 +368,11 @@ fn test_sar_eax_imm8() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x00123456, "EAX: 0x12345600 >> 8 = 0x00123456");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x00123456,
+        "EAX: 0x12345600 >> 8 = 0x00123456"
+    );
     assert!(!emu.flags().f_sf, "SF: result is positive");
 }
 
@@ -341,7 +389,11 @@ fn test_sar_count_masked_32bit() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xFFFFFFFF, "EAX: 0x80000000 >> 31 = 0xFFFFFFFF (all ones)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xFFFFFFFF,
+        "EAX: 0x80000000 >> 31 = 0xFFFFFFFF (all ones)"
+    );
 }
 
 // ============================================================================
@@ -361,7 +413,11 @@ fn test_sar_rax_1_positive() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x091A2B3C4D5E6F78, "RAX: 0x123456789ABCDEF0 >> 1");
+    assert_eq!(
+        emu.regs().rax,
+        0x091A2B3C4D5E6F78,
+        "RAX: 0x123456789ABCDEF0 >> 1"
+    );
     assert!(!emu.flags().f_cf, "CF: LSB was 0");
     assert!(!emu.flags().f_of, "OF: cleared for 1-bit SAR");
 }
@@ -379,7 +435,11 @@ fn test_sar_rax_1_negative() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0xC000000000000000, "RAX: 0x8000000000000000 >> 1 = 0xC000000000000000");
+    assert_eq!(
+        emu.regs().rax,
+        0xC000000000000000,
+        "RAX: 0x8000000000000000 >> 1 = 0xC000000000000000"
+    );
     assert!(!emu.flags().f_cf, "CF: LSB was 0");
     assert!(emu.flags().f_sf, "SF: result is still negative");
 }
@@ -398,7 +458,11 @@ fn test_sar_rax_cl() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0xFFFFFFFFFFFFFFFF, "RAX: 0xFFFFFFFFFFFF0000 >> 16 = 0xFFFFFFFFFFFFFFFF");
+    assert_eq!(
+        emu.regs().rax,
+        0xFFFFFFFFFFFFFFFF,
+        "RAX: 0xFFFFFFFFFFFF0000 >> 16 = 0xFFFFFFFFFFFFFFFF"
+    );
     assert!(emu.flags().f_sf, "SF: result is negative");
 }
 
@@ -415,7 +479,11 @@ fn test_sar_rax_imm8() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x0000000012345678, "RAX: high 32 bits shifted to low 32");
+    assert_eq!(
+        emu.regs().rax,
+        0x0000000012345678,
+        "RAX: high 32 bits shifted to low 32"
+    );
     assert!(!emu.flags().f_sf, "SF: result is positive");
 }
 
@@ -432,7 +500,11 @@ fn test_sar_count_masked_64bit() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0xFFFFFFFFFFFFFFFF, "RAX: sign extended to all ones");
+    assert_eq!(
+        emu.regs().rax,
+        0xFFFFFFFFFFFFFFFF,
+        "RAX: sign extended to all ones"
+    );
 }
 
 // ============================================================================
@@ -452,7 +524,11 @@ fn test_sar_r8b_1() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().r8 & 0xFF, 0xD5, "R8B: 0xAA >> 1 = 0xD5 (sign extended)");
+    assert_eq!(
+        emu.regs().r8 & 0xFF,
+        0xD5,
+        "R8B: 0xAA >> 1 = 0xD5 (sign extended)"
+    );
     assert!(!emu.flags().f_cf, "CF: LSB was 0");
     assert!(emu.flags().f_sf, "SF: result is negative");
 }
@@ -471,7 +547,11 @@ fn test_sar_r10w_cl() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().r10 & 0xFFFF, 0xFF00, "R10W: 0xF000 >> 4 = 0xFF00 (sign extended)");
+    assert_eq!(
+        emu.regs().r10 & 0xFFFF,
+        0xFF00,
+        "R10W: 0xF000 >> 4 = 0xFF00 (sign extended)"
+    );
 }
 
 #[test]
@@ -487,7 +567,11 @@ fn test_sar_r12d_imm8() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().r12 & 0xFFFFFFFF, 0x00123456, "R12D: 0x12345678 >> 8 = 0x00123456");
+    assert_eq!(
+        emu.regs().r12 & 0xFFFFFFFF,
+        0x00123456,
+        "R12D: 0x12345678 >> 8 = 0x00123456"
+    );
 }
 
 #[test]
@@ -503,7 +587,11 @@ fn test_sar_r15_1() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().r15, 0xFF6E5D4C3B2A1908, "R15: signed right shift by 1");
+    assert_eq!(
+        emu.regs().r15,
+        0xFF6E5D4C3B2A1908,
+        "R15: signed right shift by 1"
+    );
     assert!(emu.flags().f_sf, "SF: result is negative");
 }
 
@@ -517,7 +605,9 @@ fn test_sar_byte_ptr_1() {
     let mut emu = emu64();
     // SAR byte ptr [DATA_ADDR], 1
     let code = [
-        0xd0, 0x3c, 0x25, // SAR byte ptr [DATA_ADDR], 1
+        0xd0,
+        0x3c,
+        0x25, // SAR byte ptr [DATA_ADDR], 1
         (DATA_ADDR & 0xFF) as u8,
         ((DATA_ADDR >> 8) & 0xFF) as u8,
         ((DATA_ADDR >> 16) & 0xFF) as u8,
@@ -540,7 +630,10 @@ fn test_sar_word_ptr_cl() {
     let mut emu = emu64();
     // SAR word ptr [DATA_ADDR], CL
     let code = [
-        0x66, 0xd3, 0x3c, 0x25, // SAR word ptr [DATA_ADDR], CL
+        0x66,
+        0xd3,
+        0x3c,
+        0x25, // SAR word ptr [DATA_ADDR], CL
         (DATA_ADDR & 0xFF) as u8,
         ((DATA_ADDR >> 8) & 0xFF) as u8,
         ((DATA_ADDR >> 16) & 0xFF) as u8,
@@ -554,7 +647,10 @@ fn test_sar_word_ptr_cl() {
     emu.run(None).unwrap();
     let result = emu.maps.read_word(DATA_ADDR).unwrap();
 
-    assert_eq!(result, 0xFFF0, "Memory: 0xF000 >> 8 = 0xFFF0 (sign extended)");
+    assert_eq!(
+        result, 0xFFF0,
+        "Memory: 0xF000 >> 8 = 0xFFF0 (sign extended)"
+    );
 }
 
 #[test]
@@ -563,7 +659,9 @@ fn test_sar_dword_ptr_imm8() {
     let mut emu = emu64();
     // SAR dword ptr [DATA_ADDR], imm8
     let code = [
-        0xc1, 0x3c, 0x25, // SAR dword ptr [DATA_ADDR], imm8
+        0xc1,
+        0x3c,
+        0x25, // SAR dword ptr [DATA_ADDR], imm8
         (DATA_ADDR & 0xFF) as u8,
         ((DATA_ADDR >> 8) & 0xFF) as u8,
         ((DATA_ADDR >> 16) & 0xFF) as u8,
@@ -586,7 +684,10 @@ fn test_sar_qword_ptr_cl() {
     let mut emu = emu64();
     // SAR qword ptr [DATA_ADDR], CL
     let code = [
-        0x48, 0xd3, 0x3c, 0x25, // SAR qword ptr [DATA_ADDR], CL
+        0x48,
+        0xd3,
+        0x3c,
+        0x25, // SAR qword ptr [DATA_ADDR], CL
         (DATA_ADDR & 0xFF) as u8,
         ((DATA_ADDR >> 8) & 0xFF) as u8,
         ((DATA_ADDR >> 16) & 0xFF) as u8,
@@ -600,7 +701,10 @@ fn test_sar_qword_ptr_cl() {
     emu.run(None).unwrap();
     let result = emu.maps.read_qword(DATA_ADDR).unwrap();
 
-    assert_eq!(result, 0xFFFFFFFFFFFFFFFF, "Memory: 0xFFFFFFFF00000000 >> 32 = all ones");
+    assert_eq!(
+        result, 0xFFFFFFFFFFFFFFFF,
+        "Memory: 0xFFFFFFFF00000000 >> 32 = all ones"
+    );
 }
 
 // ============================================================================
@@ -621,7 +725,11 @@ fn test_sar_signed_divide_by_power_of_2() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!((emu.regs().rax & 0xFFFFFFFF) as i32, -4, "EAX: -16 / 4 = -4");
+    assert_eq!(
+        (emu.regs().rax & 0xFFFFFFFF) as i32,
+        -4,
+        "EAX: -16 / 4 = -4"
+    );
     assert!(emu.flags().f_sf, "SF: result is negative");
 }
 
@@ -639,7 +747,11 @@ fn test_sar_rounding_toward_negative_infinity() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!((emu.regs().rax & 0xFFFFFFFF) as i32, -3, "EAX: -9 >> 2 = -3 (rounds toward -∞)");
+    assert_eq!(
+        (emu.regs().rax & 0xFFFFFFFF) as i32,
+        -3,
+        "EAX: -9 >> 2 = -3 (rounds toward -∞)"
+    );
 }
 
 #[test]
@@ -672,7 +784,11 @@ fn test_sar_all_ones_stays_negative_one() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xFFFFFFFF, "EAX: -1 >> 1 = -1 (stays all ones)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xFFFFFFFF,
+        "EAX: -1 >> 1 = -1 (stays all ones)"
+    );
     assert!(emu.flags().f_cf, "CF: LSB was 1");
     assert!(emu.flags().f_sf, "SF: result is negative");
 }
@@ -689,7 +805,11 @@ fn test_sar_to_zero_positive() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0, "EAX: positive number >> 31 = 0");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0,
+        "EAX: positive number >> 31 = 0"
+    );
     assert!(emu.flags().f_zf, "ZF: result is zero");
     assert!(!emu.flags().f_sf, "SF: result is not negative");
 }
@@ -706,7 +826,11 @@ fn test_sar_to_negative_one() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xFFFFFFFF, "EAX: negative number >> 31 = -1 (all ones)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xFFFFFFFF,
+        "EAX: negative number >> 31 = -1 (all ones)"
+    );
     assert!(emu.flags().f_sf, "SF: result is negative");
 }
 
@@ -734,7 +858,11 @@ fn test_sar_extract_sign_bit() {
     emu.load_code_bytes(&code2);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xFFFFFFFF, "EAX: negative >> 31 = -1");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xFFFFFFFF,
+        "EAX: negative >> 31 = -1"
+    );
 }
 
 #[test]
@@ -769,7 +897,11 @@ fn test_sar_chained_shifts() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xFF000000, "EAX: 0xF8000000 >> 3 = 0xFF000000");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xFF000000,
+        "EAX: 0xF8000000 >> 3 = 0xFF000000"
+    );
     assert!(emu.flags().f_sf, "SF: result is still negative");
 }
 
@@ -785,6 +917,10 @@ fn test_sar_sign_extension_propagation() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0x8000000000000000, 0x8000000000000000, "MSB should remain 1");
+    assert_eq!(
+        emu.regs().rax & 0x8000000000000000,
+        0x8000000000000000,
+        "MSB should remain 1"
+    );
     assert!(emu.flags().f_sf, "SF: result is negative");
 }

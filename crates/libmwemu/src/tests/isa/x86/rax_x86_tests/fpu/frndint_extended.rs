@@ -19,39 +19,41 @@ use crate::*;
 const DATA_ADDR: u64 = 0x7000;
 
 fn write_f64(mem: u64, addr: u64, val: f64) {
-    let mut emu = emu64();    emu.maps.write_bytes_slice(addr, &val.to_le_bytes());
+    let mut emu = emu64();
+    emu.maps.write_bytes_slice(addr, &val.to_le_bytes());
 }
 
 fn read_f64(mem: u64, addr: u64) -> f64 {
-    let emu = emu64();    let mut buf = [0u8; 8];
+    let emu = emu64();
+    let mut buf = [0u8; 8];
     emu.maps.read_bytes_buff(&mut buf, addr);
     f64::from_le_bytes(buf)
 }
 
 fn write_u16(mem: u64, addr: u64, val: u16) {
-    let mut emu = emu64();    emu.maps.write_bytes_slice(addr, &val.to_le_bytes());
+    let mut emu = emu64();
+    emu.maps.write_bytes_slice(addr, &val.to_le_bytes());
 }
 
 // Rounding mode constants
-const RC_NEAREST: u16 = 0x037F;      // bits 10-11 = 00
-const RC_DOWN: u16 = 0x077F;         // bits 10-11 = 01
-const RC_UP: u16 = 0x0B7F;           // bits 10-11 = 10
-const RC_ZERO: u16 = 0x0F7F;         // bits 10-11 = 11
+const RC_NEAREST: u16 = 0x037F; // bits 10-11 = 00
+const RC_DOWN: u16 = 0x077F; // bits 10-11 = 01
+const RC_UP: u16 = 0x0B7F; // bits 10-11 = 10
+const RC_ZERO: u16 = 0x0F7F; // bits 10-11 = 11
 
 // Tests with round to nearest (default)
 #[test]
 fn test_frndint_nearest_half_to_even() {
-    let mut emu = emu64();    let test_cases = vec![(2.5, 2.0), (3.5, 4.0), (4.5, 4.0), (5.5, 6.0)];
+    let mut emu = emu64();
+    let test_cases = vec![(2.5, 2.0), (3.5, 4.0), (4.5, 4.0), (5.5, 6.0)];
     for (input, expected) in test_cases {
         let code = [
-            0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,
-            0xD9, 0xFC,
-            0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,
-            0xF4,
+            0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, 0xD9, 0xFC, 0xDD, 0x1C, 0x25, 0x00, 0x30,
+            0x00, 0x00, 0xF4,
         ];
         emu.load_code_bytes(&code);
         emu.maps.write_f64(0x2000, input);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
         let result = emu.maps.read_f64(0x3000).unwrap();
         assert_eq!(result, expected, "FRNDINT({}) nearest", input);
     }
@@ -60,22 +62,29 @@ fn test_frndint_nearest_half_to_even() {
 // Tests with round down
 #[test]
 fn test_frndint_round_down() {
-    let mut emu = emu64();    let code = [
-        0xD9, 0x2C, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLDCW [0x2000]
-        0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00,  // FLD qword [0x2008]
-        0xD9, 0xFC,                                  // FRNDINT
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
+    let mut emu = emu64();
+    let code = [
+        0xD9, 0x2C, 0x25, 0x00, 0x20, 0x00, 0x00, // FLDCW [0x2000]
+        0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00, // FLD qword [0x2008]
+        0xD9, 0xFC, // FRNDINT
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
         0xF4,
     ];
     let test_cases = vec![
-        (2.1, 2.0), (2.9, 2.0), (-2.1, -3.0), (-2.9, -3.0),
-        (0.1, 0.0), (0.9, 0.0), (-0.1, -1.0), (-0.9, -1.0),
+        (2.1, 2.0),
+        (2.9, 2.0),
+        (-2.1, -3.0),
+        (-2.9, -3.0),
+        (0.1, 0.0),
+        (0.9, 0.0),
+        (-0.1, -1.0),
+        (-0.9, -1.0),
     ];
     for (input, expected) in test_cases {
         emu.load_code_bytes(&code);
         emu.maps.write_word(0x2000, RC_DOWN);
         emu.maps.write_f64(0x2008, input);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
         let result = emu.maps.read_f64(0x3000).unwrap();
         assert_eq!(result, expected, "FRNDINT({}) down", input);
     }
@@ -84,22 +93,26 @@ fn test_frndint_round_down() {
 // Tests with round up
 #[test]
 fn test_frndint_round_up() {
-    let mut emu = emu64();    let code = [
-        0xD9, 0x2C, 0x25, 0x00, 0x20, 0x00, 0x00,
-        0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00,
-        0xD9, 0xFC,
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,
-        0xF4,
+    let mut emu = emu64();
+    let code = [
+        0xD9, 0x2C, 0x25, 0x00, 0x20, 0x00, 0x00, 0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00, 0xD9,
+        0xFC, 0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, 0xF4,
     ];
     let test_cases = vec![
-        (2.1, 3.0), (2.9, 3.0), (-2.1, -2.0), (-2.9, -2.0),
-        (0.1, 1.0), (0.9, 1.0), (-0.1, 0.0), (-0.9, 0.0),
+        (2.1, 3.0),
+        (2.9, 3.0),
+        (-2.1, -2.0),
+        (-2.9, -2.0),
+        (0.1, 1.0),
+        (0.9, 1.0),
+        (-0.1, 0.0),
+        (-0.9, 0.0),
     ];
     for (input, expected) in test_cases {
         emu.load_code_bytes(&code);
         emu.maps.write_word(0x2000, RC_UP);
         emu.maps.write_f64(0x2008, input);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
         let result = emu.maps.read_f64(0x3000).unwrap();
         assert_eq!(result, expected, "FRNDINT({}) up", input);
     }
@@ -108,22 +121,26 @@ fn test_frndint_round_up() {
 // Tests with round toward zero (truncate)
 #[test]
 fn test_frndint_round_zero() {
-    let mut emu = emu64();    let code = [
-        0xD9, 0x2C, 0x25, 0x00, 0x20, 0x00, 0x00,
-        0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00,
-        0xD9, 0xFC,
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,
-        0xF4,
+    let mut emu = emu64();
+    let code = [
+        0xD9, 0x2C, 0x25, 0x00, 0x20, 0x00, 0x00, 0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00, 0xD9,
+        0xFC, 0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, 0xF4,
     ];
     let test_cases = vec![
-        (2.1, 2.0), (2.9, 2.0), (-2.1, -2.0), (-2.9, -2.0),
-        (0.1, 0.0), (0.9, 0.0), (-0.1, 0.0), (-0.9, 0.0),
+        (2.1, 2.0),
+        (2.9, 2.0),
+        (-2.1, -2.0),
+        (-2.9, -2.0),
+        (0.1, 0.0),
+        (0.9, 0.0),
+        (-0.1, 0.0),
+        (-0.9, 0.0),
     ];
     for (input, expected) in test_cases {
         emu.load_code_bytes(&code);
         emu.maps.write_word(0x2000, RC_ZERO);
         emu.maps.write_f64(0x2008, input);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
         let result = emu.maps.read_f64(0x3000).unwrap();
         assert_eq!(result, expected, "FRNDINT({}) zero", input);
     }
@@ -134,15 +151,14 @@ macro_rules! frndint_special_test {
     ($name:ident, $val:expr, $expected:expr) => {
         #[test]
         fn $name() {
-    let mut emu = emu64();            let code = [
-                0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,
-                0xD9, 0xFC,
-                0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,
-                0xF4,
+            let mut emu = emu64();
+            let code = [
+                0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, 0xD9, 0xFC, 0xDD, 0x1C, 0x25, 0x00, 0x30,
+                0x00, 0x00, 0xF4,
             ];
             emu.load_code_bytes(&code);
             emu.maps.write_f64(0x2000, $val);
-    emu.run(None).unwrap();
+            emu.run(None).unwrap();
             let result = emu.maps.read_f64(0x3000).unwrap();
             let expected_val: f64 = $expected;
             if expected_val.is_nan() {
@@ -165,11 +181,10 @@ frndint_special_test!(test_frndint_neg_one, -1.0, -1.0);
 // Edge case tests
 #[test]
 fn test_frndint_large_integer() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,
-        0xD9, 0xFC,
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,
-        0xF4,
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, 0xD9, 0xFC, 0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00,
+        0x00, 0xF4,
     ];
     emu.load_code_bytes(&code);
     emu.maps.write_f64(0x2000, 1e15);
@@ -180,11 +195,10 @@ fn test_frndint_large_integer() {
 
 #[test]
 fn test_frndint_max_value() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,
-        0xD9, 0xFC,
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,
-        0xF4,
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, 0xD9, 0xFC, 0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00,
+        0x00, 0xF4,
     ];
     emu.load_code_bytes(&code);
     emu.maps.write_f64(0x2000, f64::MAX);
@@ -196,18 +210,13 @@ fn test_frndint_max_value() {
 // Tests with different modes changing mid-execution
 #[test]
 fn test_frndint_mode_switching() {
-    let mut emu = emu64();    let code = [
+    let mut emu = emu64();
+    let code = [
         // Round to nearest
-        0xD9, 0x2C, 0x25, 0x00, 0x20, 0x00, 0x00,
-        0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00,
-        0xD9, 0xFC,
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,
-        // Round down
-        0xD9, 0x2C, 0x25, 0x10, 0x20, 0x00, 0x00,
-        0xDD, 0x04, 0x25, 0x18, 0x20, 0x00, 0x00,
-        0xD9, 0xFC,
-        0xDD, 0x1C, 0x25, 0x08, 0x30, 0x00, 0x00,
-        0xF4,
+        0xD9, 0x2C, 0x25, 0x00, 0x20, 0x00, 0x00, 0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00, 0xD9,
+        0xFC, 0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // Round down
+        0xD9, 0x2C, 0x25, 0x10, 0x20, 0x00, 0x00, 0xDD, 0x04, 0x25, 0x18, 0x20, 0x00, 0x00, 0xD9,
+        0xFC, 0xDD, 0x1C, 0x25, 0x08, 0x30, 0x00, 0x00, 0xF4,
     ];
     emu.load_code_bytes(&code);
     emu.maps.write_word(0x2000, RC_NEAREST);
@@ -217,28 +226,31 @@ fn test_frndint_mode_switching() {
     emu.run(None).unwrap();
     let r1 = emu.maps.read_f64(0x3000).unwrap();
     let r2 = emu.maps.read_f64(0x3008).unwrap();
-    assert_eq!(r1, 2.0);  // 2.5 nearest -> 2.0 (even)
-    assert_eq!(r2, 2.0);  // 2.9 down -> 2.0
+    assert_eq!(r1, 2.0); // 2.5 nearest -> 2.0 (even)
+    assert_eq!(r2, 2.0); // 2.9 down -> 2.0
 }
 
 // Comprehensive test with all rounding modes
 #[test]
 fn test_frndint_all_modes_positive() {
-    let mut emu = emu64();    let input = 7.6;
-    let expected = [(RC_NEAREST, 8.0), (RC_DOWN, 7.0), (RC_UP, 8.0), (RC_ZERO, 7.0)];
+    let mut emu = emu64();
+    let input = 7.6;
+    let expected = [
+        (RC_NEAREST, 8.0),
+        (RC_DOWN, 7.0),
+        (RC_UP, 8.0),
+        (RC_ZERO, 7.0),
+    ];
 
     for (mode, exp) in expected {
         let code = [
-            0xD9, 0x2C, 0x25, 0x00, 0x20, 0x00, 0x00,
-            0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00,
-            0xD9, 0xFC,
-            0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,
-            0xF4,
+            0xD9, 0x2C, 0x25, 0x00, 0x20, 0x00, 0x00, 0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00,
+            0xD9, 0xFC, 0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, 0xF4,
         ];
         emu.load_code_bytes(&code);
         emu.maps.write_word(0x2000, mode);
         emu.maps.write_f64(0x2008, input);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
         let result = emu.maps.read_f64(0x3000).unwrap();
         assert_eq!(result, exp, "Mode {:04X}", mode);
     }
@@ -246,21 +258,24 @@ fn test_frndint_all_modes_positive() {
 
 #[test]
 fn test_frndint_all_modes_negative() {
-    let mut emu = emu64();    let input = -7.6;
-    let expected = [(RC_NEAREST, -8.0), (RC_DOWN, -8.0), (RC_UP, -7.0), (RC_ZERO, -7.0)];
+    let mut emu = emu64();
+    let input = -7.6;
+    let expected = [
+        (RC_NEAREST, -8.0),
+        (RC_DOWN, -8.0),
+        (RC_UP, -7.0),
+        (RC_ZERO, -7.0),
+    ];
 
     for (mode, exp) in expected {
         let code = [
-            0xD9, 0x2C, 0x25, 0x00, 0x20, 0x00, 0x00,
-            0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00,
-            0xD9, 0xFC,
-            0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,
-            0xF4,
+            0xD9, 0x2C, 0x25, 0x00, 0x20, 0x00, 0x00, 0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00,
+            0xD9, 0xFC, 0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, 0xF4,
         ];
         emu.load_code_bytes(&code);
         emu.maps.write_word(0x2000, mode);
         emu.maps.write_f64(0x2008, input);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
         let result = emu.maps.read_f64(0x3000).unwrap();
         assert_eq!(result, exp, "Mode {:04X}", mode);
     }
@@ -269,17 +284,12 @@ fn test_frndint_all_modes_negative() {
 // Stress tests with multiple values
 #[test]
 fn test_frndint_sequence() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,
-        0xD9, 0xFC,
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,
-        0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00,
-        0xD9, 0xFC,
-        0xDD, 0x1C, 0x25, 0x08, 0x30, 0x00, 0x00,
-        0xDD, 0x04, 0x25, 0x10, 0x20, 0x00, 0x00,
-        0xD9, 0xFC,
-        0xDD, 0x1C, 0x25, 0x10, 0x30, 0x00, 0x00,
-        0xF4,
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, 0xD9, 0xFC, 0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00,
+        0x00, 0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00, 0xD9, 0xFC, 0xDD, 0x1C, 0x25, 0x08, 0x30,
+        0x00, 0x00, 0xDD, 0x04, 0x25, 0x10, 0x20, 0x00, 0x00, 0xD9, 0xFC, 0xDD, 0x1C, 0x25, 0x10,
+        0x30, 0x00, 0x00, 0xF4,
     ];
     emu.load_code_bytes(&code);
     emu.maps.write_f64(0x2000, 1.4);
@@ -296,18 +306,16 @@ macro_rules! batch_test {
     ($name:ident, $mode:expr, $cases:expr) => {
         #[test]
         fn $name() {
-    let mut emu = emu64();            for (input, expected) in $cases {
+            let mut emu = emu64();
+            for (input, expected) in $cases {
                 let code = [
-                    0xD9, 0x2C, 0x25, 0x00, 0x20, 0x00, 0x00,
-                    0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00,
-                    0xD9, 0xFC,
-                    0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,
-                    0xF4,
+                    0xD9, 0x2C, 0x25, 0x00, 0x20, 0x00, 0x00, 0xDD, 0x04, 0x25, 0x08, 0x20, 0x00,
+                    0x00, 0xD9, 0xFC, 0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, 0xF4,
                 ];
                 emu.load_code_bytes(&code);
                 emu.maps.write_word(0x2000, $mode);
                 emu.maps.write_f64(0x2008, input);
-    emu.run(None).unwrap();
+                emu.run(None).unwrap();
                 let result = emu.maps.read_f64(0x3000).unwrap();
                 assert_eq!(result, expected, "{}", input);
             }
@@ -315,33 +323,72 @@ macro_rules! batch_test {
     };
 }
 
-batch_test!(test_nearest_fractional, RC_NEAREST, vec![
-    (1.1, 1.0), (1.9, 2.0), (2.5, 2.0), (3.5, 4.0),
-    (-1.1, -1.0), (-1.9, -2.0), (-2.5, -2.0), (-3.5, -4.0)
-]);
+batch_test!(
+    test_nearest_fractional,
+    RC_NEAREST,
+    vec![
+        (1.1, 1.0),
+        (1.9, 2.0),
+        (2.5, 2.0),
+        (3.5, 4.0),
+        (-1.1, -1.0),
+        (-1.9, -2.0),
+        (-2.5, -2.0),
+        (-3.5, -4.0)
+    ]
+);
 
-batch_test!(test_down_fractional, RC_DOWN, vec![
-    (1.1, 1.0), (1.9, 1.0), (2.5, 2.0), (3.5, 3.0),
-    (-1.1, -2.0), (-1.9, -2.0), (-2.5, -3.0), (-3.5, -4.0)
-]);
+batch_test!(
+    test_down_fractional,
+    RC_DOWN,
+    vec![
+        (1.1, 1.0),
+        (1.9, 1.0),
+        (2.5, 2.0),
+        (3.5, 3.0),
+        (-1.1, -2.0),
+        (-1.9, -2.0),
+        (-2.5, -3.0),
+        (-3.5, -4.0)
+    ]
+);
 
-batch_test!(test_up_fractional, RC_UP, vec![
-    (1.1, 2.0), (1.9, 2.0), (2.5, 3.0), (3.5, 4.0),
-    (-1.1, -1.0), (-1.9, -1.0), (-2.5, -2.0), (-3.5, -3.0)
-]);
+batch_test!(
+    test_up_fractional,
+    RC_UP,
+    vec![
+        (1.1, 2.0),
+        (1.9, 2.0),
+        (2.5, 3.0),
+        (3.5, 4.0),
+        (-1.1, -1.0),
+        (-1.9, -1.0),
+        (-2.5, -2.0),
+        (-3.5, -3.0)
+    ]
+);
 
-batch_test!(test_zero_fractional, RC_ZERO, vec![
-    (1.1, 1.0), (1.9, 1.0), (2.5, 2.0), (3.5, 3.0),
-    (-1.1, -1.0), (-1.9, -1.0), (-2.5, -2.0), (-3.5, -3.0)
-]);
+batch_test!(
+    test_zero_fractional,
+    RC_ZERO,
+    vec![
+        (1.1, 1.0),
+        (1.9, 1.0),
+        (2.5, 2.0),
+        (3.5, 3.0),
+        (-1.1, -1.0),
+        (-1.9, -1.0),
+        (-2.5, -2.0),
+        (-3.5, -3.0)
+    ]
+);
 
 #[test]
 fn test_frndint_tiny_values() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,
-        0xD9, 0xFC,
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,
-        0xF4,
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, 0xD9, 0xFC, 0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00,
+        0x00, 0xF4,
     ];
     emu.load_code_bytes(&code);
     emu.maps.write_f64(0x2000, 0.0001);
@@ -352,16 +399,15 @@ fn test_frndint_tiny_values() {
 
 #[test]
 fn test_frndint_preserves_integers() {
-    let mut emu = emu64();    for val in &[1.0, 2.0, 100.0, -50.0, 999.0] {
+    let mut emu = emu64();
+    for val in &[1.0, 2.0, 100.0, -50.0, 999.0] {
         let code = [
-            0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,
-            0xD9, 0xFC,
-            0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,
-            0xF4,
+            0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, 0xD9, 0xFC, 0xDD, 0x1C, 0x25, 0x00, 0x30,
+            0x00, 0x00, 0xF4,
         ];
         emu.load_code_bytes(&code);
         emu.maps.write_f64(0x2000, *val);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
         let result = emu.maps.read_f64(0x3000).unwrap();
         assert_eq!(result, *val);
     }
@@ -369,11 +415,10 @@ fn test_frndint_preserves_integers() {
 
 #[test]
 fn test_frndint_denormal() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,
-        0xD9, 0xFC,
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,
-        0xF4,
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, 0xD9, 0xFC, 0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00,
+        0x00, 0xF4,
     ];
     emu.load_code_bytes(&code);
     emu.maps.write_f64(0x2000, f64::MIN_POSITIVE / 2.0);

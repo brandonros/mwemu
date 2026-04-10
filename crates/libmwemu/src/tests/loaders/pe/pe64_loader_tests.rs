@@ -10,7 +10,10 @@ fn pe64_loader_sets_entrypoint_and_maps_main_image() {
     emu.load_code("../../test/exe64win_msgbox.bin");
 
     assert!(emu.pe64.is_some(), "PE64 metadata should be loaded");
-    assert!(emu.maps.is_mapped(emu.regs().rip), "RIP should point to mapped memory");
+    assert!(
+        emu.maps.is_mapped(emu.regs().rip),
+        "RIP should point to mapped memory"
+    );
 
     let map_name = emu.maps.get_addr_name(emu.regs().rip).unwrap_or("unknown");
     assert!(
@@ -61,4 +64,3 @@ fn pe64_loader_normalizes_api_set_dependencies() {
         deps
     );
 }
-

@@ -34,7 +34,8 @@ const DATA_ADDR: u64 = 0x7000;
 
 // Helper function to read f64 from memory
 fn read_f64(mem: u64, addr: u64) -> f64 {
-    let emu = emu64();    let mut buf = [0u8; 8];
+    let emu = emu64();
+    let mut buf = [0u8; 8];
     emu.maps.read_bytes_buff(&mut buf, addr);
     f64::from_le_bytes(buf)
 }
@@ -45,13 +46,13 @@ fn read_f64(mem: u64, addr: u64) -> f64 {
 
 #[test]
 fn test_fld1_basic() {
-    let mut emu = emu64();    // FLD1                ; D9 E8
-    // FSTP qword [0x3000] ; DD 1C 25 00 30 00 00
-    // HLT                 ; F4
+    let mut emu = emu64(); // FLD1                ; D9 E8
+                           // FSTP qword [0x3000] ; DD 1C 25 00 30 00 00
+                           // HLT                 ; F4
     let code = [
-        0xD9, 0xE8,                                  // FLD1
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xD9, 0xE8, // FLD1
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -64,12 +65,13 @@ fn test_fld1_basic() {
 
 #[test]
 fn test_fld1_multiple() {
-    let mut emu = emu64();    let code = [
-        0xD9, 0xE8,                                  // FLD1
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xD9, 0xE8,                                  // FLD1
-        0xDD, 0x1C, 0x25, 0x08, 0x30, 0x00, 0x00,  // FSTP qword [0x3008]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xD9, 0xE8, // FLD1
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xD9, 0xE8, // FLD1
+        0xDD, 0x1C, 0x25, 0x08, 0x30, 0x00, 0x00, // FSTP qword [0x3008]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -84,13 +86,13 @@ fn test_fld1_multiple() {
 
 #[test]
 fn test_fld1_arithmetic() {
-    let mut emu = emu64();    // FLD1 + FLD1 = 2.0
+    let mut emu = emu64(); // FLD1 + FLD1 = 2.0
     let code = [
-        0xD9, 0xE8,                                  // FLD1
-        0xD9, 0xE8,                                  // FLD1
-        0xDE, 0xC1,                                  // FADDP
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xD9, 0xE8, // FLD1
+        0xD9, 0xE8, // FLD1
+        0xDE, 0xC1, // FADDP
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -103,10 +105,11 @@ fn test_fld1_arithmetic() {
 
 #[test]
 fn test_fld1_precision() {
-    let mut emu = emu64();    let code = [
-        0xD9, 0xE8,                                  // FLD1
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xD9, 0xE8, // FLD1
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -123,13 +126,13 @@ fn test_fld1_precision() {
 
 #[test]
 fn test_fldz_basic() {
-    let mut emu = emu64();    // FLDZ                ; D9 EE
-    // FSTP qword [0x3000] ; DD 1C 25 00 30 00 00
-    // HLT                 ; F4
+    let mut emu = emu64(); // FLDZ                ; D9 EE
+                           // FSTP qword [0x3000] ; DD 1C 25 00 30 00 00
+                           // HLT                 ; F4
     let code = [
-        0xD9, 0xEE,                                  // FLDZ
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xD9, 0xEE, // FLDZ
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -143,12 +146,13 @@ fn test_fldz_basic() {
 
 #[test]
 fn test_fldz_multiple() {
-    let mut emu = emu64();    let code = [
-        0xD9, 0xEE,                                  // FLDZ
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xD9, 0xEE,                                  // FLDZ
-        0xDD, 0x1C, 0x25, 0x08, 0x30, 0x00, 0x00,  // FSTP qword [0x3008]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xD9, 0xEE, // FLDZ
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xD9, 0xEE, // FLDZ
+        0xDD, 0x1C, 0x25, 0x08, 0x30, 0x00, 0x00, // FSTP qword [0x3008]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -163,13 +167,13 @@ fn test_fldz_multiple() {
 
 #[test]
 fn test_fldz_arithmetic() {
-    let mut emu = emu64();    // FLDZ + FLD1 = 1.0
+    let mut emu = emu64(); // FLDZ + FLD1 = 1.0
     let code = [
-        0xD9, 0xEE,                                  // FLDZ
-        0xD9, 0xE8,                                  // FLD1
-        0xDE, 0xC1,                                  // FADDP
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xD9, 0xEE, // FLDZ
+        0xD9, 0xE8, // FLD1
+        0xDE, 0xC1, // FADDP
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -182,10 +186,11 @@ fn test_fldz_arithmetic() {
 
 #[test]
 fn test_fldz_precision() {
-    let mut emu = emu64();    let code = [
-        0xD9, 0xEE,                                  // FLDZ
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xD9, 0xEE, // FLDZ
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -193,7 +198,11 @@ fn test_fldz_precision() {
     emu.run(None).unwrap();
 
     let result = emu.maps.read_f64(0x3000).unwrap();
-    assert_eq!(result.to_bits(), 0.0_f64.to_bits(), "FLDZ should be exact positive zero");
+    assert_eq!(
+        result.to_bits(),
+        0.0_f64.to_bits(),
+        "FLDZ should be exact positive zero"
+    );
 }
 
 // ============================================================================
@@ -202,13 +211,13 @@ fn test_fldz_precision() {
 
 #[test]
 fn test_fldpi_basic() {
-    let mut emu = emu64();    // FLDPI               ; D9 EB
-    // FSTP qword [0x3000] ; DD 1C 25 00 30 00 00
-    // HLT                 ; F4
+    let mut emu = emu64(); // FLDPI               ; D9 EB
+                           // FSTP qword [0x3000] ; DD 1C 25 00 30 00 00
+                           // HLT                 ; F4
     let code = [
-        0xD9, 0xEB,                                  // FLDPI
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xD9, 0xEB, // FLDPI
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -217,15 +226,19 @@ fn test_fldpi_basic() {
 
     let result = emu.maps.read_f64(0x3000).unwrap();
     let expected = std::f64::consts::PI;
-    assert!((result - expected).abs() < 1e-15, "FLDPI should load π accurately");
+    assert!(
+        (result - expected).abs() < 1e-15,
+        "FLDPI should load π accurately"
+    );
 }
 
 #[test]
 fn test_fldpi_precision() {
-    let mut emu = emu64();    let code = [
-        0xD9, 0xEB,                                  // FLDPI
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xD9, 0xEB, // FLDPI
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -234,16 +247,21 @@ fn test_fldpi_precision() {
 
     let result = emu.maps.read_f64(0x3000).unwrap();
     // PI should be very close to standard library value
-    assert!((result - std::f64::consts::PI).abs() < 1e-15,
-        "FLDPI precision check: got {}, expected {}", result, std::f64::consts::PI);
+    assert!(
+        (result - std::f64::consts::PI).abs() < 1e-15,
+        "FLDPI precision check: got {}, expected {}",
+        result,
+        std::f64::consts::PI
+    );
 }
 
 #[test]
 fn test_fldpi_range() {
-    let mut emu = emu64();    let code = [
-        0xD9, 0xEB,                                  // FLDPI
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xD9, 0xEB, // FLDPI
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -251,20 +269,23 @@ fn test_fldpi_range() {
     emu.run(None).unwrap();
 
     let result = emu.maps.read_f64(0x3000).unwrap();
-    assert!(result > 3.14159 && result < 3.14160, "FLDPI should be approximately 3.14159");
+    assert!(
+        result > 3.14159 && result < 3.14160,
+        "FLDPI should be approximately 3.14159"
+    );
 }
 
 #[test]
 fn test_fldpi_arithmetic() {
-    let mut emu = emu64();    // 2 * π
+    let mut emu = emu64(); // 2 * π
     let code = [
-        0xD9, 0xEB,                                  // FLDPI
-        0xD9, 0xE8,                                  // FLD1
-        0xD9, 0xE8,                                  // FLD1
-        0xDE, 0xC1,                                  // FADDP (1 + 1 = 2)
-        0xDE, 0xC9,                                  // FMULP (π * 2)
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xD9, 0xEB, // FLDPI
+        0xD9, 0xE8, // FLD1
+        0xD9, 0xE8, // FLD1
+        0xDE, 0xC1, // FADDP (1 + 1 = 2)
+        0xDE, 0xC9, // FMULP (π * 2)
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -282,13 +303,13 @@ fn test_fldpi_arithmetic() {
 
 #[test]
 fn test_fldl2e_basic() {
-    let mut emu = emu64();    // FLDL2E              ; D9 EA
-    // FSTP qword [0x3000] ; DD 1C 25 00 30 00 00
-    // HLT                 ; F4
+    let mut emu = emu64(); // FLDL2E              ; D9 EA
+                           // FSTP qword [0x3000] ; DD 1C 25 00 30 00 00
+                           // HLT                 ; F4
     let code = [
-        0xD9, 0xEA,                                  // FLDL2E
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xD9, 0xEA, // FLDL2E
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -297,15 +318,19 @@ fn test_fldl2e_basic() {
 
     let result = emu.maps.read_f64(0x3000).unwrap();
     let expected = std::f64::consts::LOG2_E;
-    assert!((result - expected).abs() < 1e-15, "FLDL2E should load log₂(e)");
+    assert!(
+        (result - expected).abs() < 1e-15,
+        "FLDL2E should load log₂(e)"
+    );
 }
 
 #[test]
 fn test_fldl2e_precision() {
-    let mut emu = emu64();    let code = [
-        0xD9, 0xEA,                                  // FLDL2E
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xD9, 0xEA, // FLDL2E
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -313,16 +338,21 @@ fn test_fldl2e_precision() {
     emu.run(None).unwrap();
 
     let result = emu.maps.read_f64(0x3000).unwrap();
-    assert!((result - std::f64::consts::LOG2_E).abs() < 1e-15,
-        "FLDL2E precision: got {}, expected {}", result, std::f64::consts::LOG2_E);
+    assert!(
+        (result - std::f64::consts::LOG2_E).abs() < 1e-15,
+        "FLDL2E precision: got {}, expected {}",
+        result,
+        std::f64::consts::LOG2_E
+    );
 }
 
 #[test]
 fn test_fldl2e_range() {
-    let mut emu = emu64();    let code = [
-        0xD9, 0xEA,                                  // FLDL2E
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xD9, 0xEA, // FLDL2E
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -330,7 +360,10 @@ fn test_fldl2e_range() {
     emu.run(None).unwrap();
 
     let result = emu.maps.read_f64(0x3000).unwrap();
-    assert!(result > 1.442 && result < 1.443, "FLDL2E should be approximately 1.4427");
+    assert!(
+        result > 1.442 && result < 1.443,
+        "FLDL2E should be approximately 1.4427"
+    );
 }
 
 // ============================================================================
@@ -339,13 +372,13 @@ fn test_fldl2e_range() {
 
 #[test]
 fn test_fldl2t_basic() {
-    let mut emu = emu64();    // FLDL2T              ; D9 E9
-    // FSTP qword [0x3000] ; DD 1C 25 00 30 00 00
-    // HLT                 ; F4
+    let mut emu = emu64(); // FLDL2T              ; D9 E9
+                           // FSTP qword [0x3000] ; DD 1C 25 00 30 00 00
+                           // HLT                 ; F4
     let code = [
-        0xD9, 0xE9,                                  // FLDL2T
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xD9, 0xE9, // FLDL2T
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -354,15 +387,19 @@ fn test_fldl2t_basic() {
 
     let result = emu.maps.read_f64(0x3000).unwrap();
     let expected = std::f64::consts::LOG2_10;
-    assert!((result - expected).abs() < 1e-15, "FLDL2T should load log₂(10)");
+    assert!(
+        (result - expected).abs() < 1e-15,
+        "FLDL2T should load log₂(10)"
+    );
 }
 
 #[test]
 fn test_fldl2t_precision() {
-    let mut emu = emu64();    let code = [
-        0xD9, 0xE9,                                  // FLDL2T
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xD9, 0xE9, // FLDL2T
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -370,16 +407,21 @@ fn test_fldl2t_precision() {
     emu.run(None).unwrap();
 
     let result = emu.maps.read_f64(0x3000).unwrap();
-    assert!((result - std::f64::consts::LOG2_10).abs() < 1e-15,
-        "FLDL2T precision: got {}, expected {}", result, std::f64::consts::LOG2_10);
+    assert!(
+        (result - std::f64::consts::LOG2_10).abs() < 1e-15,
+        "FLDL2T precision: got {}, expected {}",
+        result,
+        std::f64::consts::LOG2_10
+    );
 }
 
 #[test]
 fn test_fldl2t_range() {
-    let mut emu = emu64();    let code = [
-        0xD9, 0xE9,                                  // FLDL2T
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xD9, 0xE9, // FLDL2T
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -387,7 +429,10 @@ fn test_fldl2t_range() {
     emu.run(None).unwrap();
 
     let result = emu.maps.read_f64(0x3000).unwrap();
-    assert!(result > 3.321 && result < 3.322, "FLDL2T should be approximately 3.3219");
+    assert!(
+        result > 3.321 && result < 3.322,
+        "FLDL2T should be approximately 3.3219"
+    );
 }
 
 // ============================================================================
@@ -396,13 +441,13 @@ fn test_fldl2t_range() {
 
 #[test]
 fn test_fldlg2_basic() {
-    let mut emu = emu64();    // FLDLG2              ; D9 EC
-    // FSTP qword [0x3000] ; DD 1C 25 00 30 00 00
-    // HLT                 ; F4
+    let mut emu = emu64(); // FLDLG2              ; D9 EC
+                           // FSTP qword [0x3000] ; DD 1C 25 00 30 00 00
+                           // HLT                 ; F4
     let code = [
-        0xD9, 0xEC,                                  // FLDLG2
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xD9, 0xEC, // FLDLG2
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -411,15 +456,19 @@ fn test_fldlg2_basic() {
 
     let result = emu.maps.read_f64(0x3000).unwrap();
     let expected = std::f64::consts::LOG10_2;
-    assert!((result - expected).abs() < 1e-15, "FLDLG2 should load log₁₀(2)");
+    assert!(
+        (result - expected).abs() < 1e-15,
+        "FLDLG2 should load log₁₀(2)"
+    );
 }
 
 #[test]
 fn test_fldlg2_precision() {
-    let mut emu = emu64();    let code = [
-        0xD9, 0xEC,                                  // FLDLG2
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xD9, 0xEC, // FLDLG2
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -427,16 +476,21 @@ fn test_fldlg2_precision() {
     emu.run(None).unwrap();
 
     let result = emu.maps.read_f64(0x3000).unwrap();
-    assert!((result - std::f64::consts::LOG10_2).abs() < 1e-15,
-        "FLDLG2 precision: got {}, expected {}", result, std::f64::consts::LOG10_2);
+    assert!(
+        (result - std::f64::consts::LOG10_2).abs() < 1e-15,
+        "FLDLG2 precision: got {}, expected {}",
+        result,
+        std::f64::consts::LOG10_2
+    );
 }
 
 #[test]
 fn test_fldlg2_range() {
-    let mut emu = emu64();    let code = [
-        0xD9, 0xEC,                                  // FLDLG2
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xD9, 0xEC, // FLDLG2
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -444,18 +498,21 @@ fn test_fldlg2_range() {
     emu.run(None).unwrap();
 
     let result = emu.maps.read_f64(0x3000).unwrap();
-    assert!(result > 0.301 && result < 0.302, "FLDLG2 should be approximately 0.30103");
+    assert!(
+        result > 0.301 && result < 0.302,
+        "FLDLG2 should be approximately 0.30103"
+    );
 }
 
 #[test]
 fn test_fldlg2_fldl2t_reciprocal() {
-    let mut emu = emu64();    // log₁₀(2) * log₂(10) should equal 1
+    let mut emu = emu64(); // log₁₀(2) * log₂(10) should equal 1
     let code = [
-        0xD9, 0xEC,                                  // FLDLG2
-        0xD9, 0xE9,                                  // FLDL2T
-        0xDE, 0xC9,                                  // FMULP
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xD9, 0xEC, // FLDLG2
+        0xD9, 0xE9, // FLDL2T
+        0xDE, 0xC9, // FMULP
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -463,7 +520,10 @@ fn test_fldlg2_fldl2t_reciprocal() {
     emu.run(None).unwrap();
 
     let result = emu.maps.read_f64(0x3000).unwrap();
-    assert!((result - 1.0).abs() < 1e-14, "log₁₀(2) * log₂(10) should equal 1");
+    assert!(
+        (result - 1.0).abs() < 1e-14,
+        "log₁₀(2) * log₂(10) should equal 1"
+    );
 }
 
 // ============================================================================
@@ -472,13 +532,13 @@ fn test_fldlg2_fldl2t_reciprocal() {
 
 #[test]
 fn test_fldln2_basic() {
-    let mut emu = emu64();    // FLDLN2              ; D9 ED
-    // FSTP qword [0x3000] ; DD 1C 25 00 30 00 00
-    // HLT                 ; F4
+    let mut emu = emu64(); // FLDLN2              ; D9 ED
+                           // FSTP qword [0x3000] ; DD 1C 25 00 30 00 00
+                           // HLT                 ; F4
     let code = [
-        0xD9, 0xED,                                  // FLDLN2
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xD9, 0xED, // FLDLN2
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -487,15 +547,19 @@ fn test_fldln2_basic() {
 
     let result = emu.maps.read_f64(0x3000).unwrap();
     let expected = std::f64::consts::LN_2;
-    assert!((result - expected).abs() < 1e-15, "FLDLN2 should load ln(2)");
+    assert!(
+        (result - expected).abs() < 1e-15,
+        "FLDLN2 should load ln(2)"
+    );
 }
 
 #[test]
 fn test_fldln2_precision() {
-    let mut emu = emu64();    let code = [
-        0xD9, 0xED,                                  // FLDLN2
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xD9, 0xED, // FLDLN2
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -503,16 +567,21 @@ fn test_fldln2_precision() {
     emu.run(None).unwrap();
 
     let result = emu.maps.read_f64(0x3000).unwrap();
-    assert!((result - std::f64::consts::LN_2).abs() < 1e-15,
-        "FLDLN2 precision: got {}, expected {}", result, std::f64::consts::LN_2);
+    assert!(
+        (result - std::f64::consts::LN_2).abs() < 1e-15,
+        "FLDLN2 precision: got {}, expected {}",
+        result,
+        std::f64::consts::LN_2
+    );
 }
 
 #[test]
 fn test_fldln2_range() {
-    let mut emu = emu64();    let code = [
-        0xD9, 0xED,                                  // FLDLN2
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xD9, 0xED, // FLDLN2
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -520,7 +589,10 @@ fn test_fldln2_range() {
     emu.run(None).unwrap();
 
     let result = emu.maps.read_f64(0x3000).unwrap();
-    assert!(result > 0.693 && result < 0.694, "FLDLN2 should be approximately 0.69315");
+    assert!(
+        result > 0.693 && result < 0.694,
+        "FLDLN2 should be approximately 0.69315"
+    );
 }
 
 // ============================================================================
@@ -529,22 +601,23 @@ fn test_fldln2_range() {
 
 #[test]
 fn test_all_constants_loaded() {
-    let mut emu = emu64();    let code = [
-        0xD9, 0xE8,                                  // FLD1
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xD9, 0xEE,                                  // FLDZ
-        0xDD, 0x1C, 0x25, 0x08, 0x30, 0x00, 0x00,  // FSTP qword [0x3008]
-        0xD9, 0xEB,                                  // FLDPI
-        0xDD, 0x1C, 0x25, 0x10, 0x30, 0x00, 0x00,  // FSTP qword [0x3010]
-        0xD9, 0xEA,                                  // FLDL2E
-        0xDD, 0x1C, 0x25, 0x18, 0x30, 0x00, 0x00,  // FSTP qword [0x3018]
-        0xD9, 0xE9,                                  // FLDL2T
-        0xDD, 0x1C, 0x25, 0x20, 0x30, 0x00, 0x00,  // FSTP qword [0x3020]
-        0xD9, 0xEC,                                  // FLDLG2
-        0xDD, 0x1C, 0x25, 0x28, 0x30, 0x00, 0x00,  // FSTP qword [0x3028]
-        0xD9, 0xED,                                  // FLDLN2
-        0xDD, 0x1C, 0x25, 0x30, 0x30, 0x00, 0x00,  // FSTP qword [0x3030]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xD9, 0xE8, // FLD1
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xD9, 0xEE, // FLDZ
+        0xDD, 0x1C, 0x25, 0x08, 0x30, 0x00, 0x00, // FSTP qword [0x3008]
+        0xD9, 0xEB, // FLDPI
+        0xDD, 0x1C, 0x25, 0x10, 0x30, 0x00, 0x00, // FSTP qword [0x3010]
+        0xD9, 0xEA, // FLDL2E
+        0xDD, 0x1C, 0x25, 0x18, 0x30, 0x00, 0x00, // FSTP qword [0x3018]
+        0xD9, 0xE9, // FLDL2T
+        0xDD, 0x1C, 0x25, 0x20, 0x30, 0x00, 0x00, // FSTP qword [0x3020]
+        0xD9, 0xEC, // FLDLG2
+        0xDD, 0x1C, 0x25, 0x28, 0x30, 0x00, 0x00, // FSTP qword [0x3028]
+        0xD9, 0xED, // FLDLN2
+        0xDD, 0x1C, 0x25, 0x30, 0x30, 0x00, 0x00, // FSTP qword [0x3030]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -570,14 +643,15 @@ fn test_all_constants_loaded() {
 
 #[test]
 fn test_constant_stack_operations() {
-    let mut emu = emu64();    let code = [
-        0xD9, 0xE8,                                  // FLD1
-        0xD9, 0xEB,                                  // FLDPI
-        0xD9, 0xEA,                                  // FLDL2E
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000] (L2E)
-        0xDD, 0x1C, 0x25, 0x08, 0x30, 0x00, 0x00,  // FSTP qword [0x3008] (PI)
-        0xDD, 0x1C, 0x25, 0x10, 0x30, 0x00, 0x00,  // FSTP qword [0x3010] (1)
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xD9, 0xE8, // FLD1
+        0xD9, 0xEB, // FLDPI
+        0xD9, 0xEA, // FLDL2E
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000] (L2E)
+        0xDD, 0x1C, 0x25, 0x08, 0x30, 0x00, 0x00, // FSTP qword [0x3008] (PI)
+        0xDD, 0x1C, 0x25, 0x10, 0x30, 0x00, 0x00, // FSTP qword [0x3010] (1)
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -595,24 +669,25 @@ fn test_constant_stack_operations() {
 
 #[test]
 fn test_pi_circle_circumference() {
-    let mut emu = emu64();    let code = [
-        0xD9, 0xEB,                                  // FLDPI
-        0xD9, 0xE8,                                  // FLD1
-        0xDE, 0xC1,                                  // FADDP (1 + π, but we want 2)
-        0xD9, 0xEE,                                  // FLDZ
-        0xD9, 0xE8,                                  // FLD1
-        0xD9, 0xE8,                                  // FLD1
-        0xDE, 0xC1,                                  // FADDP (1 + 1)
-        0xD9, 0xE0,                                  // FCHS (negate to clear stack)
-        0xDD, 0xD8,                                  // FSTP ST(0) (pop)
+    let mut emu = emu64();
+    let code = [
+        0xD9, 0xEB, // FLDPI
+        0xD9, 0xE8, // FLD1
+        0xDE, 0xC1, // FADDP (1 + π, but we want 2)
+        0xD9, 0xEE, // FLDZ
+        0xD9, 0xE8, // FLD1
+        0xD9, 0xE8, // FLD1
+        0xDE, 0xC1, // FADDP (1 + 1)
+        0xD9, 0xE0, // FCHS (negate to clear stack)
+        0xDD, 0xD8, // FSTP ST(0) (pop)
         // Restart: 2 * π
-        0xD9, 0xE8,                                  // FLD1
-        0xD9, 0xE8,                                  // FLD1
-        0xDE, 0xC1,                                  // FADDP (2)
-        0xD9, 0xEB,                                  // FLDPI
-        0xDE, 0xC9,                                  // FMULP
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xD9, 0xE8, // FLD1
+        0xD9, 0xE8, // FLD1
+        0xDE, 0xC1, // FADDP (2)
+        0xD9, 0xEB, // FLDPI
+        0xDE, 0xC9, // FMULP
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -621,17 +696,21 @@ fn test_pi_circle_circumference() {
 
     let result = emu.maps.read_f64(0x3000).unwrap();
     let expected = 2.0 * std::f64::consts::PI;
-    assert!((result - expected).abs() < 1e-14, "2π calculation from constants");
+    assert!(
+        (result - expected).abs() < 1e-14,
+        "2π calculation from constants"
+    );
 }
 
 #[test]
 fn test_e_from_constants() {
-    let mut emu = emu64();    let code = [
-        0xD9, 0xED,                                  // FLDLN2 (ln(2))
-        0xD9, 0xEA,                                  // FLDL2E (log₂(e))
-        0xDE, 0xC9,                                  // FMULP (ln(2) * log₂(e))
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xD9, 0xED, // FLDLN2 (ln(2))
+        0xD9, 0xEA, // FLDL2E (log₂(e))
+        0xDE, 0xC9, // FMULP (ln(2) * log₂(e))
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -640,17 +719,21 @@ fn test_e_from_constants() {
 
     let result = emu.maps.read_f64(0x3000).unwrap();
     // ln(2) * log₂(e) = ln(e) = 1
-    assert!((result - 1.0).abs() < 1e-14, "ln(2) * log₂(e) should equal 1");
+    assert!(
+        (result - 1.0).abs() < 1e-14,
+        "ln(2) * log₂(e) should equal 1"
+    );
 }
 
 #[test]
 fn test_constant_combinations() {
-    let mut emu = emu64();    let code = [
-        0xD9, 0xEA,                                  // FLDL2E
-        0xD9, 0xED,                                  // FLDLN2
-        0xDE, 0xF9,                                  // FDIVP (log₂(e) / ln(2))
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xD9, 0xEA, // FLDL2E
+        0xD9, 0xED, // FLDLN2
+        0xDE, 0xF9, // FDIVP (log₂(e) / ln(2))
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -665,13 +748,13 @@ fn test_constant_combinations() {
 
 #[test]
 fn test_fld1_fldz_subtraction() {
-    let mut emu = emu64();    // 1 - 0 = 1
+    let mut emu = emu64(); // 1 - 0 = 1
     let code = [
-        0xD9, 0xE8,                                  // FLD1
-        0xD9, 0xEE,                                  // FLDZ
-        0xDE, 0xE9,                                  // FSUBP
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xD9, 0xE8, // FLD1
+        0xD9, 0xEE, // FLDZ
+        0xDE, 0xE9, // FSUBP
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -684,15 +767,15 @@ fn test_fld1_fldz_subtraction() {
 
 #[test]
 fn test_fldpi_divided_by_2() {
-    let mut emu = emu64();    // π / 2
+    let mut emu = emu64(); // π / 2
     let code = [
-        0xD9, 0xEB,                                  // FLDPI
-        0xD9, 0xE8,                                  // FLD1
-        0xD9, 0xE8,                                  // FLD1
-        0xDE, 0xC1,                                  // FADDP (2)
-        0xDE, 0xF9,                                  // FDIVP
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xD9, 0xEB, // FLDPI
+        0xD9, 0xE8, // FLD1
+        0xD9, 0xE8, // FLD1
+        0xDE, 0xC1, // FADDP (2)
+        0xDE, 0xF9, // FDIVP
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -706,13 +789,13 @@ fn test_fldpi_divided_by_2() {
 
 #[test]
 fn test_constant_multiply_by_zero() {
-    let mut emu = emu64();    // π * 0 = 0
+    let mut emu = emu64(); // π * 0 = 0
     let code = [
-        0xD9, 0xEB,                                  // FLDPI
-        0xD9, 0xEE,                                  // FLDZ
-        0xDE, 0xC9,                                  // FMULP
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xD9, 0xEB, // FLDPI
+        0xD9, 0xEE, // FLDZ
+        0xDE, 0xC9, // FMULP
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -725,13 +808,13 @@ fn test_constant_multiply_by_zero() {
 
 #[test]
 fn test_fld1_squared() {
-    let mut emu = emu64();    // 1 * 1 = 1
+    let mut emu = emu64(); // 1 * 1 = 1
     let code = [
-        0xD9, 0xE8,                                  // FLD1
-        0xD9, 0xE8,                                  // FLD1
-        0xDE, 0xC9,                                  // FMULP
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xD9, 0xE8, // FLD1
+        0xD9, 0xE8, // FLD1
+        0xDE, 0xC9, // FMULP
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -744,16 +827,17 @@ fn test_fld1_squared() {
 
 #[test]
 fn test_all_logs_positive() {
-    let mut emu = emu64();    let code = [
-        0xD9, 0xEA,                                  // FLDL2E
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xD9, 0xE9,                                  // FLDL2T
-        0xDD, 0x1C, 0x25, 0x08, 0x30, 0x00, 0x00,  // FSTP qword [0x3008]
-        0xD9, 0xEC,                                  // FLDLG2
-        0xDD, 0x1C, 0x25, 0x10, 0x30, 0x00, 0x00,  // FSTP qword [0x3010]
-        0xD9, 0xED,                                  // FLDLN2
-        0xDD, 0x1C, 0x25, 0x18, 0x30, 0x00, 0x00,  // FSTP qword [0x3018]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xD9, 0xEA, // FLDL2E
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xD9, 0xE9, // FLDL2T
+        0xDD, 0x1C, 0x25, 0x08, 0x30, 0x00, 0x00, // FSTP qword [0x3008]
+        0xD9, 0xEC, // FLDLG2
+        0xDD, 0x1C, 0x25, 0x10, 0x30, 0x00, 0x00, // FSTP qword [0x3010]
+        0xD9, 0xED, // FLDLN2
+        0xDD, 0x1C, 0x25, 0x18, 0x30, 0x00, 0x00, // FSTP qword [0x3018]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);

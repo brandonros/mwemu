@@ -23,7 +23,11 @@ fn test_bswap_eax() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x78563412, "EAX bytes should be reversed");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x78563412,
+        "EAX bytes should be reversed"
+    );
 }
 
 #[test]
@@ -39,7 +43,11 @@ fn test_bswap_ebx() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rbx & 0xFFFFFFFF, 0xDDCCBBAA, "EBX bytes should be reversed");
+    assert_eq!(
+        emu.regs().rbx & 0xFFFFFFFF,
+        0xDDCCBBAA,
+        "EBX bytes should be reversed"
+    );
 }
 
 #[test]
@@ -55,7 +63,11 @@ fn test_bswap_ecx() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rcx & 0xFFFFFFFF, 0x04030201, "ECX bytes should be reversed");
+    assert_eq!(
+        emu.regs().rcx & 0xFFFFFFFF,
+        0x04030201,
+        "ECX bytes should be reversed"
+    );
 }
 
 #[test]
@@ -71,7 +83,11 @@ fn test_bswap_edx() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rdx & 0xFFFFFFFF, 0xEFBEADDE, "EDX bytes should be reversed");
+    assert_eq!(
+        emu.regs().rdx & 0xFFFFFFFF,
+        0xEFBEADDE,
+        "EDX bytes should be reversed"
+    );
 }
 
 #[test]
@@ -87,7 +103,11 @@ fn test_bswap_rax_64bit() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0xEFCDAB8967452301, "RAX bytes should be reversed");
+    assert_eq!(
+        emu.regs().rax,
+        0xEFCDAB8967452301,
+        "RAX bytes should be reversed"
+    );
 }
 
 #[test]
@@ -103,7 +123,11 @@ fn test_bswap_rbx_64bit() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rbx, 0x1032547698BADCFE, "RBX bytes should be reversed");
+    assert_eq!(
+        emu.regs().rbx,
+        0x1032547698BADCFE,
+        "RBX bytes should be reversed"
+    );
 }
 
 #[test]
@@ -119,7 +143,11 @@ fn test_bswap_all_zeros() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x00000000, "EAX should remain zero");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x00000000,
+        "EAX should remain zero"
+    );
 }
 
 #[test]
@@ -135,7 +163,11 @@ fn test_bswap_all_ones() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xFFFFFFFF, "EAX should remain all ones");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xFFFFFFFF,
+        "EAX should remain all ones"
+    );
 }
 
 #[test]
@@ -151,7 +183,11 @@ fn test_bswap_alternating_bytes() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x55AA55AA, "EAX bytes should be reversed");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x55AA55AA,
+        "EAX bytes should be reversed"
+    );
 }
 
 #[test]
@@ -167,7 +203,11 @@ fn test_bswap_sequential_bytes() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x03020100, "EAX bytes should be reversed");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x03020100,
+        "EAX bytes should be reversed"
+    );
 }
 
 #[test]
@@ -183,7 +223,11 @@ fn test_bswap_with_extended_registers() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().r8 & 0xFFFFFFFF, 0x44332211, "R8D bytes should be reversed");
+    assert_eq!(
+        emu.regs().r8 & 0xFFFFFFFF,
+        0x44332211,
+        "R8D bytes should be reversed"
+    );
 }
 
 #[test]
@@ -199,7 +243,11 @@ fn test_bswap_r9d() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().r9 & 0xFFFFFFFF, 0x01EFCDAB, "R9D bytes should be reversed");
+    assert_eq!(
+        emu.regs().r9 & 0xFFFFFFFF,
+        0x01EFCDAB,
+        "R9D bytes should be reversed"
+    );
 }
 
 #[test]
@@ -215,7 +263,11 @@ fn test_bswap_r15_64bit() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().r15, 0x7766554433221100, "R15 bytes should be reversed");
+    assert_eq!(
+        emu.regs().r15,
+        0x7766554433221100,
+        "R15 bytes should be reversed"
+    );
 }
 
 #[test]
@@ -231,7 +283,11 @@ fn test_bswap_idempotent() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x12345678, "EAX should return to original after double BSWAP");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x12345678,
+        "EAX should return to original after double BSWAP"
+    );
 }
 
 #[test]
@@ -247,7 +303,11 @@ fn test_bswap_endianness_conversion() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x00000080, "Endianness should be converted");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x00000080,
+        "Endianness should be converted"
+    );
 }
 
 #[test]
@@ -265,8 +325,16 @@ fn test_bswap_preserves_other_registers() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rbx & 0xFFFFFFFF, 0xAABBCCDD, "EBX should be unchanged");
-    assert_eq!(emu.regs().rcx & 0xFFFFFFFF, 0x11111111, "ECX should be unchanged");
+    assert_eq!(
+        emu.regs().rbx & 0xFFFFFFFF,
+        0xAABBCCDD,
+        "EBX should be unchanged"
+    );
+    assert_eq!(
+        emu.regs().rcx & 0xFFFFFFFF,
+        0x11111111,
+        "ECX should be unchanged"
+    );
 }
 
 #[test]
@@ -287,9 +355,15 @@ fn test_bswap_single_byte_values() {
         ];
         emu.regs_mut().rax = input;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
-        assert_eq!(emu.regs().rax & 0xFFFFFFFF, expected, "BSWAP(0x{:08X}) should be 0x{:08X}", input, expected);
+        assert_eq!(
+            emu.regs().rax & 0xFFFFFFFF,
+            expected,
+            "BSWAP(0x{:08X}) should be 0x{:08X}",
+            input,
+            expected
+        );
     }
 }
 
@@ -305,7 +379,11 @@ fn test_bswap_network_byte_order() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x00010000, "Should convert network to host byte order");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x00010000,
+        "Should convert network to host byte order"
+    );
 }
 
 #[test]
@@ -320,7 +398,11 @@ fn test_bswap_64bit_symmetric() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x0102030404030201, "Symmetric pattern should equal itself when swapped");
+    assert_eq!(
+        emu.regs().rax,
+        0x0102030404030201,
+        "Symmetric pattern should equal itself when swapped"
+    );
 }
 
 #[test]
@@ -335,7 +417,11 @@ fn test_bswap_64bit_asymmetric() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x0807060504030201, "RAX bytes should be reversed");
+    assert_eq!(
+        emu.regs().rax,
+        0x0807060504030201,
+        "RAX bytes should be reversed"
+    );
 }
 
 #[test]
@@ -351,7 +437,11 @@ fn test_bswap_high_low_word_swap() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x00003412, "High word moves to low with byte swap");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x00003412,
+        "High word moves to low with byte swap"
+    );
 }
 
 #[test]
@@ -367,7 +457,11 @@ fn test_bswap_ascii_to_reversed() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x44434241, "ASCII bytes should be reversed");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x44434241,
+        "ASCII bytes should be reversed"
+    );
 }
 
 #[test]
@@ -375,10 +469,10 @@ fn test_bswap_powers_of_256() {
     let DATA_ADDR = 0x7000;
     let mut emu = emu64();
     let test_cases = vec![
-        (0x00000001, 0x01000000),      // 256^0
-        (0x00000100, 0x00010000),      // 256^1
-        (0x00010000, 0x00000100),      // 256^2
-        (0x01000000, 0x00000001),      // 256^3
+        (0x00000001, 0x01000000), // 256^0
+        (0x00000100, 0x00010000), // 256^1
+        (0x00010000, 0x00000100), // 256^2
+        (0x01000000, 0x00000001), // 256^3
     ];
 
     for (input, expected) in test_cases {
@@ -388,9 +482,15 @@ fn test_bswap_powers_of_256() {
         ];
         emu.regs_mut().rax = input;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
-        assert_eq!(emu.regs().rax & 0xFFFFFFFF, expected, "BSWAP(0x{:08X}) should be 0x{:08X}", input, expected);
+        assert_eq!(
+            emu.regs().rax & 0xFFFFFFFF,
+            expected,
+            "BSWAP(0x{:08X}) should be 0x{:08X}",
+            input,
+            expected
+        );
     }
 }
 
@@ -411,9 +511,21 @@ fn test_bswap_sequential_registers() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x11111111, "EAX should be swapped");
-    assert_eq!(emu.regs().rbx & 0xFFFFFFFF, 0x22222222, "EBX should be swapped");
-    assert_eq!(emu.regs().rcx & 0xFFFFFFFF, 0x33333333, "ECX should be swapped");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x11111111,
+        "EAX should be swapped"
+    );
+    assert_eq!(
+        emu.regs().rbx & 0xFFFFFFFF,
+        0x22222222,
+        "EBX should be swapped"
+    );
+    assert_eq!(
+        emu.regs().rcx & 0xFFFFFFFF,
+        0x33333333,
+        "ECX should be swapped"
+    );
 }
 
 #[test]
@@ -428,5 +540,9 @@ fn test_bswap_64bit_upper_lower_independence() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0xF0DEBC9A_78563412, "Both halves should be byte-swapped and position-swapped");
+    assert_eq!(
+        emu.regs().rax,
+        0xF0DEBC9A_78563412,
+        "Both halves should be byte-swapped and position-swapped"
+    );
 }

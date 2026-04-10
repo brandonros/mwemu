@@ -24,7 +24,11 @@ fn test_pext_eax_ebx_ecx_all_mask() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x12345678, "EAX should equal source (identity with full mask)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x12345678,
+        "EAX should equal source (identity with full mask)"
+    );
 }
 
 #[test]
@@ -41,7 +45,11 @@ fn test_pext_eax_ebx_ecx_zero_mask() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0, "EAX should be zero (no bits extracted)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0,
+        "EAX should be zero (no bits extracted)"
+    );
 }
 
 #[test]
@@ -58,7 +66,11 @@ fn test_pext_eax_ebx_ecx_single_bit_mask() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0b0000_0001, "EAX should have extracted bit at position 0");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0b0000_0001,
+        "EAX should have extracted bit at position 0"
+    );
 }
 
 #[test]
@@ -75,7 +87,11 @@ fn test_pext_eax_ebx_ecx_alternating_mask() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x0000FFFF, "EAX should have 16 bits packed");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x0000FFFF,
+        "EAX should have 16 bits packed"
+    );
 }
 
 #[test]
@@ -91,7 +107,11 @@ fn test_pext_eax_ebx_ecx_low_nibble() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x8, "EAX should contain extracted nibble");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x8,
+        "EAX should contain extracted nibble"
+    );
 }
 
 #[test]
@@ -108,7 +128,11 @@ fn test_pext_rax_rbx_rcx_64bit() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0xFF, "RAX should have extracted high byte at low position");
+    assert_eq!(
+        emu.regs().rax,
+        0xFF,
+        "RAX should have extracted high byte at low position"
+    );
 }
 
 #[test]
@@ -125,7 +149,11 @@ fn test_pext_sparse_mask() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0b111, "EAX should have 3 bits packed at low positions");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0b111,
+        "EAX should have 3 bits packed at low positions"
+    );
 }
 
 #[test]
@@ -142,7 +170,11 @@ fn test_pext_with_extended_registers() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().r8 & 0xFFFFFFFF, 0xFF, "R8D should have extracted byte");
+    assert_eq!(
+        emu.regs().r8 & 0xFFFFFFFF,
+        0xFF,
+        "R8D should have extracted byte"
+    );
 }
 
 #[test]
@@ -151,7 +183,8 @@ fn test_pext_mem32() {
     let mut emu = emu64();
     // PEXT EAX, EBX, [mem]
     let code = [
-        0xc4, 0xe2, 0x62, 0xf5, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // PEXT EAX, EBX, [DATA_ADDR]
+        0xc4, 0xe2, 0x62, 0xf5, 0x04, 0x25, 0x00, 0x20, 0x00,
+        0x00, // PEXT EAX, EBX, [DATA_ADDR]
         0xf4,
     ];
     emu.regs_mut().rbx = 0x000F0000;
@@ -159,7 +192,11 @@ fn test_pext_mem32() {
     emu.maps.write_dword(DATA_ADDR, 0x000F0000); // mask bits 16-19
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xF, "EAX should have extracted nibble from memory mask");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xF,
+        "EAX should have extracted nibble from memory mask"
+    );
 }
 
 #[test]
@@ -168,7 +205,8 @@ fn test_pext_mem64() {
     let mut emu = emu64();
     // PEXT RAX, RBX, [mem]
     let code = [
-        0xc4, 0xe2, 0xe2, 0xf5, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // PEXT RAX, RBX, [DATA_ADDR]
+        0xc4, 0xe2, 0xe2, 0xf5, 0x04, 0x25, 0x00, 0x20, 0x00,
+        0x00, // PEXT RAX, RBX, [DATA_ADDR]
         0xf4,
     ];
     emu.regs_mut().rbx = 0x00FF000000000000;
@@ -176,7 +214,11 @@ fn test_pext_mem64() {
     emu.maps.write_qword(DATA_ADDR, 0x00FF000000000000); // mask bits 48-55
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0xFF, "RAX should have extracted byte from memory mask");
+    assert_eq!(
+        emu.regs().rax,
+        0xFF,
+        "RAX should have extracted byte from memory mask"
+    );
 }
 
 #[test]
@@ -193,8 +235,16 @@ fn test_pext_preserves_sources() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rbx & 0xFFFFFFFF, 0x12345678, "EBX should be unchanged");
-    assert_eq!(emu.regs().rcx & 0xFFFFFFFF, 0xAAAAAAAA, "ECX should be unchanged");
+    assert_eq!(
+        emu.regs().rbx & 0xFFFFFFFF,
+        0x12345678,
+        "EBX should be unchanged"
+    );
+    assert_eq!(
+        emu.regs().rcx & 0xFFFFFFFF,
+        0xAAAAAAAA,
+        "ECX should be unchanged"
+    );
 }
 
 #[test]
@@ -216,9 +266,16 @@ fn test_pext_sequential_extracts() {
         emu.regs_mut().rbx = src;
         emu.regs_mut().rcx = mask;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
-        assert_eq!(emu.regs().rax & 0xFFFFFFFF, expected, "PEXT(0x{:X}, 0x{:X}) should be 0x{:X}", src, mask, expected);
+        assert_eq!(
+            emu.regs().rax & 0xFFFFFFFF,
+            expected,
+            "PEXT(0x{:X}, 0x{:X}) should be 0x{:X}",
+            src,
+            mask,
+            expected
+        );
     }
 }
 
@@ -235,7 +292,11 @@ fn test_pext_extract_nibbles() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xDCBA, "Should extract alternating nibbles packed");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xDCBA,
+        "Should extract alternating nibbles packed"
+    );
 }
 
 #[test]
@@ -251,7 +312,11 @@ fn test_pext_bit_gather() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xF, "Should gather 4 scattered bits");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xF,
+        "Should gather 4 scattered bits"
+    );
 }
 
 #[test]
@@ -266,9 +331,13 @@ fn test_pext_power_of_two_masks() {
         emu.regs_mut().rbx = 1u64 << bit_pos;
         emu.regs_mut().rcx = 1u64 << bit_pos;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
-        assert_eq!(emu.regs().rax & 0xFFFFFFFF, 1, "Should extract single bit to position 0");
+        assert_eq!(
+            emu.regs().rax & 0xFFFFFFFF,
+            1,
+            "Should extract single bit to position 0"
+        );
     }
 }
 
@@ -308,7 +377,11 @@ fn test_pext_inverse_of_pdep() {
     } else {
         value & ((1u64 << bit_count) - 1)
     };
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, expected, "PEXT(PDEP(x, mask), mask) should recover deposited bits");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        expected,
+        "PEXT(PDEP(x, mask), mask) should recover deposited bits"
+    );
 }
 
 #[test]
@@ -324,7 +397,11 @@ fn test_pext_byte_compaction() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x0B0D, "Should compact separated bytes");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x0B0D,
+        "Should compact separated bytes"
+    );
 }
 
 #[test]
@@ -340,7 +417,11 @@ fn test_pext_zero_source() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0, "Zero source should produce zero");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0,
+        "Zero source should produce zero"
+    );
 }
 
 #[test]
@@ -356,7 +437,11 @@ fn test_pext_64bit_high_positions() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0xFFFF, "Should extract high bits to low positions");
+    assert_eq!(
+        emu.regs().rax,
+        0xFFFF,
+        "Should extract high bits to low positions"
+    );
 }
 
 #[test]
@@ -364,9 +449,9 @@ fn test_pext_pattern_extraction() {
     let DATA_ADDR = 0x7000;
     let mut emu = emu64();
     let test_cases = vec![
-        (0x11111111, 0x11111111, 0x000000FF),  // extract every 4th bit
-        (0x33333333, 0x33333333, 0x0000FFFF),  // extract two bits per nibble
-        (0x0F0F0F0F, 0x0F0F0F0F, 0x0000FFFF),  // extract nibbles
+        (0x11111111, 0x11111111, 0x000000FF), // extract every 4th bit
+        (0x33333333, 0x33333333, 0x0000FFFF), // extract two bits per nibble
+        (0x0F0F0F0F, 0x0F0F0F0F, 0x0000FFFF), // extract nibbles
     ];
 
     for (src, mask, expected) in test_cases {
@@ -377,9 +462,16 @@ fn test_pext_pattern_extraction() {
         emu.regs_mut().rbx = src;
         emu.regs_mut().rcx = mask;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
-        assert_eq!(emu.regs().rax & 0xFFFFFFFF, expected, "PEXT(0x{:X}, 0x{:X}) should be 0x{:X}", src, mask, expected);
+        assert_eq!(
+            emu.regs().rax & 0xFFFFFFFF,
+            expected,
+            "PEXT(0x{:X}, 0x{:X}) should be 0x{:X}",
+            src,
+            mask,
+            expected
+        );
     }
 }
 
@@ -396,7 +488,11 @@ fn test_pext_consecutive_mask_bits() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x00005678, "Consecutive mask extracts lower bits");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x00005678,
+        "Consecutive mask extracts lower bits"
+    );
 }
 
 #[test]
@@ -412,7 +508,11 @@ fn test_pext_field_unpacking() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xFF, "Should unpack fields contiguously");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xFF,
+        "Should unpack fields contiguously"
+    );
 }
 
 #[test]
@@ -428,7 +528,11 @@ fn test_pext_mask_population_count() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xFF, "Result limited by mask popcount");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xFF,
+        "Result limited by mask popcount"
+    );
 }
 
 #[test]
@@ -444,7 +548,11 @@ fn test_pext_interleaved_bytes() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xBBDD, "Should extract interleaved bytes");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xBBDD,
+        "Should extract interleaved bytes"
+    );
 }
 
 #[test]
@@ -461,7 +569,11 @@ fn test_pext_bit_reversal_aid() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xFFFF, "Should extract all high nibbles");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xFFFF,
+        "Should extract all high nibbles"
+    );
 }
 
 #[test]
@@ -476,8 +588,13 @@ fn test_pext_single_byte_from_dword() {
         emu.regs_mut().rbx = 0x03020100;
         emu.regs_mut().rcx = 0xFFu64 << (byte_idx * 8);
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
-        assert_eq!(emu.regs().rax & 0xFFFFFFFF, byte_idx as u64, "Should extract byte {}", byte_idx);
+        assert_eq!(
+            emu.regs().rax & 0xFFFFFFFF,
+            byte_idx as u64,
+            "Should extract byte {}",
+            byte_idx
+        );
     }
 }

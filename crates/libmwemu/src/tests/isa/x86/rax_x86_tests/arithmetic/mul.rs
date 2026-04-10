@@ -28,10 +28,10 @@ fn test_mul_al_small() {
     let mut emu = emu64();
     let code = [
         0xf6, 0xe3, // MUL BL (F6 /4, ModRM=11_100_011)
-        0xf4,       // HLT
+        0xf4, // HLT
     ];
-    emu.regs_mut().rax = 5;  // AL = 5
-    emu.regs_mut().rbx = 3;  // BL = 3
+    emu.regs_mut().rax = 5; // AL = 5
+    emu.regs_mut().rbx = 3; // BL = 3
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
@@ -51,7 +51,11 @@ fn test_mul_al_max() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFF, 0xFE01, "255 * 255 = 65025 (0xFE01)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0xFE01,
+        "255 * 255 = 65025 (0xFE01)"
+    );
     assert!(emu.flags().f_cf, "CF should be set (result in AH)");
     assert!(emu.flags().f_of, "OF should be set");
 }
@@ -551,7 +555,6 @@ fn test_mul_vs_imul_unsigned() {
     assert_eq!(emu1.regs().rax, emu2.regs().rbx, "Products should match");
     assert_eq!(emu1.regs().rax, 20000, "Product is 20000");
 }
-
 
 // ============================================================================
 // Edge cases

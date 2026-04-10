@@ -26,7 +26,6 @@ pub const IDT_BASE: u64 = 0x11000;
 /// GDT base address
 pub const GDT_BASE: u64 = 0x10000;
 
-
 /// Create a test CPU with the given code.
 /// This is a convenience wrapper for tests that prefer the TestCpu API.
 /*
@@ -60,9 +59,7 @@ impl TestCase {
             .split_whitespace()
             .filter_map(|s| u8::from_str_radix(s, 16).ok())
             .collect();
-        Self {
-            code
-        }
+        Self { code }
     }
 
     /// Run the test - just check if code executes without panic
@@ -74,5 +71,3 @@ impl TestCase {
         emu.run(None).unwrap();
     }
 }
-
-

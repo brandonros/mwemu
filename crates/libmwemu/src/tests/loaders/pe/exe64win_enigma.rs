@@ -15,9 +15,8 @@ pub fn exe64win_enigma() {
     emu.run_to(5_000_000 + 5);
     assert!(emu.pos >= 5_000_000);
     /*
-    too slow for a test: 
+    too slow for a test:
     emu.run_to(102072786);
     assert!(emu.pos > 102072780);
     */
-
 }

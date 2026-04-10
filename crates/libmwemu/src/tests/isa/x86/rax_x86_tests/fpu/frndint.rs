@@ -20,19 +20,22 @@ const DATA_ADDR: u64 = 0x7000;
 
 // Helper function to write f64 to memory
 fn write_f64(mem: u64, addr: u64, val: f64) {
-    let mut emu = emu64();    emu.maps.write_bytes_slice(addr, &val.to_le_bytes());
+    let mut emu = emu64();
+    emu.maps.write_bytes_slice(addr, &val.to_le_bytes());
 }
 
 // Helper function to read f64 from memory
 fn read_f64(mem: u64, addr: u64) -> f64 {
-    let emu = emu64();    let mut buf = [0u8; 8];
+    let emu = emu64();
+    let mut buf = [0u8; 8];
     emu.maps.read_bytes_buff(&mut buf, addr);
     f64::from_le_bytes(buf)
 }
 
 // Helper function to write FPU control word
 fn write_fpu_control_word(mem: u64, addr: u64, cw: u16) {
-    let mut emu = emu64();    emu.maps.write_bytes_slice(addr, &cw.to_le_bytes());
+    let mut emu = emu64();
+    emu.maps.write_bytes_slice(addr, &cw.to_le_bytes());
 }
 
 // ============================================================================
@@ -41,11 +44,12 @@ fn write_fpu_control_word(mem: u64, addr: u64, cw: u16) {
 
 #[test]
 fn test_frndint_positive_round_down() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFC,                                  // FRNDINT
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFC, // FRNDINT
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -59,11 +63,12 @@ fn test_frndint_positive_round_down() {
 
 #[test]
 fn test_frndint_positive_round_up() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFC,                                  // FRNDINT
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFC, // FRNDINT
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -77,11 +82,12 @@ fn test_frndint_positive_round_up() {
 
 #[test]
 fn test_frndint_positive_half() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFC,                                  // FRNDINT
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFC, // FRNDINT
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -95,11 +101,12 @@ fn test_frndint_positive_half() {
 
 #[test]
 fn test_frndint_positive_half_odd() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFC,                                  // FRNDINT
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFC, // FRNDINT
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -117,11 +124,12 @@ fn test_frndint_positive_half_odd() {
 
 #[test]
 fn test_frndint_negative_round_up() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFC,                                  // FRNDINT
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFC, // FRNDINT
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -135,11 +143,12 @@ fn test_frndint_negative_round_up() {
 
 #[test]
 fn test_frndint_negative_round_down() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFC,                                  // FRNDINT
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFC, // FRNDINT
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -153,11 +162,12 @@ fn test_frndint_negative_round_down() {
 
 #[test]
 fn test_frndint_negative_half() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFC,                                  // FRNDINT
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFC, // FRNDINT
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -171,11 +181,12 @@ fn test_frndint_negative_half() {
 
 #[test]
 fn test_frndint_negative_half_odd() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFC,                                  // FRNDINT
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFC, // FRNDINT
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -193,11 +204,12 @@ fn test_frndint_negative_half_odd() {
 
 #[test]
 fn test_frndint_already_integer_positive() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFC,                                  // FRNDINT
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFC, // FRNDINT
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -211,11 +223,12 @@ fn test_frndint_already_integer_positive() {
 
 #[test]
 fn test_frndint_already_integer_negative() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFC,                                  // FRNDINT
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFC, // FRNDINT
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -229,11 +242,12 @@ fn test_frndint_already_integer_negative() {
 
 #[test]
 fn test_frndint_already_integer_large() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFC,                                  // FRNDINT
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFC, // FRNDINT
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -242,7 +256,10 @@ fn test_frndint_already_integer_large() {
     emu.run(None).unwrap();
 
     let result = emu.maps.read_f64(0x3000).unwrap();
-    assert_eq!(result, 123456789.0, "FRNDINT of large integer should remain unchanged");
+    assert_eq!(
+        result, 123456789.0,
+        "FRNDINT of large integer should remain unchanged"
+    );
 }
 
 // ============================================================================
@@ -251,11 +268,12 @@ fn test_frndint_already_integer_large() {
 
 #[test]
 fn test_frndint_positive_zero() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFC,                                  // FRNDINT
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFC, // FRNDINT
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -270,11 +288,12 @@ fn test_frndint_positive_zero() {
 
 #[test]
 fn test_frndint_negative_zero() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFC,                                  // FRNDINT
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFC, // FRNDINT
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -289,11 +308,12 @@ fn test_frndint_negative_zero() {
 
 #[test]
 fn test_frndint_positive_infinity() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFC,                                  // FRNDINT
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFC, // FRNDINT
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -302,17 +322,24 @@ fn test_frndint_positive_infinity() {
     emu.run(None).unwrap();
 
     let result = emu.maps.read_f64(0x3000).unwrap();
-    assert!(result.is_infinite(), "FRNDINT of +infinity should remain +infinity");
-    assert!(!result.is_sign_negative(), "Result should be positive infinity");
+    assert!(
+        result.is_infinite(),
+        "FRNDINT of +infinity should remain +infinity"
+    );
+    assert!(
+        !result.is_sign_negative(),
+        "Result should be positive infinity"
+    );
 }
 
 #[test]
 fn test_frndint_negative_infinity() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFC,                                  // FRNDINT
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFC, // FRNDINT
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -321,17 +348,24 @@ fn test_frndint_negative_infinity() {
     emu.run(None).unwrap();
 
     let result = emu.maps.read_f64(0x3000).unwrap();
-    assert!(result.is_infinite(), "FRNDINT of -infinity should remain -infinity");
-    assert!(result.is_sign_negative(), "Result should be negative infinity");
+    assert!(
+        result.is_infinite(),
+        "FRNDINT of -infinity should remain -infinity"
+    );
+    assert!(
+        result.is_sign_negative(),
+        "Result should be negative infinity"
+    );
 }
 
 #[test]
 fn test_frndint_nan() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFC,                                  // FRNDINT
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFC, // FRNDINT
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -349,11 +383,12 @@ fn test_frndint_nan() {
 
 #[test]
 fn test_frndint_small_positive_fraction() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFC,                                  // FRNDINT
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFC, // FRNDINT
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -367,11 +402,12 @@ fn test_frndint_small_positive_fraction() {
 
 #[test]
 fn test_frndint_small_negative_fraction() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFC,                                  // FRNDINT
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFC, // FRNDINT
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -385,11 +421,12 @@ fn test_frndint_small_negative_fraction() {
 
 #[test]
 fn test_frndint_near_one() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFC,                                  // FRNDINT
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFC, // FRNDINT
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -403,11 +440,12 @@ fn test_frndint_near_one() {
 
 #[test]
 fn test_frndint_near_negative_one() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFC,                                  // FRNDINT
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFC, // FRNDINT
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -425,11 +463,12 @@ fn test_frndint_near_negative_one() {
 
 #[test]
 fn test_frndint_large_positive() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFC,                                  // FRNDINT
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFC, // FRNDINT
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -438,16 +477,20 @@ fn test_frndint_large_positive() {
     emu.run(None).unwrap();
 
     let result = emu.maps.read_f64(0x3000).unwrap();
-    assert_eq!(result, 123456790.0, "FRNDINT of large value should round correctly");
+    assert_eq!(
+        result, 123456790.0,
+        "FRNDINT of large value should round correctly"
+    );
 }
 
 #[test]
 fn test_frndint_large_negative() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFC,                                  // FRNDINT
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFC, // FRNDINT
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -456,7 +499,10 @@ fn test_frndint_large_negative() {
     emu.run(None).unwrap();
 
     let result = emu.maps.read_f64(0x3000).unwrap();
-    assert_eq!(result, -987654321.0, "FRNDINT of large negative should round correctly");
+    assert_eq!(
+        result, -987654321.0,
+        "FRNDINT of large negative should round correctly"
+    );
 }
 
 // ============================================================================
@@ -465,11 +511,12 @@ fn test_frndint_large_negative() {
 
 #[test]
 fn test_frndint_pi() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFC,                                  // FRNDINT
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFC, // FRNDINT
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -483,11 +530,12 @@ fn test_frndint_pi() {
 
 #[test]
 fn test_frndint_e() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFC,                                  // FRNDINT
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFC, // FRNDINT
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -505,14 +553,15 @@ fn test_frndint_e() {
 
 #[test]
 fn test_frndint_sequence() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFC,                                  // FRNDINT
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00,  // FLD qword [0x2008]
-        0xD9, 0xFC,                                  // FRNDINT
-        0xDD, 0x1C, 0x25, 0x08, 0x30, 0x00, 0x00,  // FSTP qword [0x3008]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFC, // FRNDINT
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00, // FLD qword [0x2008]
+        0xD9, 0xFC, // FRNDINT
+        0xDD, 0x1C, 0x25, 0x08, 0x30, 0x00, 0x00, // FSTP qword [0x3008]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -529,13 +578,13 @@ fn test_frndint_sequence() {
 
 #[test]
 fn test_frndint_idempotent() {
-    let mut emu = emu64();    // FRNDINT on an integer should be idempotent
+    let mut emu = emu64(); // FRNDINT on an integer should be idempotent
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFC,                                  // FRNDINT
-        0xD9, 0xFC,                                  // FRNDINT (second time)
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFC, // FRNDINT
+        0xD9, 0xFC, // FRNDINT (second time)
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -553,11 +602,12 @@ fn test_frndint_idempotent() {
 
 #[test]
 fn test_frndint_very_large_value() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFC,                                  // FRNDINT
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFC, // FRNDINT
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -571,11 +621,12 @@ fn test_frndint_very_large_value() {
 
 #[test]
 fn test_frndint_one_half() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFC,                                  // FRNDINT
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFC, // FRNDINT
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -589,11 +640,12 @@ fn test_frndint_one_half() {
 
 #[test]
 fn test_frndint_one_and_half() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFC,                                  // FRNDINT
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFC, // FRNDINT
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -607,11 +659,12 @@ fn test_frndint_one_and_half() {
 
 #[test]
 fn test_frndint_negative_one_half() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFC,                                  // FRNDINT
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFC, // FRNDINT
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -625,11 +678,12 @@ fn test_frndint_negative_one_half() {
 
 #[test]
 fn test_frndint_negative_one_and_half() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFC,                                  // FRNDINT
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFC, // FRNDINT
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -643,11 +697,12 @@ fn test_frndint_negative_one_and_half() {
 
 #[test]
 fn test_frndint_various_fractions() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFC,                                  // FRNDINT
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFC, // FRNDINT
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     let test_cases = vec![
@@ -665,9 +720,13 @@ fn test_frndint_various_fractions() {
         emu.load_code_bytes(&code);
         emu.maps.write_f64(0x2000, input);
 
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
         let result = emu.maps.read_f64(0x3000).unwrap();
-        assert_eq!(result, expected, "FRNDINT of {} should be {}", input, expected);
+        assert_eq!(
+            result, expected,
+            "FRNDINT of {} should be {}",
+            input, expected
+        );
     }
 }

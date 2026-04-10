@@ -402,6 +402,39 @@ impl Emu {
         self.init_stack_aarch64();
     }
 
+    /// Initialize macOS x86_64 simulation for Mach-O loading.
+    pub fn init_macos64(&mut self) {
+        self.os = crate::arch::OperatingSystem::MacOS;
+        self.maps.is_64bits = true;
+
+        // Mach-O front-door loading can switch the emulator from an earlier
+        // AArch64 session, so restore the x86 thread/register state explicitly.
+        if matches!(
+            self.threads[self.current_thread_id].arch,
+            crate::threading::context::ArchThreadState::AArch64 { .. }
+        ) {
+            let id = self.threads[self.current_thread_id].id;
+            self.threads[self.current_thread_id] =
+                crate::threading::context::ThreadContext::new(id, self.cfg.arch);
+        }
+
+        if matches!(self.arch_state, super::ArchState::AArch64 { .. }) {
+            let mut formatter = IntelFormatter::new();
+            formatter.options_mut().set_digit_separator("");
+            formatter.options_mut().set_first_operand_char_index(6);
+            self.arch_state = super::ArchState::X86 {
+                instruction: None,
+                formatter,
+                instruction_cache: InstructionCache::new(),
+                decoder_position: 0,
+            };
+        }
+
+        self.flags_mut().clear();
+        self.flags_mut().f_if = true;
+        self.init_stack64();
+    }
+
     /// Initialize linux x86_64 simulation, it's called from load_code() if the sample is an ELF.
     pub fn init_linux64(&mut self, dyn_link: bool) {
         //self.regs_mut().clear::<64>();

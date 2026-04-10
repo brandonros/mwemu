@@ -97,7 +97,11 @@ fn test_not_preserves_high_bytes_8bit() {
     emu.run(None).unwrap();
 
     assert_eq!(emu.regs().rax & 0xFF, 0x87, "AL: NOT 0x78 = 0x87");
-    assert_eq!(emu.regs().rax & !0xFF, 0xDEADBEEF_12345600, "Upper bytes preserved");
+    assert_eq!(
+        emu.regs().rax & !0xFF,
+        0xDEADBEEF_12345600,
+        "Upper bytes preserved"
+    );
 }
 
 // ============================================================================
@@ -159,7 +163,11 @@ fn test_not_eax_basic() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0xEDCBA987, "EAX: NOT 0x12345678 = 0xEDCBA987");
+    assert_eq!(
+        emu.regs().rax,
+        0xEDCBA987,
+        "EAX: NOT 0x12345678 = 0xEDCBA987"
+    );
 }
 
 #[test]
@@ -183,7 +191,11 @@ fn test_not_eax_pattern() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x00FF00FF, "EAX: NOT 0xFF00FF00 = 0x00FF00FF");
+    assert_eq!(
+        emu.regs().rax,
+        0x00FF00FF,
+        "EAX: NOT 0xFF00FF00 = 0x00FF00FF"
+    );
 }
 
 #[test]
@@ -195,7 +207,11 @@ fn test_not_ebx_register() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rbx, 0x55555555, "EBX: NOT 0xAAAAAAAA = 0x55555555");
+    assert_eq!(
+        emu.regs().rbx,
+        0x55555555,
+        "EBX: NOT 0xAAAAAAAA = 0x55555555"
+    );
 }
 
 // ============================================================================
@@ -214,7 +230,11 @@ fn test_not_rax_basic() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0xEDCBA9876543210F, "RAX: NOT 0x123456789ABCDEF0");
+    assert_eq!(
+        emu.regs().rax,
+        0xEDCBA9876543210F,
+        "RAX: NOT 0x123456789ABCDEF0"
+    );
 }
 
 #[test]
@@ -226,7 +246,11 @@ fn test_not_rax_all_zeros() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0xFFFFFFFFFFFFFFFF, "RAX: NOT 0 = 0xFFFF...FFFF");
+    assert_eq!(
+        emu.regs().rax,
+        0xFFFFFFFFFFFFFFFF,
+        "RAX: NOT 0 = 0xFFFF...FFFF"
+    );
 }
 
 #[test]
@@ -238,7 +262,11 @@ fn test_not_rax_all_ones() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x0000000000000000, "RAX: NOT 0xFFFF...FFFF = 0");
+    assert_eq!(
+        emu.regs().rax,
+        0x0000000000000000,
+        "RAX: NOT 0xFFFF...FFFF = 0"
+    );
 }
 
 #[test]
@@ -250,7 +278,11 @@ fn test_not_rax_pattern() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x00FF00FF00FF00FF, "RAX: invert alternating bytes");
+    assert_eq!(
+        emu.regs().rax,
+        0x00FF00FF00FF00FF,
+        "RAX: invert alternating bytes"
+    );
 }
 
 #[test]
@@ -411,14 +443,19 @@ fn test_not_preserves_flags() {
     let mut emu = emu64();
     let code = [0xf6, 0xd0, 0xf4]; // NOT AL
     emu.regs_mut().rax = 0x00;
-    emu.flags_mut().load(0x2 | flags::F_CF | flags::F_PF | 
-        flags::F_AF | flags::F_ZF | flags::F_SF | flags::F_OF);
+    emu.flags_mut().load(
+        0x2 | flags::F_CF | flags::F_PF | flags::F_AF | flags::F_ZF | flags::F_SF | flags::F_OF,
+    );
     let initial_flags = emu.flags().dump();
 
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.flags().dump(), initial_flags, "NOT should not affect any flags");
+    assert_eq!(
+        emu.flags().dump(),
+        initial_flags,
+        "NOT should not affect any flags"
+    );
 }
 
 // ============================================================================
@@ -477,5 +514,9 @@ fn test_not_equivalent_to_xor_minus_one() {
     emu2.load_code_bytes(&code_xor);
     emu2.run(None).unwrap();
 
-    assert_eq!(emu1.regs().rax & 0xFF, emu2.regs().rax & 0xFF, "NOT x = x XOR 0xFF");
+    assert_eq!(
+        emu1.regs().rax & 0xFF,
+        emu2.regs().rax & 0xFF,
+        "NOT x = x XOR 0xFF"
+    );
 }

@@ -242,7 +242,10 @@ fn test_bt_eax_ebx_alternating_bits() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert!(emu.flags().f_cf, "CF should be set (bit 1 is 1 in 0xAAAAAAAA)");
+    assert!(
+        emu.flags().f_cf,
+        "CF should be set (bit 1 is 1 in 0xAAAAAAAA)"
+    );
 }
 
 #[test]
@@ -258,7 +261,10 @@ fn test_bt_eax_ebx_alternating_bits_clear() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert!(!emu.flags().f_cf, "CF should be clear (bit 0 is 0 in 0xAAAAAAAA)");
+    assert!(
+        !emu.flags().f_cf,
+        "CF should be clear (bit 0 is 0 in 0xAAAAAAAA)"
+    );
 }
 
 #[test]
@@ -275,7 +281,11 @@ fn test_bt_does_not_modify_operand() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x12345678, "EAX: BT should not modify operand");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x12345678,
+        "EAX: BT should not modify operand"
+    );
 }
 
 #[test]
@@ -293,7 +303,11 @@ fn test_bt_with_extended_registers() {
     emu.run(None).unwrap();
 
     assert!(emu.flags().f_cf, "CF should be set (bit 0 is 1)");
-    assert_eq!(emu.regs().r8 & 0xFFFFFFFF, 0b0000_0001, "R8D: BT should not modify operand");
+    assert_eq!(
+        emu.regs().r8 & 0xFFFFFFFF,
+        0b0000_0001,
+        "R8D: BT should not modify operand"
+    );
 }
 
 #[test]
@@ -424,7 +438,10 @@ fn test_bt_bit_position_modulo_16() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert!(emu.flags().f_cf, "CF should be set (bit position 16 wraps to 0)");
+    assert!(
+        emu.flags().f_cf,
+        "CF should be set (bit position 16 wraps to 0)"
+    );
 }
 
 #[test]
@@ -440,7 +457,10 @@ fn test_bt_bit_position_modulo_32() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert!(emu.flags().f_cf, "CF should be set (bit position 32 wraps to 0)");
+    assert!(
+        emu.flags().f_cf,
+        "CF should be set (bit position 32 wraps to 0)"
+    );
 }
 
 #[test]
@@ -456,7 +476,10 @@ fn test_bt_bit_position_modulo_64() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert!(emu.flags().f_cf, "CF should be set (bit position 64 wraps to 0)");
+    assert!(
+        emu.flags().f_cf,
+        "CF should be set (bit position 64 wraps to 0)"
+    );
 }
 
 #[test]
@@ -502,10 +525,22 @@ fn test_bt_preserves_other_registers() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x12345678, "EAX should be unchanged");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x12345678,
+        "EAX should be unchanged"
+    );
     assert_eq!(emu.regs().rbx & 0xFFFFFFFF, 5, "EBX should be unchanged");
-    assert_eq!(emu.regs().rcx & 0xFFFFFFFF, 0xABCDEF00, "ECX should be unchanged");
-    assert_eq!(emu.regs().rdx & 0xFFFFFFFF, 0x11223344, "EDX should be unchanged");
+    assert_eq!(
+        emu.regs().rcx & 0xFFFFFFFF,
+        0xABCDEF00,
+        "ECX should be unchanged"
+    );
+    assert_eq!(
+        emu.regs().rdx & 0xFFFFFFFF,
+        0x11223344,
+        "EDX should be unchanged"
+    );
 }
 
 #[test]
@@ -536,7 +571,7 @@ fn test_bt_single_bit_patterns() {
         emu.regs_mut().rax = 1u64 << bit_pos;
         emu.regs_mut().rbx = bit_pos as u64;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
         assert!(emu.flags().f_cf, "CF should be set for bit {}", bit_pos);
     }
@@ -595,7 +630,8 @@ fn test_bt_imm8_upper_bits_ignored() {
     let DATA_ADDR = 0x7000;
     let mut emu = emu64();
     let code = [
-        0x0f, 0xba, 0xe0, 0xff, // BT EAX, 0xFF (only lower 5 bits matter for 32-bit: 0x1F = 31)
+        0x0f, 0xba, 0xe0,
+        0xff, // BT EAX, 0xFF (only lower 5 bits matter for 32-bit: 0x1F = 31)
         0xf4,
     ];
     emu.regs_mut().rax = 0x80000000; // bit 31 set

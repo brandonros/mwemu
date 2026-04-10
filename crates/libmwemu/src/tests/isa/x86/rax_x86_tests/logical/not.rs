@@ -141,7 +141,11 @@ fn test_not_eax_basic() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x55555555, "EAX: NOT 0xAAAAAAAA = 0x55555555");
+    assert_eq!(
+        emu.regs().rax,
+        0x55555555,
+        "EAX: NOT 0xAAAAAAAA = 0x55555555"
+    );
 }
 
 #[test]
@@ -153,7 +157,11 @@ fn test_not_ebx_all_zeros() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rbx, 0xFFFFFFFF, "EBX: NOT 0x00000000 = 0xFFFFFFFF");
+    assert_eq!(
+        emu.regs().rbx,
+        0xFFFFFFFF,
+        "EBX: NOT 0x00000000 = 0xFFFFFFFF"
+    );
 }
 
 #[test]
@@ -165,7 +173,11 @@ fn test_not_ecx_pattern() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rcx, 0x0000FFFF, "ECX: NOT 0xFFFF0000 = 0x0000FFFF");
+    assert_eq!(
+        emu.regs().rcx,
+        0x0000FFFF,
+        "ECX: NOT 0xFFFF0000 = 0x0000FFFF"
+    );
 }
 
 #[test]
@@ -177,7 +189,11 @@ fn test_not_esi() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rsi, 0xEDCBA987, "ESI: NOT 0x12345678 = 0xEDCBA987");
+    assert_eq!(
+        emu.regs().rsi,
+        0xEDCBA987,
+        "ESI: NOT 0x12345678 = 0xEDCBA987"
+    );
 }
 
 // ============================================================================
@@ -401,7 +417,11 @@ fn test_not_not_eax() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x12345678, "Double NOT EAX returns original");
+    assert_eq!(
+        emu.regs().rax,
+        0x12345678,
+        "Double NOT EAX returns original"
+    );
 }
 
 #[test]
@@ -417,7 +437,11 @@ fn test_not_not_rax() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x123456789ABCDEF0, "Double NOT RAX returns original");
+    assert_eq!(
+        emu.regs().rax,
+        0x123456789ABCDEF0,
+        "Double NOT RAX returns original"
+    );
 }
 
 // ============================================================================
@@ -435,5 +459,9 @@ fn test_not_preserves_flags() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.flags().dump() & 0x8D5, initial_flags & 0x8D5, "NOT preserves all flags");
+    assert_eq!(
+        emu.flags().dump() & 0x8D5,
+        initial_flags & 0x8D5,
+        "NOT preserves all flags"
+    );
 }

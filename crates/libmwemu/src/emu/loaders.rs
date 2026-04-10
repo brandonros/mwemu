@@ -71,6 +71,24 @@ impl Emu {
             log::trace!("macho64 aarch64 detected.");
             self.load_macho64(filename);
 
+        // Mach-O x86_64
+        } else if Macho64::is_macho64_x64(filename) && !self.cfg.shellcode {
+            self.cfg.arch = Arch::X86_64;
+            self.maps.is_64bits = true;
+            self.maps.clear();
+
+            // Set maps folder for macOS dylibs (try repo root, then relative from crate)
+            if self.cfg.maps_folder.is_empty() {
+                if std::path::Path::new("maps/maps_macos").exists() {
+                    self.cfg.maps_folder = "maps/maps_macos/".to_string();
+                } else if std::path::Path::new("../../maps/maps_macos").exists() {
+                    self.cfg.maps_folder = "../../maps/maps_macos/".to_string();
+                }
+            }
+
+            log::trace!("macho64 x86_64 detected.");
+            self.load_macho64(filename);
+
         // ELF64 x86_64
         } else if Elf64::is_elf64_x64(filename) && !self.cfg.shellcode {
             self.os = crate::arch::OperatingSystem::Linux;

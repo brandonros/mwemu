@@ -109,7 +109,11 @@ fn benchmark32win_donut() {
     emu.disable_ctrlc();
 
     let sample = helpers::test_data_path("sc32win_donut.bin");
-    assert!(std::path::Path::new(&sample).is_file(), "missing {}", sample);
+    assert!(
+        std::path::Path::new(&sample).is_file(),
+        "missing {}",
+        sample
+    );
     emu.load_code(&sample);
 
     // `-vv` → verbose level 2 (assembly tracing).
@@ -166,7 +170,11 @@ fn benchmark64with_enigma() {
     emu.disable_ctrlc();
 
     let sample = helpers::test_data_path("exe64win_enigma.bin");
-    assert!(std::path::Path::new(&sample).is_file(), "missing {}", sample);
+    assert!(
+        std::path::Path::new(&sample).is_file(),
+        "missing {}",
+        sample
+    );
     emu.load_code(&sample);
 
     // Keep the cost profile comparable to `-vv`.

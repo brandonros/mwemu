@@ -60,7 +60,11 @@ fn test_rol_al_1_with_msb() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFF, 0x03, "AL: 0x81 ROL 1 = 0x03 (MSB rotates to LSB)");
+    assert_eq!(
+        emu.regs().rax & 0xFF,
+        0x03,
+        "AL: 0x81 ROL 1 = 0x03 (MSB rotates to LSB)"
+    );
     assert!(emu.flags().f_cf, "CF: receives MSB (was 1)");
 }
 
@@ -112,7 +116,11 @@ fn test_rol_full_rotation_8bit() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFF, 0x42, "AL: full rotation returns to original");
+    assert_eq!(
+        emu.regs().rax & 0xFF,
+        0x42,
+        "AL: full rotation returns to original"
+    );
 }
 
 #[test]
@@ -141,13 +149,18 @@ fn test_rol_count_zero_preserves_flags() {
         0xf4,
     ];
     emu.regs_mut().rax = 0x42;
-    emu.flags_mut().load(0x2 | flags::F_CF | flags::F_ZF | flags::F_OF);
+    emu.flags_mut()
+        .load(0x2 | flags::F_CF | flags::F_ZF | flags::F_OF);
     let initial_flags = emu.flags().dump();
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
     assert_eq!(emu.regs().rax & 0xFF, 0x42, "AL unchanged");
-    assert_eq!(emu.flags().dump(), initial_flags, "Flags unchanged when count is 0");
+    assert_eq!(
+        emu.flags().dump(),
+        initial_flags,
+        "Flags unchanged when count is 0"
+    );
 }
 
 // ============================================================================
@@ -185,7 +198,11 @@ fn test_rol_ax_cl() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFF, 0x8000, "AX: 0x0001 ROL 15 = 0x8000");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0x8000,
+        "AX: 0x0001 ROL 15 = 0x8000"
+    );
     assert!(!emu.flags().f_cf, "CF: last bit rotated was 0");
 }
 
@@ -218,7 +235,11 @@ fn test_rol_full_rotation_16bit() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFF, 0x1234, "AX: full rotation returns to original");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0x1234,
+        "AX: full rotation returns to original"
+    );
 }
 
 // ============================================================================
@@ -238,7 +259,11 @@ fn test_rol_eax_1() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x2468ACF0, "EAX: 0x12345678 ROL 1 = 0x2468ACF0");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x2468ACF0,
+        "EAX: 0x12345678 ROL 1 = 0x2468ACF0"
+    );
     assert!(!emu.flags().f_cf, "CF: MSB was 0");
 }
 
@@ -256,7 +281,11 @@ fn test_rol_eax_cl() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x80000000, "EAX: 0x00000001 ROL 31 = 0x80000000");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x80000000,
+        "EAX: 0x00000001 ROL 31 = 0x80000000"
+    );
 }
 
 #[test]
@@ -272,7 +301,11 @@ fn test_rol_eax_imm8() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x34567812, "EAX: 0x12345678 ROL 8 = 0x34567812");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x34567812,
+        "EAX: 0x12345678 ROL 8 = 0x34567812"
+    );
 }
 
 #[test]
@@ -288,7 +321,11 @@ fn test_rol_eax_with_msb() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x00000003, "EAX: 0x80000001 ROL 1 = 0x00000003");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x00000003,
+        "EAX: 0x80000001 ROL 1 = 0x00000003"
+    );
     assert!(emu.flags().f_cf, "CF: MSB was 1");
 }
 
@@ -306,7 +343,11 @@ fn test_rol_full_rotation_32bit() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x12345678, "EAX: full rotation returns to original");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x12345678,
+        "EAX: full rotation returns to original"
+    );
 }
 
 // ============================================================================
@@ -326,7 +367,11 @@ fn test_rol_rax_1() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x2468ACF13579BDE0, "RAX: 0x123456789ABCDEF0 ROL 1");
+    assert_eq!(
+        emu.regs().rax,
+        0x2468ACF13579BDE0,
+        "RAX: 0x123456789ABCDEF0 ROL 1"
+    );
     assert!(!emu.flags().f_cf, "CF: MSB was 0");
 }
 
@@ -344,7 +389,11 @@ fn test_rol_rax_cl() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x8000000000000000, "RAX: 0x0000000000000001 ROL 63");
+    assert_eq!(
+        emu.regs().rax,
+        0x8000000000000000,
+        "RAX: 0x0000000000000001 ROL 63"
+    );
 }
 
 #[test]
@@ -360,7 +409,11 @@ fn test_rol_rax_imm8() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x56789ABCDEF01234, "RAX: 0x123456789ABCDEF0 ROL 16");
+    assert_eq!(
+        emu.regs().rax,
+        0x56789ABCDEF01234,
+        "RAX: 0x123456789ABCDEF0 ROL 16"
+    );
 }
 
 #[test]
@@ -376,7 +429,11 @@ fn test_rol_rax_with_msb() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x0000000000000003, "RAX: 0x8000000000000001 ROL 1");
+    assert_eq!(
+        emu.regs().rax,
+        0x0000000000000003,
+        "RAX: 0x8000000000000001 ROL 1"
+    );
     assert!(emu.flags().f_cf, "CF: MSB was 1");
 }
 
@@ -394,7 +451,11 @@ fn test_rol_full_rotation_64bit() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x123456789ABCDEF0, "RAX: full rotation returns to original");
+    assert_eq!(
+        emu.regs().rax,
+        0x123456789ABCDEF0,
+        "RAX: full rotation returns to original"
+    );
 }
 
 // ============================================================================
@@ -431,7 +492,11 @@ fn test_rol_r10w_cl() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().r10 & 0xFFFF, 0x2341, "R10W: 0x1234 ROL 4 = 0x2341");
+    assert_eq!(
+        emu.regs().r10 & 0xFFFF,
+        0x2341,
+        "R10W: 0x1234 ROL 4 = 0x2341"
+    );
 }
 
 #[test]
@@ -447,7 +512,11 @@ fn test_rol_r12d_imm8() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().r12 & 0xFFFFFFFF, 0x34567812, "R12D: 0x12345678 ROL 8 = 0x34567812");
+    assert_eq!(
+        emu.regs().r12 & 0xFFFFFFFF,
+        0x34567812,
+        "R12D: 0x12345678 ROL 8 = 0x34567812"
+    );
 }
 
 #[test]
@@ -463,7 +532,11 @@ fn test_rol_r15_1() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().r15, 0x02468ACF13579BDE, "R15: 0x0123456789ABCDEF ROL 1");
+    assert_eq!(
+        emu.regs().r15,
+        0x02468ACF13579BDE,
+        "R15: 0x0123456789ABCDEF ROL 1"
+    );
 }
 
 // ============================================================================
@@ -476,7 +549,9 @@ fn test_rol_byte_ptr_1() {
     let mut emu = emu64();
     // ROL byte ptr [DATA_ADDR], 1
     let code = [
-        0xd0, 0x04, 0x25, // ROL byte ptr [DATA_ADDR], 1
+        0xd0,
+        0x04,
+        0x25, // ROL byte ptr [DATA_ADDR], 1
         (DATA_ADDR & 0xFF) as u8,
         ((DATA_ADDR >> 8) & 0xFF) as u8,
         ((DATA_ADDR >> 16) & 0xFF) as u8,
@@ -498,7 +573,10 @@ fn test_rol_word_ptr_cl() {
     let mut emu = emu64();
     // ROL word ptr [DATA_ADDR], CL
     let code = [
-        0x66, 0xd3, 0x04, 0x25, // ROL word ptr [DATA_ADDR], CL
+        0x66,
+        0xd3,
+        0x04,
+        0x25, // ROL word ptr [DATA_ADDR], CL
         (DATA_ADDR & 0xFF) as u8,
         ((DATA_ADDR >> 8) & 0xFF) as u8,
         ((DATA_ADDR >> 16) & 0xFF) as u8,
@@ -521,7 +599,9 @@ fn test_rol_dword_ptr_imm8() {
     let mut emu = emu64();
     // ROL dword ptr [DATA_ADDR], imm8
     let code = [
-        0xc1, 0x04, 0x25, // ROL dword ptr [DATA_ADDR], imm8
+        0xc1,
+        0x04,
+        0x25, // ROL dword ptr [DATA_ADDR], imm8
         (DATA_ADDR & 0xFF) as u8,
         ((DATA_ADDR >> 8) & 0xFF) as u8,
         ((DATA_ADDR >> 16) & 0xFF) as u8,
@@ -544,7 +624,10 @@ fn test_rol_qword_ptr_cl() {
     let mut emu = emu64();
     // ROL qword ptr [DATA_ADDR], CL
     let code = [
-        0x48, 0xd3, 0x04, 0x25, // ROL qword ptr [DATA_ADDR], CL
+        0x48,
+        0xd3,
+        0x04,
+        0x25, // ROL qword ptr [DATA_ADDR], CL
         (DATA_ADDR & 0xFF) as u8,
         ((DATA_ADDR >> 8) & 0xFF) as u8,
         ((DATA_ADDR >> 16) & 0xFF) as u8,
@@ -558,7 +641,10 @@ fn test_rol_qword_ptr_cl() {
     emu.run(None).unwrap();
     let result = emu.maps.read_qword(DATA_ADDR).unwrap();
 
-    assert_eq!(result, 0x56789ABCDEF01234, "Memory: 0x123456789ABCDEF0 ROL 16");
+    assert_eq!(
+        result, 0x56789ABCDEF01234,
+        "Memory: 0x123456789ABCDEF0 ROL 16"
+    );
 }
 
 // ============================================================================
@@ -594,7 +680,11 @@ fn test_rol_overflow_flag_1bit_same() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x80000000, "EAX: 0x40000000 ROL 1");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x80000000,
+        "EAX: 0x40000000 ROL 1"
+    );
     assert!(emu.flags().f_of, "OF: MSB changed from 0 to 1");
 }
 
@@ -611,7 +701,11 @@ fn test_rol_overflow_flag_1bit_different() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x80000001, "EAX: 0xC0000000 ROL 1");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x80000001,
+        "EAX: 0xC0000000 ROL 1"
+    );
     assert!(!emu.flags().f_of, "OF: MSB stayed the same");
 }
 
@@ -628,7 +722,11 @@ fn test_rol_circular_buffer_indexing() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x91A2B3C0, "EAX: rotated by 3 bits");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x91A2B3C0,
+        "EAX: rotated by 3 bits"
+    );
 }
 
 #[test]
@@ -645,7 +743,11 @@ fn test_rol_chained_rotations() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x91A2B3C0, "EAX: three 1-bit rotations");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x91A2B3C0,
+        "EAX: three 1-bit rotations"
+    );
 }
 
 #[test]
@@ -660,7 +762,11 @@ fn test_rol_all_ones() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xFFFFFFFF, "EAX: all ones stay all ones");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xFFFFFFFF,
+        "EAX: all ones stay all ones"
+    );
     assert!(emu.flags().f_cf, "CF: MSB was 1");
 }
 

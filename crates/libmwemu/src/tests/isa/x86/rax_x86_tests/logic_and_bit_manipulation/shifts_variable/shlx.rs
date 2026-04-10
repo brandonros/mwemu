@@ -38,7 +38,11 @@ fn test_shlx_32bit_shift_by_0() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x12345678, "Shift by 0 should preserve value");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x12345678,
+        "Shift by 0 should preserve value"
+    );
 }
 
 #[test]
@@ -69,7 +73,7 @@ fn test_shlx_32bit_all_shift_counts() {
         emu.regs_mut().rbx = 0x00000001;
         emu.regs_mut().rcx = count;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
         let expected = if count < 32 { 1u64 << count } else { 0 };
         assert_eq!(
@@ -160,7 +164,7 @@ fn test_shlx_32bit_power_of_two_shifts() {
         emu.regs_mut().rbx = value;
         emu.regs_mut().rcx = count;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
         assert_eq!(
             emu.regs().rax & 0xFFFFFFFF,
@@ -190,7 +194,11 @@ fn test_shlx_64bit_shift_by_0() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x123456789ABCDEF0, "Shift by 0 should preserve value");
+    assert_eq!(
+        emu.regs().rax,
+        0x123456789ABCDEF0,
+        "Shift by 0 should preserve value"
+    );
 }
 
 #[test]
@@ -221,10 +229,16 @@ fn test_shlx_64bit_all_shift_counts() {
         emu.regs_mut().rbx = 0x0000000000000001;
         emu.regs_mut().rcx = count;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
         let expected = 1u64 << count;
-        assert_eq!(emu.regs().rax, expected, "1 << {} should be {}", count, expected);
+        assert_eq!(
+            emu.regs().rax,
+            expected,
+            "1 << {} should be {}",
+            count,
+            expected
+        );
     }
 }
 
@@ -241,7 +255,11 @@ fn test_shlx_64bit_shift_to_sign_bit() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x8000000000000000, "1 << 63 should set sign bit");
+    assert_eq!(
+        emu.regs().rax,
+        0x8000000000000000,
+        "1 << 63 should set sign bit"
+    );
 }
 
 #[test]
@@ -273,7 +291,11 @@ fn test_shlx_64bit_shift_by_32() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0xFFFFFFFF00000000, "Lower dword shifted to upper");
+    assert_eq!(
+        emu.regs().rax,
+        0xFFFFFFFF00000000,
+        "Lower dword shifted to upper"
+    );
 }
 
 // ============================================================================
@@ -286,7 +308,7 @@ fn test_shlx_32bit_does_not_modify_cf() {
     let mut emu = emu64();
     // SHLX should not modify CF even when bits shift out
     let code = [
-        0xf9,                         // STC (set CF)
+        0xf9, // STC (set CF)
         0xc4, 0xe2, 0x71, 0xf7, 0xc3, // SHLX EAX, EBX, ECX
         0xf4,
     ];
@@ -305,7 +327,7 @@ fn test_shlx_32bit_does_not_clear_cf() {
     let mut emu = emu64();
     // SHLX should not clear CF
     let code = [
-        0xf9,                         // STC (set CF)
+        0xf9, // STC (set CF)
         0xc4, 0xe2, 0x71, 0xf7, 0xc3, // SHLX EAX, EBX, ECX
         0xf4,
     ];
@@ -323,8 +345,8 @@ fn test_shlx_64bit_preserves_all_flags() {
     let mut emu = emu64();
     let code = [
         0x48, 0xc7, 0xc0, 0x01, 0x00, 0x00, 0x00, // MOV RAX, 1
-        0x48, 0x83, 0xe8, 0x02,                   // SUB RAX, 2 (sets CF, SF, AF)
-        0xc4, 0xe2, 0xf1, 0xf7, 0xc3,             // SHLX RAX, RBX, RCX
+        0x48, 0x83, 0xe8, 0x02, // SUB RAX, 2 (sets CF, SF, AF)
+        0xc4, 0xe2, 0xf1, 0xf7, 0xc3, // SHLX RAX, RBX, RCX
         0xf4,
     ];
     emu.regs_mut().rbx = 0x0000000000000001;
@@ -374,7 +396,11 @@ fn test_shlx_32bit_all_ones() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xFFFFFF00, "All ones shifted left by 8");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xFFFFFF00,
+        "All ones shifted left by 8"
+    );
 }
 
 #[test]
@@ -390,7 +416,11 @@ fn test_shlx_64bit_alternating_pattern() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0xAAAAAAAAAAAAAAAA, "Alternating pattern shifted");
+    assert_eq!(
+        emu.regs().rax,
+        0xAAAAAAAAAAAAAAAA,
+        "Alternating pattern shifted"
+    );
 }
 
 // ============================================================================
@@ -434,7 +464,11 @@ fn test_shlx_64bit_memory_operand() {
     emu.maps.write_qword(DATA_ADDR, 0x0000000012345678);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x0000001234567800, "64-bit memory operand shifted");
+    assert_eq!(
+        emu.regs().rax,
+        0x0000001234567800,
+        "64-bit memory operand shifted"
+    );
 }
 
 // ============================================================================
@@ -476,7 +510,11 @@ fn test_shlx_64bit_r14_r15_r13() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().r14, 0x0001000000000000, "64-bit extended registers");
+    assert_eq!(
+        emu.regs().r14,
+        0x0001000000000000,
+        "64-bit extended registers"
+    );
 }
 
 // ============================================================================
@@ -496,7 +534,11 @@ fn test_shlx_32bit_shift_all_bits_out() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xFF000000, "Shifted to high byte");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xFF000000,
+        "Shifted to high byte"
+    );
 }
 
 #[test]
@@ -522,7 +564,7 @@ fn test_shlx_consecutive_shifts() {
     let mut emu = emu64();
     let code = [
         0xc4, 0xe2, 0x71, 0xf7, 0xc3, // SHLX EAX, EBX, ECX
-        0x48, 0x89, 0xc3,             // MOV RBX, RAX
+        0x48, 0x89, 0xc3, // MOV RBX, RAX
         0xc4, 0xe2, 0x71, 0xf7, 0xc3, // SHLX EAX, EBX, ECX
         0xf4,
     ];
@@ -531,5 +573,9 @@ fn test_shlx_consecutive_shifts() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 256, "Consecutive shifts accumulate");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        256,
+        "Consecutive shifts accumulate"
+    );
 }

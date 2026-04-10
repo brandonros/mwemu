@@ -40,7 +40,11 @@ fn test_sarx_32bit_shift_by_0() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x12345678, "Shift by 0 should preserve value");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x12345678,
+        "Shift by 0 should preserve value"
+    );
 }
 
 #[test]
@@ -56,7 +60,11 @@ fn test_sarx_32bit_shift_positive_by_1() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x00000080, "256 >> 1 = 128 (positive)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x00000080,
+        "256 >> 1 = 128 (positive)"
+    );
 }
 
 #[test]
@@ -91,7 +99,7 @@ fn test_sarx_32bit_all_shift_counts_positive() {
         emu.regs_mut().rbx = 0x7FFFFFFF; // Max positive 32-bit
         emu.regs_mut().rcx = count;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
         let expected = (0x7FFFFFFFi32 >> count) as u32;
         assert_eq!(
@@ -115,7 +123,7 @@ fn test_sarx_32bit_all_shift_counts_negative() {
         emu.regs_mut().rbx = 0x80000000; // Min negative 32-bit
         emu.regs_mut().rcx = count;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
         let expected = (0x80000000u32 as i32 >> count) as u32;
         assert_eq!(
@@ -189,7 +197,7 @@ fn test_sarx_32bit_sign_extension_pattern() {
         emu.regs_mut().rbx = value as u64;
         emu.regs_mut().rcx = count;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
         assert_eq!(
             emu.regs().rax & 0xFFFFFFFF,
@@ -218,7 +226,11 @@ fn test_sarx_64bit_shift_by_0() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x123456789ABCDEF0, "Shift by 0 should preserve value");
+    assert_eq!(
+        emu.regs().rax,
+        0x123456789ABCDEF0,
+        "Shift by 0 should preserve value"
+    );
 }
 
 #[test]
@@ -234,7 +246,11 @@ fn test_sarx_64bit_shift_positive_by_1() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x0000000000000080, "256 >> 1 = 128 (positive)");
+    assert_eq!(
+        emu.regs().rax,
+        0x0000000000000080,
+        "256 >> 1 = 128 (positive)"
+    );
 }
 
 #[test]
@@ -250,7 +266,11 @@ fn test_sarx_64bit_shift_negative_by_1() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0xC000000000000000, "Sign bit should be extended");
+    assert_eq!(
+        emu.regs().rax,
+        0xC000000000000000,
+        "Sign bit should be extended"
+    );
 }
 
 #[test]
@@ -265,10 +285,15 @@ fn test_sarx_64bit_all_shift_counts_positive() {
         emu.regs_mut().rbx = 0x7FFFFFFFFFFFFFFF; // Max positive 64-bit
         emu.regs_mut().rcx = count;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
         let expected = (0x7FFFFFFFFFFFFFFFi64 >> count) as u64;
-        assert_eq!(emu.regs().rax, expected, "Positive value >> {} failed", count);
+        assert_eq!(
+            emu.regs().rax,
+            expected,
+            "Positive value >> {} failed",
+            count
+        );
     }
 }
 
@@ -284,10 +309,15 @@ fn test_sarx_64bit_all_shift_counts_negative() {
         emu.regs_mut().rbx = 0x8000000000000000; // Min negative 64-bit
         emu.regs_mut().rcx = count;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
         let expected = (0x8000000000000000u64 as i64 >> count) as u64;
-        assert_eq!(emu.regs().rax, expected, "Negative value >> {} failed", count);
+        assert_eq!(
+            emu.regs().rax,
+            expected,
+            "Negative value >> {} failed",
+            count
+        );
     }
 }
 
@@ -349,12 +379,14 @@ fn test_sarx_64bit_sign_extension_pattern() {
         emu.regs_mut().rbx = value;
         emu.regs_mut().rcx = count;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
         assert_eq!(
-            emu.regs().rax, expected,
+            emu.regs().rax,
+            expected,
             "Sign extension for 0x{:016X} >> {} failed",
-            value, count
+            value,
+            count
         );
     }
 }
@@ -369,7 +401,7 @@ fn test_sarx_32bit_does_not_modify_cf() {
     let mut emu = emu64();
     // SARX should not modify CF
     let code = [
-        0xf9,                         // STC (set CF)
+        0xf9, // STC (set CF)
         0xc4, 0xe2, 0x72, 0xf7, 0xc3, // SARX EAX, EBX, ECX
         0xf4,
     ];
@@ -387,8 +419,8 @@ fn test_sarx_64bit_preserves_all_flags() {
     let mut emu = emu64();
     let code = [
         0x48, 0xc7, 0xc0, 0x01, 0x00, 0x00, 0x00, // MOV RAX, 1
-        0x48, 0x83, 0xe8, 0x02,                   // SUB RAX, 2 (sets CF, SF, AF)
-        0xc4, 0xe2, 0xf2, 0xf7, 0xc3,             // SARX RAX, RBX, RCX
+        0x48, 0x83, 0xe8, 0x02, // SUB RAX, 2 (sets CF, SF, AF)
+        0xc4, 0xe2, 0xf2, 0xf7, 0xc3, // SARX RAX, RBX, RCX
         0xf4,
     ];
     emu.regs_mut().rbx = 0x8000000000000000;
@@ -417,7 +449,7 @@ fn test_sarx_32bit_all_ones_stays_all_ones() {
         emu.regs_mut().rbx = 0xFFFFFFFF;
         emu.regs_mut().rcx = count;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
         assert_eq!(
             emu.regs().rax & 0xFFFFFFFF,
@@ -440,7 +472,7 @@ fn test_sarx_64bit_all_ones_stays_all_ones() {
         emu.regs_mut().rbx = 0xFFFFFFFFFFFFFFFF;
         emu.regs_mut().rcx = count;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
         assert_eq!(
             emu.regs().rax,
@@ -512,7 +544,11 @@ fn test_sarx_64bit_memory_operand_negative() {
     emu.maps.write_qword(DATA_ADDR, 0x8000000000000000);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0xFF80000000000000, "64-bit memory operand sign extended");
+    assert_eq!(
+        emu.regs().rax,
+        0xFF80000000000000,
+        "64-bit memory operand sign extended"
+    );
 }
 
 // ============================================================================
@@ -554,7 +590,11 @@ fn test_sarx_64bit_r14_r15_r13() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().r14, 0xFF80000000000000, "64-bit extended registers");
+    assert_eq!(
+        emu.regs().r14,
+        0xFF80000000000000,
+        "64-bit extended registers"
+    );
 }
 
 // ============================================================================
@@ -584,7 +624,7 @@ fn test_sarx_consecutive_shifts() {
     let mut emu = emu64();
     let code = [
         0xc4, 0xe2, 0x72, 0xf7, 0xc3, // SARX EAX, EBX, ECX
-        0x48, 0x89, 0xc3,             // MOV RBX, RAX
+        0x48, 0x89, 0xc3, // MOV RBX, RAX
         0xc4, 0xe2, 0x72, 0xf7, 0xc3, // SARX EAX, EBX, ECX
         0xf4,
     ];

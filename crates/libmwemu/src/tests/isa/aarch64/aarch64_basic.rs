@@ -9,9 +9,7 @@ fn aarch64_add_1_plus_1() {
     // mov x1, #1       -> 0xd2800021
     // add x2, x0, x1   -> 0x8b010002
     let code: [u8; 12] = [
-        0x20, 0x00, 0x80, 0xd2,
-        0x21, 0x00, 0x80, 0xd2,
-        0x02, 0x00, 0x01, 0x8b,
+        0x20, 0x00, 0x80, 0xd2, 0x21, 0x00, 0x80, 0xd2, 0x02, 0x00, 0x01, 0x8b,
     ];
 
     let mut emu = emu_aarch64();
@@ -35,9 +33,7 @@ fn aarch64_sub_sets_flags() {
     // mov x1, #5       -> 0xd28000a1
     // subs x2, x0, x1  -> 0xeb010002
     let code: [u8; 12] = [
-        0xa0, 0x00, 0x80, 0xd2,
-        0xa1, 0x00, 0x80, 0xd2,
-        0x02, 0x00, 0x01, 0xeb,
+        0xa0, 0x00, 0x80, 0xd2, 0xa1, 0x00, 0x80, 0xd2, 0x02, 0x00, 0x01, 0xeb,
     ];
 
     let mut emu = emu_aarch64();
@@ -48,9 +44,9 @@ fn aarch64_sub_sets_flags() {
     emu.step(); // subs x2, x0, x1
 
     assert_eq!(emu.regs_aarch64().x[2], 0);
-    assert!(emu.regs_aarch64().nzcv.z);  // zero flag set
+    assert!(emu.regs_aarch64().nzcv.z); // zero flag set
     assert!(!emu.regs_aarch64().nzcv.n); // not negative
-    assert!(emu.regs_aarch64().nzcv.c);  // ARM: carry = NOT borrow, so set when a >= b
+    assert!(emu.regs_aarch64().nzcv.c); // ARM: carry = NOT borrow, so set when a >= b
 }
 
 #[test]
@@ -63,11 +59,8 @@ fn aarch64_str_ldr_stack() {
     // mov x0, #0           -> 0xd2800000
     // ldr x1, [sp]         -> 0xf94003e1
     let code: [u8; 20] = [
-        0xff, 0x43, 0x00, 0xd1,
-        0x40, 0x05, 0x80, 0xd2,
-        0xe0, 0x03, 0x00, 0xf9,
-        0x00, 0x00, 0x80, 0xd2,
-        0xe1, 0x03, 0x40, 0xf9,
+        0xff, 0x43, 0x00, 0xd1, 0x40, 0x05, 0x80, 0xd2, 0xe0, 0x03, 0x00, 0xf9, 0x00, 0x00, 0x80,
+        0xd2, 0xe1, 0x03, 0x40, 0xf9,
     ];
 
     let mut emu = emu_aarch64();
@@ -93,9 +86,7 @@ fn aarch64_branch_and_link() {
     // mov x0, #0xdead   -> 0xd29bd5a0  (should be skipped)
     // mov x0, #0xbeef   -> 0xd297dde0  (branch target)
     let code: [u8; 12] = [
-        0x02, 0x00, 0x00, 0x94,
-        0xa0, 0xd5, 0x9b, 0xd2,
-        0xe0, 0xdd, 0x97, 0xd2,
+        0x02, 0x00, 0x00, 0x94, 0xa0, 0xd5, 0x9b, 0xd2, 0xe0, 0xdd, 0x97, 0xd2,
     ];
 
     let mut emu = emu_aarch64();
@@ -103,8 +94,8 @@ fn aarch64_branch_and_link() {
     let base = emu.regs_aarch64().pc;
 
     emu.step(); // bl #8
-    assert_eq!(emu.regs_aarch64().pc, base + 8);        // jumped to 3rd instruction
-    assert_eq!(emu.regs_aarch64().x[30], base + 4);     // LR = return address
+    assert_eq!(emu.regs_aarch64().pc, base + 8); // jumped to 3rd instruction
+    assert_eq!(emu.regs_aarch64().x[30], base + 4); // LR = return address
 
     emu.step(); // mov x0, #0xbeef
     assert_eq!(emu.regs_aarch64().x[0], 0xbeef);
@@ -119,10 +110,8 @@ fn aarch64_cbz_taken() {
     // mov x1, #0xdead   -> 0xd29bd5a1  (should be skipped)
     // mov x1, #1        -> 0xd2800021  (branch target)
     let code: [u8; 16] = [
-        0x00, 0x00, 0x80, 0xd2,
-        0x40, 0x00, 0x00, 0xb4,
-        0xa1, 0xd5, 0x9b, 0xd2,
-        0x21, 0x00, 0x80, 0xd2,
+        0x00, 0x00, 0x80, 0xd2, 0x40, 0x00, 0x00, 0xb4, 0xa1, 0xd5, 0x9b, 0xd2, 0x21, 0x00, 0x80,
+        0xd2,
     ];
 
     let mut emu = emu_aarch64();
@@ -179,12 +168,14 @@ fn aarch64_shellcode_sum_loop() {
     }
 
     assert_eq!(
-        emu.regs_aarch64().x[0], 15,
+        emu.regs_aarch64().x[0],
+        15,
         "x0 should be 1+2+3+4+5=15, got {}",
         emu.regs_aarch64().x[0]
     );
     assert_eq!(
-        emu.regs_aarch64().x[1], 0,
+        emu.regs_aarch64().x[1],
+        0,
         "x1 (counter) should be 0 after loop"
     );
 }
@@ -221,7 +212,8 @@ fn aarch64_shellcode_sum_loop_run_to() {
         emu.pos
     );
     assert_eq!(
-        emu.regs_aarch64().x[0], 15,
+        emu.regs_aarch64().x[0],
+        15,
         "x0 should be 15, got {}",
         emu.regs_aarch64().x[0]
     );

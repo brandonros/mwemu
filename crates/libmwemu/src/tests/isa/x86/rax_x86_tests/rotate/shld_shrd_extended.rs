@@ -29,7 +29,11 @@ fn test_shld_all_counts_16bit() {
             // For 16-bit, count is masked to 5 bits: 16 & 0x1F = 16
             // Since count (16) == operand size (16), result is undefined per spec
             // Implementation treats 16 as valid shift, shifting out all original bits
-            assert_eq!(emu.regs().rax & 0xFFFF, 0x5555, "SHLD AX by 16 (full replacement)");
+            assert_eq!(
+                emu.regs().rax & 0xFFFF,
+                0x5555,
+                "SHLD AX by 16 (full replacement)"
+            );
         }
     }
 }
@@ -50,7 +54,11 @@ fn test_shrd_all_counts_16bit() {
             // For 16-bit, count is masked to 5 bits: 16 & 0x1F = 16
             // Since count (16) == operand size (16), result is undefined per spec
             // Implementation treats 16 as valid shift, shifting out all original bits
-            assert_eq!(emu.regs().rax & 0xFFFF, 0x5555, "SHRD AX by 16 (full replacement)");
+            assert_eq!(
+                emu.regs().rax & 0xFFFF,
+                0x5555,
+                "SHRD AX by 16 (full replacement)"
+            );
         }
     }
 }
@@ -69,7 +77,11 @@ fn test_shld_all_counts_32bit() {
             assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xAAAAAAAA, "SHLD EAX by 0");
         } else if *count == 32 {
             // Count is masked: 32 MOD 32 = 0, so no shift occurs
-            assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xAAAAAAAA, "SHLD EAX by 32 (count masked to 0)");
+            assert_eq!(
+                emu.regs().rax & 0xFFFFFFFF,
+                0xAAAAAAAA,
+                "SHLD EAX by 32 (count masked to 0)"
+            );
         }
     }
 }
@@ -88,7 +100,11 @@ fn test_shrd_all_counts_32bit() {
             assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xAAAAAAAA, "SHRD EAX by 0");
         } else if *count == 32 {
             // Count is masked: 32 MOD 32 = 0, so no shift occurs
-            assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xAAAAAAAA, "SHRD EAX by 32 (count masked to 0)");
+            assert_eq!(
+                emu.regs().rax & 0xFFFFFFFF,
+                0xAAAAAAAA,
+                "SHRD EAX by 32 (count masked to 0)"
+            );
         }
     }
 }
@@ -107,7 +123,11 @@ fn test_shld_all_counts_64bit() {
             assert_eq!(emu.regs().rax, 0xAAAAAAAAAAAAAAAA, "SHLD RAX by 0");
         } else if *count == 64 {
             // Count is masked: 64 MOD 64 = 0, so no shift occurs
-            assert_eq!(emu.regs().rax, 0xAAAAAAAAAAAAAAAA, "SHLD RAX by 64 (count masked to 0)");
+            assert_eq!(
+                emu.regs().rax,
+                0xAAAAAAAAAAAAAAAA,
+                "SHLD RAX by 64 (count masked to 0)"
+            );
         }
     }
 }
@@ -126,7 +146,11 @@ fn test_shrd_all_counts_64bit() {
             assert_eq!(emu.regs().rax, 0xAAAAAAAAAAAAAAAA, "SHRD RAX by 0");
         } else if *count == 64 {
             // Count is masked: 64 MOD 64 = 0, so no shift occurs
-            assert_eq!(emu.regs().rax, 0xAAAAAAAAAAAAAAAA, "SHRD RAX by 64 (count masked to 0)");
+            assert_eq!(
+                emu.regs().rax,
+                0xAAAAAAAAAAAAAAAA,
+                "SHRD RAX by 64 (count masked to 0)"
+            );
         }
     }
 }
@@ -155,7 +179,13 @@ fn test_shld_boundary_values_32bit() {
         emu.run(None).unwrap();
 
         let expected = ((*dest << 16) | (*src >> 16)) & 0xFFFFFFFF;
-        assert_eq!(emu.regs().rax & 0xFFFFFFFF, expected, "SHLD 0x{:08X} with 0x{:08X}", dest, src);
+        assert_eq!(
+            emu.regs().rax & 0xFFFFFFFF,
+            expected,
+            "SHLD 0x{:08X} with 0x{:08X}",
+            dest,
+            src
+        );
     }
 }
 
@@ -179,7 +209,13 @@ fn test_shrd_boundary_values_32bit() {
         emu.run(None).unwrap();
 
         let expected = ((*dest >> 16) | (*src << 16)) & 0xFFFFFFFF;
-        assert_eq!(emu.regs().rax & 0xFFFFFFFF, expected, "SHRD 0x{:08X} with 0x{:08X}", dest, src);
+        assert_eq!(
+            emu.regs().rax & 0xFFFFFFFF,
+            expected,
+            "SHRD 0x{:08X} with 0x{:08X}",
+            dest,
+            src
+        );
     }
 }
 
@@ -201,7 +237,13 @@ fn test_shld_boundary_values_64bit() {
         emu.run(None).unwrap();
 
         let expected = (*dest << 32) | (*src >> 32);
-        assert_eq!(emu.regs().rax, expected, "SHLD 0x{:016X} with 0x{:016X}", dest, src);
+        assert_eq!(
+            emu.regs().rax,
+            expected,
+            "SHLD 0x{:016X} with 0x{:016X}",
+            dest,
+            src
+        );
     }
 }
 
@@ -223,7 +265,13 @@ fn test_shrd_boundary_values_64bit() {
         emu.run(None).unwrap();
 
         let expected = (*dest >> 32) | (*src << 32);
-        assert_eq!(emu.regs().rax, expected, "SHRD 0x{:016X} with 0x{:016X}", dest, src);
+        assert_eq!(
+            emu.regs().rax,
+            expected,
+            "SHRD 0x{:016X} with 0x{:016X}",
+            dest,
+            src
+        );
     }
 }
 
@@ -250,7 +298,11 @@ fn test_shld_count_masking_32bit() {
     emu.regs_mut().rbx = 0xABCDEF01;
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, rax & 0xFFFFFFFF, "Count masking for 32-bit SHLD");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        rax & 0xFFFFFFFF,
+        "Count masking for 32-bit SHLD"
+    );
 }
 
 #[test]
@@ -271,7 +323,11 @@ fn test_shrd_count_masking_32bit() {
     emu.load_code_bytes(&code2);
     emu.run(None).unwrap();
 
-    assert_eq!(rax & 0xFFFFFFFF, emu.regs().rax & 0xFFFFFFFF, "Count masking for 32-bit SHRD");
+    assert_eq!(
+        rax & 0xFFFFFFFF,
+        emu.regs().rax & 0xFFFFFFFF,
+        "Count masking for 32-bit SHRD"
+    );
 }
 
 #[test]
@@ -338,7 +394,13 @@ fn test_shld_cf_edge_cases() {
         emu.load_code_bytes(&code);
         emu.run(None).unwrap();
 
-        assert_eq!(emu.flags().f_cf, *expected_cf, "CF for SHLD 0x{:08X} by {}", value, count);
+        assert_eq!(
+            emu.flags().f_cf,
+            *expected_cf,
+            "CF for SHLD 0x{:08X} by {}",
+            value,
+            count
+        );
     }
 }
 
@@ -359,7 +421,13 @@ fn test_shrd_cf_edge_cases() {
         emu.load_code_bytes(&code);
         emu.run(None).unwrap();
 
-        assert_eq!(emu.flags().f_cf, *expected_cf, "CF for SHRD 0x{:08X} by {}", value, count);
+        assert_eq!(
+            emu.flags().f_cf,
+            *expected_cf,
+            "CF for SHRD 0x{:08X} by {}",
+            value,
+            count
+        );
     }
 }
 
@@ -452,7 +520,7 @@ fn test_shld_128bit_simulation() {
     // Simulate a 128-bit shift left by 16 bits
     let code = [
         0x48, 0x0f, 0xa4, 0xd0, 0x10, // SHLD RAX, RDX, 16
-        0x48, 0xc1, 0xe2, 0x10,       // SHL RDX, 16
+        0x48, 0xc1, 0xe2, 0x10, // SHL RDX, 16
         0xf4,
     ];
     let mut emu = emu64();
@@ -461,7 +529,11 @@ fn test_shld_128bit_simulation() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x56789ABCDEF0FEDC, "High 64 bits after SHLD");
+    assert_eq!(
+        emu.regs().rax,
+        0x56789ABCDEF0FEDC,
+        "High 64 bits after SHLD"
+    );
     assert_eq!(emu.regs().rdx, 0xBA98765432100000, "Low 64 bits after SHL");
 }
 
@@ -470,7 +542,7 @@ fn test_shrd_128bit_simulation() {
     // Simulate a 128-bit shift right by 16 bits
     let code = [
         0x48, 0x0f, 0xac, 0xd0, 0x10, // SHRD RAX, RDX, 16
-        0x48, 0xc1, 0xea, 0x10,       // SHR RDX, 16
+        0x48, 0xc1, 0xea, 0x10, // SHR RDX, 16
         0xf4,
     ];
     let mut emu = emu64();
@@ -496,7 +568,11 @@ fn test_shld_alternating_pattern() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xAAAA5555, "Alternating pattern SHLD");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xAAAA5555,
+        "Alternating pattern SHLD"
+    );
 }
 
 #[test]
@@ -508,7 +584,11 @@ fn test_shrd_alternating_pattern() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x5555AAAA, "Alternating pattern SHRD");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x5555AAAA,
+        "Alternating pattern SHRD"
+    );
 }
 
 #[test]

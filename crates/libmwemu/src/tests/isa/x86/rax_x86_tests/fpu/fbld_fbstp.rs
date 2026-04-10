@@ -25,23 +25,27 @@ use std::convert::TryInto;
 const DATA_ADDR: u64 = 0x2000;
 
 fn write_f64(mem: u64, addr: u64, value: f64) {
-    let mut emu = emu64();    emu.maps.write_bytes_slice(addr, &value.to_le_bytes());
+    let mut emu = emu64();
+    emu.maps.write_bytes_slice(addr, &value.to_le_bytes());
 }
 
 fn read_f64(mem: u64, addr: u64) -> f64 {
-    let emu = emu64();    let mut buf = [0u8; 8];
+    let emu = emu64();
+    let mut buf = [0u8; 8];
     emu.maps.read_bytes_buff(&mut buf, addr);
     f64::from_le_bytes(buf)
 }
 
 // Write BCD value to memory
 fn write_bcd(mem: u64, addr: u64, value: &[u8; 10]) {
-    let mut emu = emu64();    emu.maps.write_bytes_slice(addr, value);
+    let mut emu = emu64();
+    emu.maps.write_bytes_slice(addr, value);
 }
 
 // Read BCD value from memory
 fn read_bcd(mem: u64, addr: u64) -> [u8; 10] {
-    let emu = emu64();    let mut buf = [0u8; 10];
+    let emu = emu64();
+    let mut buf = [0u8; 10];
     emu.maps.read_bytes_buff(&mut buf, addr);
     buf
 }
@@ -49,7 +53,8 @@ fn read_bcd(mem: u64, addr: u64) -> [u8; 10] {
 // Helper to create BCD representation from a decimal string
 // BCD format: bytes 0-8 contain digits (LSB first), byte 9 has sign bit
 fn make_bcd(value: i64) -> [u8; 10] {
-    let emu = emu64();    let mut bcd = [0u8; 10];
+    let emu = emu64();
+    let mut bcd = [0u8; 10];
     let is_negative = value < 0;
     let mut abs_value = value.abs() as u64;
 
@@ -68,7 +73,8 @@ fn make_bcd(value: i64) -> [u8; 10] {
 
 // Helper to extract value from BCD
 fn parse_bcd(bcd: &[u8; 10]) -> Option<i64> {
-    let emu = emu64();    let is_negative = (bcd[9] & 0x80) != 0;
+    let emu = emu64();
+    let is_negative = (bcd[9] & 0x80) != 0;
     let mut value: i64 = 0;
     let mut multiplier: i64 = 1;
 
@@ -99,12 +105,10 @@ fn parse_bcd(bcd: &[u8; 10]) -> Option<i64> {
 
 #[test]
 fn test_fbld_zero() {
-    let mut emu = emu64();    // FBLD tbyte ptr [0x2000]
-    // FSTP qword ptr [0x3000]
+    let mut emu = emu64(); // FBLD tbyte ptr [0x2000]
+                           // FSTP qword ptr [0x3000]
     let code = [
-        0xDF, 0x24, 0x25, 0x00, 0x20, 0x00, 0x00,
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,
-        0xf4,
+        0xDF, 0x24, 0x25, 0x00, 0x20, 0x00, 0x00, 0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, 0xf4,
     ];
     emu.load_code_bytes(&code);
     emu.maps.write_bytes_slice(DATA_ADDR, &make_bcd(0));
@@ -115,10 +119,9 @@ fn test_fbld_zero() {
 
 #[test]
 fn test_fbld_positive_one() {
-    let mut emu = emu64();    let code = [
-        0xDF, 0x24, 0x25, 0x00, 0x20, 0x00, 0x00,
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,
-        0xf4,
+    let mut emu = emu64();
+    let code = [
+        0xDF, 0x24, 0x25, 0x00, 0x20, 0x00, 0x00, 0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, 0xf4,
     ];
     emu.load_code_bytes(&code);
     emu.maps.write_bytes_slice(DATA_ADDR, &make_bcd(1));
@@ -129,10 +132,9 @@ fn test_fbld_positive_one() {
 
 #[test]
 fn test_fbld_negative_one() {
-    let mut emu = emu64();    let code = [
-        0xDF, 0x24, 0x25, 0x00, 0x20, 0x00, 0x00,
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,
-        0xf4,
+    let mut emu = emu64();
+    let code = [
+        0xDF, 0x24, 0x25, 0x00, 0x20, 0x00, 0x00, 0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, 0xf4,
     ];
     emu.load_code_bytes(&code);
     emu.maps.write_bytes_slice(DATA_ADDR, &make_bcd(-1));
@@ -143,10 +145,9 @@ fn test_fbld_negative_one() {
 
 #[test]
 fn test_fbld_positive_123() {
-    let mut emu = emu64();    let code = [
-        0xDF, 0x24, 0x25, 0x00, 0x20, 0x00, 0x00,
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,
-        0xf4,
+    let mut emu = emu64();
+    let code = [
+        0xDF, 0x24, 0x25, 0x00, 0x20, 0x00, 0x00, 0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, 0xf4,
     ];
     emu.load_code_bytes(&code);
     emu.maps.write_bytes_slice(DATA_ADDR, &make_bcd(123));
@@ -157,10 +158,9 @@ fn test_fbld_positive_123() {
 
 #[test]
 fn test_fbld_negative_456() {
-    let mut emu = emu64();    let code = [
-        0xDF, 0x24, 0x25, 0x00, 0x20, 0x00, 0x00,
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,
-        0xf4,
+    let mut emu = emu64();
+    let code = [
+        0xDF, 0x24, 0x25, 0x00, 0x20, 0x00, 0x00, 0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, 0xf4,
     ];
     emu.load_code_bytes(&code);
     emu.maps.write_bytes_slice(DATA_ADDR, &make_bcd(-456));
@@ -171,10 +171,9 @@ fn test_fbld_negative_456() {
 
 #[test]
 fn test_fbld_large_positive() {
-    let mut emu = emu64();    let code = [
-        0xDF, 0x24, 0x25, 0x00, 0x20, 0x00, 0x00,
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,
-        0xf4,
+    let mut emu = emu64();
+    let code = [
+        0xDF, 0x24, 0x25, 0x00, 0x20, 0x00, 0x00, 0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, 0xf4,
     ];
     emu.load_code_bytes(&code);
     emu.maps.write_bytes_slice(DATA_ADDR, &make_bcd(123456789));
@@ -185,10 +184,9 @@ fn test_fbld_large_positive() {
 
 #[test]
 fn test_fbld_large_negative() {
-    let mut emu = emu64();    let code = [
-        0xDF, 0x24, 0x25, 0x00, 0x20, 0x00, 0x00,
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,
-        0xf4,
+    let mut emu = emu64();
+    let code = [
+        0xDF, 0x24, 0x25, 0x00, 0x20, 0x00, 0x00, 0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, 0xf4,
     ];
     emu.load_code_bytes(&code);
     emu.maps.write_bytes_slice(DATA_ADDR, &make_bcd(-987654321));
@@ -199,13 +197,13 @@ fn test_fbld_large_negative() {
 
 #[test]
 fn test_fbld_max_digits() {
-    let mut emu = emu64();    let code = [
-        0xDF, 0x24, 0x25, 0x00, 0x20, 0x00, 0x00,
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,
-        0xf4,
+    let mut emu = emu64();
+    let code = [
+        0xDF, 0x24, 0x25, 0x00, 0x20, 0x00, 0x00, 0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, 0xf4,
     ];
     emu.load_code_bytes(&code);
-    emu.maps.write_bytes_slice(DATA_ADDR, &make_bcd(999999999999999999));
+    emu.maps
+        .write_bytes_slice(DATA_ADDR, &make_bcd(999999999999999999));
 
     emu.run(None).unwrap();
     assert_eq!(emu.maps.read_f64(0x3000).unwrap(), 999999999999999999.0);
@@ -213,7 +211,7 @@ fn test_fbld_max_digits() {
 
 #[test]
 fn test_fbld_pushes_to_stack() {
-    let mut emu = emu64();    // FBLD should push value onto stack
+    let mut emu = emu64(); // FBLD should push value onto stack
     let code = [
         0xDD, 0x04, 0x25, 0x00, 0x30, 0x00, 0x00, // FLD existing value
         0xDF, 0x24, 0x25, 0x00, 0x20, 0x00, 0x00, // FBLD
@@ -232,7 +230,8 @@ fn test_fbld_pushes_to_stack() {
 
 #[test]
 fn test_fbld_multiple() {
-    let mut emu = emu64();    let code = [
+    let mut emu = emu64();
+    let code = [
         0xDF, 0x24, 0x25, 0x00, 0x20, 0x00, 0x00, // FBLD 10
         0xDF, 0x24, 0x25, 0x0A, 0x20, 0x00, 0x00, // FBLD 20
         0xDF, 0x24, 0x25, 0x14, 0x20, 0x00, 0x00, // FBLD 30
@@ -258,11 +257,9 @@ fn test_fbld_multiple() {
 
 #[test]
 fn test_fbstp_zero() {
-    let mut emu = emu64();    // FBSTP tbyte ptr [0x3000]
+    let mut emu = emu64(); // FBSTP tbyte ptr [0x3000]
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,
-        0xDF, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00,
-        0xf4,
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, 0xDF, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00, 0xf4,
     ];
     emu.load_code_bytes(&code);
     emu.maps.write_f64(DATA_ADDR, 0.0);
@@ -274,10 +271,9 @@ fn test_fbstp_zero() {
 
 #[test]
 fn test_fbstp_positive_one() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,
-        0xDF, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00,
-        0xf4,
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, 0xDF, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00, 0xf4,
     ];
     emu.load_code_bytes(&code);
     emu.maps.write_f64(DATA_ADDR, 1.0);
@@ -289,10 +285,9 @@ fn test_fbstp_positive_one() {
 
 #[test]
 fn test_fbstp_negative_one() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,
-        0xDF, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00,
-        0xf4,
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, 0xDF, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00, 0xf4,
     ];
     emu.load_code_bytes(&code);
     emu.maps.write_f64(DATA_ADDR, -1.0);
@@ -304,10 +299,9 @@ fn test_fbstp_negative_one() {
 
 #[test]
 fn test_fbstp_positive_123() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,
-        0xDF, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00,
-        0xf4,
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, 0xDF, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00, 0xf4,
     ];
     emu.load_code_bytes(&code);
     emu.maps.write_f64(DATA_ADDR, 123.0);
@@ -319,10 +313,9 @@ fn test_fbstp_positive_123() {
 
 #[test]
 fn test_fbstp_negative_456() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,
-        0xDF, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00,
-        0xf4,
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, 0xDF, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00, 0xf4,
     ];
     emu.load_code_bytes(&code);
     emu.maps.write_f64(DATA_ADDR, -456.0);
@@ -334,10 +327,9 @@ fn test_fbstp_negative_456() {
 
 #[test]
 fn test_fbstp_large_positive() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,
-        0xDF, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00,
-        0xf4,
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, 0xDF, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00, 0xf4,
     ];
     emu.load_code_bytes(&code);
     emu.maps.write_f64(DATA_ADDR, 123456789.0);
@@ -349,10 +341,9 @@ fn test_fbstp_large_positive() {
 
 #[test]
 fn test_fbstp_large_negative() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,
-        0xDF, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00,
-        0xf4,
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, 0xDF, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00, 0xf4,
     ];
     emu.load_code_bytes(&code);
     emu.maps.write_f64(DATA_ADDR, -987654321.0);
@@ -364,11 +355,9 @@ fn test_fbstp_large_negative() {
 
 #[test]
 fn test_fbstp_rounds_down() {
-    let mut emu = emu64();    // 123.4 should round to 123
+    let mut emu = emu64(); // 123.4 should round to 123
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,
-        0xDF, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00,
-        0xf4,
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, 0xDF, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00, 0xf4,
     ];
     emu.load_code_bytes(&code);
     emu.maps.write_f64(DATA_ADDR, 123.4);
@@ -380,11 +369,9 @@ fn test_fbstp_rounds_down() {
 
 #[test]
 fn test_fbstp_rounds_up() {
-    let mut emu = emu64();    // 123.6 should round to 124
+    let mut emu = emu64(); // 123.6 should round to 124
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,
-        0xDF, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00,
-        0xf4,
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, 0xDF, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00, 0xf4,
     ];
     emu.load_code_bytes(&code);
     emu.maps.write_f64(DATA_ADDR, 123.6);
@@ -396,7 +383,7 @@ fn test_fbstp_rounds_up() {
 
 #[test]
 fn test_fbstp_pops_stack() {
-    let mut emu = emu64();    // FBSTP should pop the stack
+    let mut emu = emu64(); // FBSTP should pop the stack
     let code = [
         0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD 100
         0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00, // FLD 200
@@ -421,7 +408,7 @@ fn test_fbstp_pops_stack() {
 
 #[test]
 fn test_fbld_fbstp_roundtrip_positive() {
-    let mut emu = emu64();    // FBLD followed by FBSTP should preserve value
+    let mut emu = emu64(); // FBLD followed by FBSTP should preserve value
     let code = [
         0xDF, 0x24, 0x25, 0x00, 0x20, 0x00, 0x00, // FBLD
         0xDF, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00, // FBSTP
@@ -438,10 +425,9 @@ fn test_fbld_fbstp_roundtrip_positive() {
 
 #[test]
 fn test_fbld_fbstp_roundtrip_negative() {
-    let mut emu = emu64();    let code = [
-        0xDF, 0x24, 0x25, 0x00, 0x20, 0x00, 0x00,
-        0xDF, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00,
-        0xf4,
+    let mut emu = emu64();
+    let code = [
+        0xDF, 0x24, 0x25, 0x00, 0x20, 0x00, 0x00, 0xDF, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00, 0xf4,
     ];
     emu.load_code_bytes(&code);
     let original_bcd = make_bcd(-67890);
@@ -454,10 +440,9 @@ fn test_fbld_fbstp_roundtrip_negative() {
 
 #[test]
 fn test_fbld_fbstp_roundtrip_zero() {
-    let mut emu = emu64();    let code = [
-        0xDF, 0x24, 0x25, 0x00, 0x20, 0x00, 0x00,
-        0xDF, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00,
-        0xf4,
+    let mut emu = emu64();
+    let code = [
+        0xDF, 0x24, 0x25, 0x00, 0x20, 0x00, 0x00, 0xDF, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00, 0xf4,
     ];
     emu.load_code_bytes(&code);
     let original_bcd = make_bcd(0);
@@ -470,10 +455,9 @@ fn test_fbld_fbstp_roundtrip_zero() {
 
 #[test]
 fn test_fbld_fbstp_roundtrip_large() {
-    let mut emu = emu64();    let code = [
-        0xDF, 0x24, 0x25, 0x00, 0x20, 0x00, 0x00,
-        0xDF, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00,
-        0xf4,
+    let mut emu = emu64();
+    let code = [
+        0xDF, 0x24, 0x25, 0x00, 0x20, 0x00, 0x00, 0xDF, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00, 0xf4,
     ];
     emu.load_code_bytes(&code);
     let original_bcd = make_bcd(999999999999);
@@ -481,7 +465,10 @@ fn test_fbld_fbstp_roundtrip_large() {
 
     emu.run(None).unwrap();
     let result_bcd = emu.maps.read_bytes(0x3000, 10);
-    assert_eq!(parse_bcd((result_bcd).try_into().unwrap()), Some(999999999999));
+    assert_eq!(
+        parse_bcd((result_bcd).try_into().unwrap()),
+        Some(999999999999)
+    );
 }
 
 // ============================================================================
@@ -490,7 +477,7 @@ fn test_fbld_fbstp_roundtrip_large() {
 
 #[test]
 fn test_fbld_arithmetic() {
-    let mut emu = emu64();    // FBLD two values and add them
+    let mut emu = emu64(); // FBLD two values and add them
     let code = [
         0xDF, 0x24, 0x25, 0x00, 0x20, 0x00, 0x00, // FBLD 100
         0xDF, 0x24, 0x25, 0x0A, 0x20, 0x00, 0x00, // FBLD 200
@@ -508,7 +495,8 @@ fn test_fbld_arithmetic() {
 
 #[test]
 fn test_fbstp_after_arithmetic() {
-    let mut emu = emu64();    let code = [
+    let mut emu = emu64();
+    let code = [
         0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD 50.0
         0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00, // FLD 30.0
         0xDE, 0xC1, // FADDP (80.0)
@@ -526,7 +514,8 @@ fn test_fbstp_after_arithmetic() {
 
 #[test]
 fn test_fbld_fbstp_sequence() {
-    let mut emu = emu64();    let code = [
+    let mut emu = emu64();
+    let code = [
         0xDF, 0x24, 0x25, 0x00, 0x20, 0x00, 0x00, // FBLD 111
         0xDF, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00, // FBSTP 111
         0xDF, 0x24, 0x25, 0x0A, 0x20, 0x00, 0x00, // FBLD 222
@@ -550,10 +539,9 @@ fn test_fbld_fbstp_sequence() {
 
 #[test]
 fn test_fbstp_very_large() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,
-        0xDF, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00,
-        0xf4,
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, 0xDF, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00, 0xf4,
     ];
     emu.load_code_bytes(&code);
     emu.maps.write_f64(DATA_ADDR, 999999999999999.0);
@@ -565,10 +553,9 @@ fn test_fbstp_very_large() {
 
 #[test]
 fn test_fbld_all_nines() {
-    let mut emu = emu64();    let code = [
-        0xDF, 0x24, 0x25, 0x00, 0x20, 0x00, 0x00,
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,
-        0xf4,
+    let mut emu = emu64();
+    let code = [
+        0xDF, 0x24, 0x25, 0x00, 0x20, 0x00, 0x00, 0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, 0xf4,
     ];
     emu.load_code_bytes(&code);
     emu.maps.write_bytes_slice(DATA_ADDR, &make_bcd(999999));
@@ -579,10 +566,9 @@ fn test_fbld_all_nines() {
 
 #[test]
 fn test_fbstp_rounding_half() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,
-        0xDF, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00,
-        0xf4,
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, 0xDF, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00, 0xf4,
     ];
     emu.load_code_bytes(&code);
     emu.maps.write_f64(DATA_ADDR, 99.5);
@@ -594,10 +580,9 @@ fn test_fbstp_rounding_half() {
 
 #[test]
 fn test_fbstp_negative_rounding() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,
-        0xDF, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00,
-        0xf4,
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, 0xDF, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00, 0xf4,
     ];
     emu.load_code_bytes(&code);
     emu.maps.write_f64(DATA_ADDR, -99.7);

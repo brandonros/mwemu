@@ -140,7 +140,11 @@ fn test_rcl_propagates_cf() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFF, 0x01, "AL: CF propagated through rotations");
+    assert_eq!(
+        emu.regs().rax & 0xFF,
+        0x01,
+        "AL: CF propagated through rotations"
+    );
     assert!(!emu.flags().f_cf, "CF: cleared after second rotation");
 }
 
@@ -153,13 +157,18 @@ fn test_rcl_count_zero_preserves_flags() {
         0xf4,
     ];
     emu.regs_mut().rax = 0x42;
-    emu.flags_mut().load(0x2 | flags::F_CF | flags::F_ZF | flags::F_OF);
+    emu.flags_mut()
+        .load(0x2 | flags::F_CF | flags::F_ZF | flags::F_OF);
     let initial_flags = emu.flags().dump();
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
     assert_eq!(emu.regs().rax & 0xFF, 0x42, "AL unchanged");
-    assert_eq!(emu.flags().dump(), initial_flags, "Flags unchanged when count is 0");
+    assert_eq!(
+        emu.flags().dump(),
+        initial_flags,
+        "Flags unchanged when count is 0"
+    );
 }
 
 // ============================================================================
@@ -180,7 +189,11 @@ fn test_rcl_ax_1_cf_clear() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFF, 0x8642, "AX: 0x4321 RCL 1 (CF=0) = 0x8642");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0x8642,
+        "AX: 0x4321 RCL 1 (CF=0) = 0x8642"
+    );
     assert!(!emu.flags().f_cf, "CF: MSB was 0");
 }
 
@@ -198,7 +211,11 @@ fn test_rcl_ax_1_cf_set() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFF, 0x8643, "AX: 0x4321 RCL 1 (CF=1) = 0x8643");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0x8643,
+        "AX: 0x4321 RCL 1 (CF=1) = 0x8643"
+    );
     assert!(!emu.flags().f_cf, "CF: MSB was 0");
 }
 
@@ -217,7 +234,11 @@ fn test_rcl_ax_cl() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFF, 0x8000, "AX: after 16 rotations of 17-bit value");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0x8000,
+        "AX: after 16 rotations of 17-bit value"
+    );
 }
 
 #[test]
@@ -234,7 +255,11 @@ fn test_rcl_ax_imm8() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFF, 0x1230, "AX: 0x0123 RCL 4 (CF=0) = 0x1230");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0x1230,
+        "AX: 0x0123 RCL 4 (CF=0) = 0x1230"
+    );
 }
 
 // ============================================================================
@@ -255,7 +280,11 @@ fn test_rcl_eax_1_cf_clear() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x2468ACF0, "EAX: 0x12345678 RCL 1 (CF=0)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x2468ACF0,
+        "EAX: 0x12345678 RCL 1 (CF=0)"
+    );
     assert!(!emu.flags().f_cf, "CF: MSB was 0");
 }
 
@@ -273,7 +302,11 @@ fn test_rcl_eax_1_cf_set() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x2468ACF1, "EAX: 0x12345678 RCL 1 (CF=1)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x2468ACF1,
+        "EAX: 0x12345678 RCL 1 (CF=1)"
+    );
     assert!(!emu.flags().f_cf, "CF: MSB was 0");
 }
 
@@ -292,7 +325,11 @@ fn test_rcl_eax_cl() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x00000001, "EAX: after full 33-bit rotation");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x00000001,
+        "EAX: after full 33-bit rotation"
+    );
 }
 
 #[test]
@@ -309,7 +346,11 @@ fn test_rcl_eax_imm8() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x34567809, "EAX: 0x12345678 RCL 8 (CF=0)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x34567809,
+        "EAX: 0x12345678 RCL 8 (CF=0)"
+    );
 }
 
 #[test]
@@ -326,7 +367,11 @@ fn test_rcl_eax_with_msb() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x00000002, "EAX: 0x80000001 RCL 1 (CF=0)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x00000002,
+        "EAX: 0x80000001 RCL 1 (CF=0)"
+    );
     assert!(emu.flags().f_cf, "CF: MSB was 1");
 }
 
@@ -348,7 +393,11 @@ fn test_rcl_rax_1_cf_clear() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x2468ACF13579BDE0, "RAX: 0x123456789ABCDEF0 RCL 1 (CF=0)");
+    assert_eq!(
+        emu.regs().rax,
+        0x2468ACF13579BDE0,
+        "RAX: 0x123456789ABCDEF0 RCL 1 (CF=0)"
+    );
     assert!(!emu.flags().f_cf, "CF: MSB was 0");
 }
 
@@ -366,7 +415,11 @@ fn test_rcl_rax_1_cf_set() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x2468ACF13579BDE1, "RAX: 0x123456789ABCDEF0 RCL 1 (CF=1)");
+    assert_eq!(
+        emu.regs().rax,
+        0x2468ACF13579BDE1,
+        "RAX: 0x123456789ABCDEF0 RCL 1 (CF=1)"
+    );
     assert!(!emu.flags().f_cf, "CF: MSB was 0");
 }
 
@@ -385,7 +438,11 @@ fn test_rcl_rax_cl() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0xC000000000000000, "RAX: bit rotated to MSB position");
+    assert_eq!(
+        emu.regs().rax,
+        0xC000000000000000,
+        "RAX: bit rotated to MSB position"
+    );
 }
 
 #[test]
@@ -402,7 +459,11 @@ fn test_rcl_rax_imm8() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x56789ABCDEF0091A, "RAX: 0x123456789ABCDEF0 RCL 16 (CF=0)");
+    assert_eq!(
+        emu.regs().rax,
+        0x56789ABCDEF0091A,
+        "RAX: 0x123456789ABCDEF0 RCL 16 (CF=0)"
+    );
 }
 
 #[test]
@@ -419,7 +480,11 @@ fn test_rcl_rax_with_msb() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x0000000000000002, "RAX: 0x8000000000000001 RCL 1 (CF=0)");
+    assert_eq!(
+        emu.regs().rax,
+        0x0000000000000002,
+        "RAX: 0x8000000000000001 RCL 1 (CF=0)"
+    );
     assert!(emu.flags().f_cf, "CF: MSB was 1");
 }
 
@@ -459,7 +524,11 @@ fn test_rcl_r10w_cl() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().r10 & 0xFFFF, 0x2340, "R10W: 0x1234 RCL 4 (CF=0) = 0x2340");
+    assert_eq!(
+        emu.regs().r10 & 0xFFFF,
+        0x2340,
+        "R10W: 0x1234 RCL 4 (CF=0) = 0x2340"
+    );
 }
 
 #[test]
@@ -476,7 +545,11 @@ fn test_rcl_r12d_imm8() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().r12 & 0xFFFFFFFF, 0x34567809, "R12D: 0x12345678 RCL 8 (CF=0)");
+    assert_eq!(
+        emu.regs().r12 & 0xFFFFFFFF,
+        0x34567809,
+        "R12D: 0x12345678 RCL 8 (CF=0)"
+    );
 }
 
 #[test]
@@ -493,7 +566,11 @@ fn test_rcl_r15_1() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().r15, 0x02468ACF13579BDF, "R15: 0x0123456789ABCDEF RCL 1 (CF=1)");
+    assert_eq!(
+        emu.regs().r15,
+        0x02468ACF13579BDF,
+        "R15: 0x0123456789ABCDEF RCL 1 (CF=1)"
+    );
 }
 
 // ============================================================================
@@ -506,7 +583,9 @@ fn test_rcl_byte_ptr_1() {
     let mut emu = emu64();
     // RCL byte ptr [DATA_ADDR], 1
     let code = [
-        0xd0, 0x14, 0x25, // RCL byte ptr [DATA_ADDR], 1
+        0xd0,
+        0x14,
+        0x25, // RCL byte ptr [DATA_ADDR], 1
         (DATA_ADDR & 0xFF) as u8,
         ((DATA_ADDR >> 8) & 0xFF) as u8,
         ((DATA_ADDR >> 16) & 0xFF) as u8,
@@ -529,7 +608,10 @@ fn test_rcl_word_ptr_cl() {
     let mut emu = emu64();
     // RCL word ptr [DATA_ADDR], CL
     let code = [
-        0x66, 0xd3, 0x14, 0x25, // RCL word ptr [DATA_ADDR], CL
+        0x66,
+        0xd3,
+        0x14,
+        0x25, // RCL word ptr [DATA_ADDR], CL
         (DATA_ADDR & 0xFF) as u8,
         ((DATA_ADDR >> 8) & 0xFF) as u8,
         ((DATA_ADDR >> 16) & 0xFF) as u8,
@@ -553,7 +635,9 @@ fn test_rcl_dword_ptr_imm8() {
     let mut emu = emu64();
     // RCL dword ptr [DATA_ADDR], imm8
     let code = [
-        0xc1, 0x14, 0x25, // RCL dword ptr [DATA_ADDR], imm8
+        0xc1,
+        0x14,
+        0x25, // RCL dword ptr [DATA_ADDR], imm8
         (DATA_ADDR & 0xFF) as u8,
         ((DATA_ADDR >> 8) & 0xFF) as u8,
         ((DATA_ADDR >> 16) & 0xFF) as u8,
@@ -577,7 +661,10 @@ fn test_rcl_qword_ptr_cl() {
     let mut emu = emu64();
     // RCL qword ptr [DATA_ADDR], CL
     let code = [
-        0x48, 0xd3, 0x14, 0x25, // RCL qword ptr [DATA_ADDR], CL
+        0x48,
+        0xd3,
+        0x14,
+        0x25, // RCL qword ptr [DATA_ADDR], CL
         (DATA_ADDR & 0xFF) as u8,
         ((DATA_ADDR >> 8) & 0xFF) as u8,
         ((DATA_ADDR >> 16) & 0xFF) as u8,
@@ -592,7 +679,10 @@ fn test_rcl_qword_ptr_cl() {
     emu.run(None).unwrap();
     let result = emu.maps.read_qword(DATA_ADDR).unwrap();
 
-    assert_eq!(result, 0x56789ABCDEF0091A, "Memory: 0x123456789ABCDEF0 RCL 16 (CF=0)");
+    assert_eq!(
+        result, 0x56789ABCDEF0091A,
+        "Memory: 0x123456789ABCDEF0 RCL 16 (CF=0)"
+    );
 }
 
 // ============================================================================
@@ -615,8 +705,16 @@ fn test_rcl_multi_precision_shift() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x00000000, "EAX: low bits shifted");
-    assert_eq!(emu.regs().rbx & 0xFFFFFFFF, 0x2468ACF1, "EBX: high bits with CF from EAX");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x00000000,
+        "EAX: low bits shifted"
+    );
+    assert_eq!(
+        emu.regs().rbx & 0xFFFFFFFF,
+        0x2468ACF1,
+        "EBX: high bits with CF from EAX"
+    );
 }
 
 #[test]

@@ -4,7 +4,7 @@
 //! Extended FNOP - Extended NOP operations
 //!
 //! FNSAVE saves the entire FPU state to a 94 or 108 byte memory area,
-//! then reinitializes the FPU. The instruction does not check for 
+//! then reinitializes the FPU. The instruction does not check for
 //! unmasked floating-point exceptions.
 //!
 //! Opcodes:
@@ -17,21 +17,25 @@ use crate::*;
 const DATA_ADDR: u64 = 0x7000;
 
 fn write_u16(mem: u64, addr: u64, val: u16) {
-    let mut emu = emu64();    emu.maps.write_bytes_slice(addr, &val.to_le_bytes());
+    let mut emu = emu64();
+    emu.maps.write_bytes_slice(addr, &val.to_le_bytes());
 }
 
 fn read_u16(mem: u64, addr: u64) -> u16 {
-    let emu = emu64();    let mut buf = [0u8; 2];
+    let emu = emu64();
+    let mut buf = [0u8; 2];
     emu.maps.read_bytes_buff(&mut buf, addr);
     u16::from_le_bytes(buf)
 }
 
 fn write_f64(mem: u64, addr: u64, val: f64) {
-    let mut emu = emu64();    emu.maps.write_bytes_slice(addr, &val.to_le_bytes());
+    let mut emu = emu64();
+    emu.maps.write_bytes_slice(addr, &val.to_le_bytes());
 }
 
 fn read_f64(mem: u64, addr: u64) -> f64 {
-    let emu = emu64();    let mut buf = [0u8; 8];
+    let emu = emu64();
+    let mut buf = [0u8; 8];
     emu.maps.read_bytes_buff(&mut buf, addr);
     f64::from_le_bytes(buf)
 }
@@ -39,9 +43,10 @@ fn read_f64(mem: u64, addr: u64) -> f64 {
 // FNSAVE tests
 #[test]
 fn test_fnsave_basic() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x34, 0x25, 0x00, 0x20, 0x00, 0x00,  // FNSAVE [0x2000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x34, 0x25, 0x00, 0x20, 0x00, 0x00, // FNSAVE [0x2000]
+        0xF4, // HLT
     ];
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
@@ -51,10 +56,11 @@ fn test_fnsave_basic() {
 
 #[test]
 fn test_fnsave_with_data() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xDD, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00,  // FNSAVE [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xDD, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00, // FNSAVE [0x3000]
+        0xF4, // HLT
     ];
     emu.load_code_bytes(&code);
     emu.maps.write_f64(0x2000, 1.5);
@@ -65,12 +71,13 @@ fn test_fnsave_with_data() {
 
 #[test]
 fn test_fnsave_reinitializes() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xDD, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00,  // FNSAVE [0x3000]
-        0xD9, 0xE8,                                  // FLD1 (should work on empty stack)
-        0xDD, 0x1C, 0x25, 0x00, 0x40, 0x00, 0x00,  // FSTP qword [0x4000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xDD, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00, // FNSAVE [0x3000]
+        0xD9, 0xE8, // FLD1 (should work on empty stack)
+        0xDD, 0x1C, 0x25, 0x00, 0x40, 0x00, 0x00, // FSTP qword [0x4000]
+        0xF4, // HLT
     ];
     emu.load_code_bytes(&code);
     emu.maps.write_f64(0x2000, 2.5);
@@ -82,9 +89,10 @@ fn test_fnsave_reinitializes() {
 // FNOP tests
 #[test]
 fn test_fnop_basic() {
-    let mut emu = emu64();    let code = [
-        0xD9, 0xD0,  // FNOP
-        0xF4,        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xD9, 0xD0, // FNOP
+        0xF4, // HLT
     ];
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
@@ -92,11 +100,12 @@ fn test_fnop_basic() {
 
 #[test]
 fn test_fnop_preserves_stack() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xD0,                                  // FNOP
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xD0, // FNOP
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
     emu.load_code_bytes(&code);
     emu.maps.write_f64(0x2000, 3.14);
@@ -107,11 +116,12 @@ fn test_fnop_preserves_stack() {
 
 #[test]
 fn test_fnop_sequence() {
-    let mut emu = emu64();    let code = [
-        0xD9, 0xD0,  // FNOP
-        0xD9, 0xD0,  // FNOP
-        0xD9, 0xD0,  // FNOP
-        0xF4,        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xD9, 0xD0, // FNOP
+        0xD9, 0xD0, // FNOP
+        0xD9, 0xD0, // FNOP
+        0xF4, // HLT
     ];
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
@@ -120,11 +130,12 @@ fn test_fnop_sequence() {
 // Additional FNSAVE tests
 #[test]
 fn test_fnsave_multiple_values() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00,  // FLD qword [0x2008]
-        0xDD, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00,  // FNSAVE [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00, // FLD qword [0x2008]
+        0xDD, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00, // FNSAVE [0x3000]
+        0xF4, // HLT
     ];
     emu.load_code_bytes(&code);
     emu.maps.write_f64(0x2000, 1.0);
@@ -134,14 +145,15 @@ fn test_fnsave_multiple_values() {
 
 #[test]
 fn test_fnop_with_arithmetic() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xD0,                                  // FNOP
-        0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00,  // FLD qword [0x2008]
-        0xD9, 0xD0,                                  // FNOP
-        0xDE, 0xC1,                                  // FADDP
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xD0, // FNOP
+        0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00, // FLD qword [0x2008]
+        0xD9, 0xD0, // FNOP
+        0xDE, 0xC1, // FADDP
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
     emu.load_code_bytes(&code);
     emu.maps.write_f64(0x2000, 1.0);
@@ -153,12 +165,13 @@ fn test_fnop_with_arithmetic() {
 
 #[test]
 fn test_fnsave_after_arithmetic() {
-    let mut emu = emu64();    let code = [
-        0xD9, 0xE8,                                  // FLD1
-        0xD9, 0xE8,                                  // FLD1
-        0xDE, 0xC1,                                  // FADDP
-        0xDD, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00,  // FNSAVE [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xD9, 0xE8, // FLD1
+        0xD9, 0xE8, // FLD1
+        0xDE, 0xC1, // FADDP
+        0xDD, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00, // FNSAVE [0x3000]
+        0xF4, // HLT
     ];
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
@@ -169,14 +182,14 @@ macro_rules! fnsave_test {
     ($name:ident, $val:expr) => {
         #[test]
         fn $name() {
-    let mut emu = emu64();            let code = [
-                0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,
-                0xDD, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00,
+            let mut emu = emu64();
+            let code = [
+                0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, 0xDD, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00,
                 0xF4,
             ];
             emu.load_code_bytes(&code);
             emu.maps.write_f64(0x2000, $val);
-    emu.run(None).unwrap();
+            emu.run(None).unwrap();
         }
     };
 }
@@ -196,15 +209,14 @@ macro_rules! fnop_test {
     ($name:ident, $val:expr) => {
         #[test]
         fn $name() {
-    let mut emu = emu64();            let code = [
-                0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,
-                0xD9, 0xD0,
-                0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,
-                0xF4,
+            let mut emu = emu64();
+            let code = [
+                0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, 0xD9, 0xD0, 0xDD, 0x1C, 0x25, 0x00, 0x30,
+                0x00, 0x00, 0xF4,
             ];
             emu.load_code_bytes(&code);
             emu.maps.write_f64(0x2000, $val);
-    emu.run(None).unwrap();
+            emu.run(None).unwrap();
             let result = emu.maps.read_f64(0x3000).unwrap();
             assert_eq!(result, $val);
         }
@@ -224,9 +236,9 @@ fnop_test!(test_fnop_min, f64::MIN);
 
 #[test]
 fn test_fnsave_stack_depth() {
-    let mut emu = emu64();    let code = [
-        0xD9, 0xE8, 0xD9, 0xE8, 0xD9, 0xE8, 0xD9, 0xE8,
-        0xDD, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00,
+    let mut emu = emu64();
+    let code = [
+        0xD9, 0xE8, 0xD9, 0xE8, 0xD9, 0xE8, 0xD9, 0xE8, 0xDD, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00,
         0xF4,
     ];
     emu.load_code_bytes(&code);
@@ -235,14 +247,12 @@ fn test_fnsave_stack_depth() {
 
 #[test]
 fn test_fnop_doesnt_affect_flags() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,
-        0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00,
-        0xD8, 0xD1,  // FCOM
-        0xD9, 0xD0,  // FNOP
-        0xDD, 0xD8,
-        0xDD, 0xD8,
-        0xF4,
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, 0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00, 0xD8,
+        0xD1, // FCOM
+        0xD9, 0xD0, // FNOP
+        0xDD, 0xD8, 0xDD, 0xD8, 0xF4,
     ];
     emu.load_code_bytes(&code);
     emu.maps.write_f64(0x2000, 1.0);
@@ -252,12 +262,10 @@ fn test_fnop_doesnt_affect_flags() {
 
 #[test]
 fn test_fnsave_consistency() {
-    let mut emu = emu64();    let code = [
-        0xD9, 0xE8,
-        0xDD, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00,
-        0xD9, 0xE8,
-        0xDD, 0x34, 0x25, 0x00, 0x31, 0x00, 0x00,
-        0xF4,
+    let mut emu = emu64();
+    let code = [
+        0xD9, 0xE8, 0xDD, 0x34, 0x25, 0x00, 0x30, 0x00, 0x00, 0xD9, 0xE8, 0xDD, 0x34, 0x25, 0x00,
+        0x31, 0x00, 0x00, 0xF4,
     ];
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();

@@ -103,7 +103,7 @@ fn test_add_all_8bit_gp_registers() {
         emu.regs_mut().rcx = addend + 1;
         emu.regs_mut().rdx = addend + 2;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
         assert!((emu.regs().rax & 0xFF) > base, "ADD should increase AL");
     }
@@ -145,7 +145,7 @@ fn test_add_r8_from_r9_to_r15() {
         }
 
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
         let result = match reg_num {
             8 => emu.regs().r8,
@@ -235,8 +235,13 @@ fn test_add_all_16bit_gp_registers() {
     let DATA_ADDR = 0x7000;
     let mut emu = emu64();
     let regs_to_test = vec![
-        (0xD8, "BX"), (0xC8, "CX"), (0xD0, "DX"),
-        (0xF0, "SI"), (0xF8, "DI"), (0xE0, "SP"), (0xE8, "BP"),
+        (0xD8, "BX"),
+        (0xC8, "CX"),
+        (0xD0, "DX"),
+        (0xF0, "SI"),
+        (0xF8, "DI"),
+        (0xE0, "SP"),
+        (0xE8, "BP"),
     ];
 
     for (modrm, _name) in regs_to_test {
@@ -386,7 +391,11 @@ fn test_add_r64_r64() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x3000000000000000, "RAX should be correct sum");
+    assert_eq!(
+        emu.regs().rax,
+        0x3000000000000000,
+        "RAX should be correct sum"
+    );
 }
 
 #[test]
@@ -398,7 +407,11 @@ fn test_add_r64_imm8_sign_extended() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x0FFFFFFFFFFFFFFF, "RAX should be decremented");
+    assert_eq!(
+        emu.regs().rax,
+        0x0FFFFFFFFFFFFFFF,
+        "RAX should be decremented"
+    );
 }
 
 #[test]
@@ -406,8 +419,8 @@ fn test_add_all_64bit_gp_registers() {
     let DATA_ADDR = 0x7000;
     let mut emu = emu64();
     let all_regs = [
-        "RAX", "RCX", "RDX", "RBX", "RSP", "RBP", "RSI", "RDI",
-        "R8", "R9", "R10", "R11", "R12", "R13", "R14", "R15"
+        "RAX", "RCX", "RDX", "RBX", "RSP", "RBP", "RSI", "RDI", "R8", "R9", "R10", "R11", "R12",
+        "R13", "R14", "R15",
     ];
 
     for i in 0..all_regs.len() {
@@ -436,9 +449,13 @@ fn test_add_all_64bit_gp_registers() {
         emu.regs_mut().r15 = 0x0F00000000000000;
 
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
-        assert!(emu.regs().rax >= 0x1000000000000000, "RAX should increase for {}", all_regs[i]);
+        assert!(
+            emu.regs().rax >= 0x1000000000000000,
+            "RAX should increase for {}",
+            all_regs[i]
+        );
     }
 }
 
@@ -531,7 +548,11 @@ fn test_add_r64_from_memory() {
 
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x3000000000000000, "RAX should be correct sum");
+    assert_eq!(
+        emu.regs().rax,
+        0x3000000000000000,
+        "RAX should be correct sum"
+    );
 }
 
 // ============================================================================
@@ -656,7 +677,11 @@ fn test_add_preserves_high_bits_8bit() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax >> 8, 0xDEADBEEF123456, "High bits should be preserved");
+    assert_eq!(
+        emu.regs().rax >> 8,
+        0xDEADBEEF123456,
+        "High bits should be preserved"
+    );
 }
 
 #[test]
@@ -668,7 +693,11 @@ fn test_add_preserves_high_bits_16bit() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax >> 16, 0xDEADBEEF1234, "High bits should be preserved");
+    assert_eq!(
+        emu.regs().rax >> 16,
+        0xDEADBEEF1234,
+        "High bits should be preserved"
+    );
 }
 
 #[test]
@@ -680,7 +709,11 @@ fn test_add_zeros_high_bits_32bit() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax >> 32, 0, "High 32 bits should be zeroed for 32-bit op");
+    assert_eq!(
+        emu.regs().rax >> 32,
+        0,
+        "High 32 bits should be zeroed for 32-bit op"
+    );
 }
 
 #[test]
@@ -714,5 +747,9 @@ fn test_add_commutative() {
     emu2.load_code_bytes(&code2);
     emu2.run(None).unwrap();
 
-    assert_eq!(emu1.regs().rax & 0xFF, emu2.regs().rbx & 0xFF, "Results should match");
+    assert_eq!(
+        emu1.regs().rax & 0xFF,
+        emu2.regs().rbx & 0xFF,
+        "Results should match"
+    );
 }

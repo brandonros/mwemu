@@ -24,7 +24,11 @@ fn test_lzcnt_ax_bx_all_zeros() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFF, 16, "AX should contain 16 (all bits are zero)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        16,
+        "AX should contain 16 (all bits are zero)"
+    );
     assert!(emu.flags().f_cf, "CF should be set (source is zero)");
     assert!(!emu.flags().f_zf, "ZF should be clear (count is non-zero)");
 }
@@ -42,7 +46,11 @@ fn test_lzcnt_ax_bx_msb_set() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFF, 0, "AX should contain 0 (no leading zeros)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0,
+        "AX should contain 0 (no leading zeros)"
+    );
     assert!(!emu.flags().f_cf, "CF should be clear (source is non-zero)");
     assert!(emu.flags().f_zf, "ZF should be set (count is zero)");
 }
@@ -60,7 +68,11 @@ fn test_lzcnt_eax_ebx_all_zeros() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 32, "EAX should contain 32 (all bits are zero)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        32,
+        "EAX should contain 32 (all bits are zero)"
+    );
     assert!(emu.flags().f_cf, "CF should be set (source is zero)");
 }
 
@@ -77,7 +89,11 @@ fn test_lzcnt_eax_ebx_msb_set() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0, "EAX should contain 0 (no leading zeros)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0,
+        "EAX should contain 0 (no leading zeros)"
+    );
     assert!(!emu.flags().f_cf, "CF should be clear (source is non-zero)");
     assert!(emu.flags().f_zf, "ZF should be set (count is zero)");
 }
@@ -95,7 +111,11 @@ fn test_lzcnt_rax_rbx_all_zeros() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 64, "RAX should contain 64 (all bits are zero)");
+    assert_eq!(
+        emu.regs().rax,
+        64,
+        "RAX should contain 64 (all bits are zero)"
+    );
     assert!(emu.flags().f_cf, "CF should be set (source is zero)");
 }
 
@@ -130,7 +150,11 @@ fn test_lzcnt_eax_ebx_one_leading_zero() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 1, "EAX should contain 1 (one leading zero)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        1,
+        "EAX should contain 1 (one leading zero)"
+    );
     assert!(!emu.flags().f_cf, "CF should be clear");
 }
 
@@ -147,7 +171,11 @@ fn test_lzcnt_eax_ebx_multiple_leading_zeros() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 8, "EAX should contain 8 (eight leading zeros)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        8,
+        "EAX should contain 8 (eight leading zeros)"
+    );
     assert!(!emu.flags().f_cf, "CF should be clear");
 }
 
@@ -162,10 +190,16 @@ fn test_lzcnt_power_of_two() {
         ];
         emu.regs_mut().rbx = 1u64 << bit_pos;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
         let expected = 31 - bit_pos;
-        assert_eq!(emu.regs().rax & 0xFFFFFFFF, expected as u64, "LZCNT(2^{}) should be {}", bit_pos, expected);
+        assert_eq!(
+            emu.regs().rax & 0xFFFFFFFF,
+            expected as u64,
+            "LZCNT(2^{}) should be {}",
+            bit_pos,
+            expected
+        );
     }
 }
 
@@ -262,7 +296,11 @@ fn test_lzcnt_preserves_source() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rbx & 0xFFFFFFFF, 0x12345678, "EBX should be unchanged");
+    assert_eq!(
+        emu.regs().rbx & 0xFFFFFFFF,
+        0x12345678,
+        "EBX should be unchanged"
+    );
 }
 
 #[test]
@@ -278,7 +316,11 @@ fn test_lzcnt_all_ones() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0, "EAX should contain 0 (no leading zeros)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0,
+        "EAX should contain 0 (no leading zeros)"
+    );
     assert!(emu.flags().f_zf, "ZF should be set");
 }
 
@@ -304,9 +346,15 @@ fn test_lzcnt_single_bit_patterns() {
         ];
         emu.regs_mut().rbx = value;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
-        assert_eq!(emu.regs().rax & 0xFFFFFFFF, expected, "LZCNT(0x{:08X}) should be {}", value, expected);
+        assert_eq!(
+            emu.regs().rax & 0xFFFFFFFF,
+            expected,
+            "LZCNT(0x{:08X}) should be {}",
+            value,
+            expected
+        );
     }
 }
 
@@ -323,7 +371,11 @@ fn test_lzcnt_alternating_pattern() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0, "EAX should contain 0 (MSB is set)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0,
+        "EAX should contain 0 (MSB is set)"
+    );
 }
 
 #[test]
@@ -392,9 +444,15 @@ fn test_lzcnt_byte_values() {
         ];
         emu.regs_mut().rbx = value;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
-        assert_eq!(emu.regs().rax & 0xFFFFFFFF, expected, "LZCNT(0x{:08X}) should be {}", value, expected);
+        assert_eq!(
+            emu.regs().rax & 0xFFFFFFFF,
+            expected,
+            "LZCNT(0x{:08X}) should be {}",
+            value,
+            expected
+        );
     }
 }
 
@@ -410,7 +468,11 @@ fn test_lzcnt_complement_of_tzcnt_pattern() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 4, "EAX should contain 4 (31 - 27 = 4)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        4,
+        "EAX should contain 4 (31 - 27 = 4)"
+    );
 }
 
 #[test]

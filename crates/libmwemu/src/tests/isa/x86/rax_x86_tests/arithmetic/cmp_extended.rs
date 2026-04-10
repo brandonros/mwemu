@@ -123,9 +123,14 @@ fn test_cmp_all_8bit_registers() {
         }
 
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
-        assert!(emu.flags().f_zf, "ZF should be set for R{} - R{}", reg_num, reg_num);
+        assert!(
+            emu.flags().f_zf,
+            "ZF should be set for R{} - R{}",
+            reg_num,
+            reg_num
+        );
     }
 }
 
@@ -225,7 +230,11 @@ fn test_cmp_extended_r16() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().r10 & 0xFFFF, 0x8000, "R10W should not be modified");
+    assert_eq!(
+        emu.regs().r10 & 0xFFFF,
+        0x8000,
+        "R10W should not be modified"
+    );
     assert!(!emu.flags().f_cf, "CF should be clear (R10W > R11W)");
 }
 
@@ -327,7 +336,11 @@ fn test_cmp_rax_imm32_equal() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x0000000012345678, "RAX should not be modified");
+    assert_eq!(
+        emu.regs().rax,
+        0x0000000012345678,
+        "RAX should not be modified"
+    );
     assert!(emu.flags().f_zf, "ZF should be set");
 }
 
@@ -340,7 +353,11 @@ fn test_cmp_rax_imm32_greater() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x0000000020000000, "RAX should not be modified");
+    assert_eq!(
+        emu.regs().rax,
+        0x0000000020000000,
+        "RAX should not be modified"
+    );
     assert!(!emu.flags().f_cf, "CF should be clear (RAX > imm32)");
 }
 
@@ -353,7 +370,11 @@ fn test_cmp_rax_imm32_less() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x0000000010000000, "RAX should not be modified");
+    assert_eq!(
+        emu.regs().rax,
+        0x0000000010000000,
+        "RAX should not be modified"
+    );
     assert!(emu.flags().f_cf, "CF should be set (RAX < imm32)");
 }
 
@@ -367,8 +388,16 @@ fn test_cmp_r64_r64_equal() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x1234567890ABCDEF, "RAX should not be modified");
-    assert_eq!(emu.regs().rbx, 0x1234567890ABCDEF, "RBX should not be modified");
+    assert_eq!(
+        emu.regs().rax,
+        0x1234567890ABCDEF,
+        "RAX should not be modified"
+    );
+    assert_eq!(
+        emu.regs().rbx,
+        0x1234567890ABCDEF,
+        "RBX should not be modified"
+    );
     assert!(emu.flags().f_zf, "ZF should be set");
 }
 
@@ -408,7 +437,11 @@ fn test_cmp_r64_imm8_sign_extended() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0xFFFFFFFFFFFFFFFF, "RAX should not be modified");
+    assert_eq!(
+        emu.regs().rax,
+        0xFFFFFFFFFFFFFFFF,
+        "RAX should not be modified"
+    );
     assert!(emu.flags().f_zf, "ZF should be set");
 }
 
@@ -443,7 +476,7 @@ fn test_cmp_all_64bit_registers() {
         emu.regs_mut().r15 = test_val;
 
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
         assert_eq!(emu.regs().rax, test_val, "RAX should not be modified");
         assert!(emu.flags().f_zf, "ZF should be set for equal values");
@@ -507,7 +540,11 @@ fn test_cmp_r64_from_memory() {
 
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x1000000000000000, "RAX should not be modified");
+    assert_eq!(
+        emu.regs().rax,
+        0x1000000000000000,
+        "RAX should not be modified"
+    );
     assert!(emu.flags().f_zf, "ZF should be set");
 }
 
@@ -642,7 +679,11 @@ fn test_cmp_max_unsigned_values() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0xFFFFFFFFFFFFFFFF, "RAX should not be modified");
+    assert_eq!(
+        emu.regs().rax,
+        0xFFFFFFFFFFFFFFFF,
+        "RAX should not be modified"
+    );
     assert!(emu.flags().f_zf, "ZF should be set");
 }
 
@@ -668,7 +709,11 @@ fn test_cmp_preserves_all_bits() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0xDEADBEEF12345678, "RAX should be completely unchanged");
+    assert_eq!(
+        emu.regs().rax,
+        0xDEADBEEF12345678,
+        "RAX should be completely unchanged"
+    );
     assert!(emu.flags().f_zf, "ZF should be set");
 }
 

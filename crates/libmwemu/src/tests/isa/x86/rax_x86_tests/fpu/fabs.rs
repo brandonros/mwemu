@@ -18,12 +18,14 @@ const DATA_ADDR: u64 = 0x7000;
 
 // Helper function to write f64 to memory
 fn write_f64(mem: u64, addr: u64, val: f64) {
-    let mut emu = emu64();    emu.maps.write_bytes_slice(addr, &val.to_le_bytes());
+    let mut emu = emu64();
+    emu.maps.write_bytes_slice(addr, &val.to_le_bytes());
 }
 
 // Helper function to read f64 from memory
 fn read_f64(mem: u64, addr: u64) -> f64 {
-    let emu = emu64();    let mut buf = [0u8; 8];
+    let emu = emu64();
+    let mut buf = [0u8; 8];
     emu.maps.read_bytes_buff(&mut buf, addr);
     f64::from_le_bytes(buf)
 }
@@ -34,15 +36,15 @@ fn read_f64(mem: u64, addr: u64) -> f64 {
 
 #[test]
 fn test_fabs_positive_small() {
-    let mut emu = emu64();    // FLD qword [0x2000]  ; D9 05 00 20 00 00 (load from address 0x2000)
-    // FABS                ; D9 E1
-    // FSTP qword [0x3000] ; DD 1D 00 30 00 00 (store to address 0x3000)
-    // HLT                 ; F4
+    let mut emu = emu64(); // FLD qword [0x2000]  ; D9 05 00 20 00 00 (load from address 0x2000)
+                           // FABS                ; D9 E1
+                           // FSTP qword [0x3000] ; DD 1D 00 30 00 00 (store to address 0x3000)
+                           // HLT                 ; F4
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xE1,                                  // FABS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xE1, // FABS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -56,11 +58,12 @@ fn test_fabs_positive_small() {
 
 #[test]
 fn test_fabs_positive_large() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xE1,                                  // FABS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xE1, // FABS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -69,16 +72,20 @@ fn test_fabs_positive_large() {
     emu.run(None).unwrap();
 
     let result = emu.maps.read_f64(0x3000).unwrap();
-    assert_eq!(result, 123456789.123456789, "FABS of large positive should remain positive");
+    assert_eq!(
+        result, 123456789.123456789,
+        "FABS of large positive should remain positive"
+    );
 }
 
 #[test]
 fn test_fabs_positive_one() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xE1,                                  // FABS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xE1, // FABS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -92,11 +99,12 @@ fn test_fabs_positive_one() {
 
 #[test]
 fn test_fabs_positive_fraction() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xE1,                                  // FABS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xE1, // FABS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -110,11 +118,12 @@ fn test_fabs_positive_fraction() {
 
 #[test]
 fn test_fabs_positive_very_small() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xE1,                                  // FABS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xE1, // FABS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -123,7 +132,10 @@ fn test_fabs_positive_very_small() {
     emu.run(None).unwrap();
 
     let result = emu.maps.read_f64(0x3000).unwrap();
-    assert_eq!(result, 1e-10, "FABS of very small positive should remain positive");
+    assert_eq!(
+        result, 1e-10,
+        "FABS of very small positive should remain positive"
+    );
 }
 
 // ============================================================================
@@ -132,11 +144,12 @@ fn test_fabs_positive_very_small() {
 
 #[test]
 fn test_fabs_negative_small() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xE1,                                  // FABS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xE1, // FABS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -150,11 +163,12 @@ fn test_fabs_negative_small() {
 
 #[test]
 fn test_fabs_negative_large() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xE1,                                  // FABS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xE1, // FABS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -163,16 +177,20 @@ fn test_fabs_negative_large() {
     emu.run(None).unwrap();
 
     let result = emu.maps.read_f64(0x3000).unwrap();
-    assert_eq!(result, 987654321.987654321, "FABS of large negative should be positive");
+    assert_eq!(
+        result, 987654321.987654321,
+        "FABS of large negative should be positive"
+    );
 }
 
 #[test]
 fn test_fabs_negative_one() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xE1,                                  // FABS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xE1, // FABS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -186,11 +204,12 @@ fn test_fabs_negative_one() {
 
 #[test]
 fn test_fabs_negative_fraction() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xE1,                                  // FABS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xE1, // FABS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -204,11 +223,12 @@ fn test_fabs_negative_fraction() {
 
 #[test]
 fn test_fabs_negative_very_small() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xE1,                                  // FABS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xE1, // FABS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -217,7 +237,10 @@ fn test_fabs_negative_very_small() {
     emu.run(None).unwrap();
 
     let result = emu.maps.read_f64(0x3000).unwrap();
-    assert_eq!(result, 1e-10, "FABS of very small negative should be positive");
+    assert_eq!(
+        result, 1e-10,
+        "FABS of very small negative should be positive"
+    );
 }
 
 // ============================================================================
@@ -226,11 +249,12 @@ fn test_fabs_negative_very_small() {
 
 #[test]
 fn test_fabs_positive_zero() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xE1,                                  // FABS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xE1, // FABS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -245,11 +269,12 @@ fn test_fabs_positive_zero() {
 
 #[test]
 fn test_fabs_negative_zero() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xE1,                                  // FABS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xE1, // FABS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -268,11 +293,12 @@ fn test_fabs_negative_zero() {
 
 #[test]
 fn test_fabs_positive_infinity() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xE1,                                  // FABS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xE1, // FABS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -281,17 +307,24 @@ fn test_fabs_positive_infinity() {
     emu.run(None).unwrap();
 
     let result = emu.maps.read_f64(0x3000).unwrap();
-    assert!(result.is_infinite(), "FABS of +infinity should be +infinity");
-    assert!(!result.is_sign_negative(), "Result should be positive infinity");
+    assert!(
+        result.is_infinite(),
+        "FABS of +infinity should be +infinity"
+    );
+    assert!(
+        !result.is_sign_negative(),
+        "Result should be positive infinity"
+    );
 }
 
 #[test]
 fn test_fabs_negative_infinity() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xE1,                                  // FABS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xE1, // FABS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -300,8 +333,14 @@ fn test_fabs_negative_infinity() {
     emu.run(None).unwrap();
 
     let result = emu.maps.read_f64(0x3000).unwrap();
-    assert!(result.is_infinite(), "FABS of -infinity should be +infinity");
-    assert!(!result.is_sign_negative(), "Result should be positive infinity");
+    assert!(
+        result.is_infinite(),
+        "FABS of -infinity should be +infinity"
+    );
+    assert!(
+        !result.is_sign_negative(),
+        "Result should be positive infinity"
+    );
 }
 
 // ============================================================================
@@ -310,11 +349,12 @@ fn test_fabs_negative_infinity() {
 
 #[test]
 fn test_fabs_nan() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xE1,                                  // FABS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xE1, // FABS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -328,11 +368,12 @@ fn test_fabs_nan() {
 
 #[test]
 fn test_fabs_negative_nan() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xE1,                                  // FABS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xE1, // FABS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -351,11 +392,12 @@ fn test_fabs_negative_nan() {
 
 #[test]
 fn test_fabs_clears_sign_bit_negative() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xE1,                                  // FABS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xE1, // FABS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -370,11 +412,12 @@ fn test_fabs_clears_sign_bit_negative() {
 
 #[test]
 fn test_fabs_preserves_positive_sign_bit() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xE1,                                  // FABS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xE1, // FABS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -393,13 +436,13 @@ fn test_fabs_preserves_positive_sign_bit() {
 
 #[test]
 fn test_fabs_twice() {
-    let mut emu = emu64();    // FABS should be idempotent - applying it twice gives same result
+    let mut emu = emu64(); // FABS should be idempotent - applying it twice gives same result
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xE1,                                  // FABS
-        0xD9, 0xE1,                                  // FABS (second time)
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xE1, // FABS
+        0xD9, 0xE1, // FABS (second time)
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -413,14 +456,15 @@ fn test_fabs_twice() {
 
 #[test]
 fn test_fabs_sequence() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xE1,                                  // FABS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00,  // FLD qword [0x2008]
-        0xD9, 0xE1,                                  // FABS
-        0xDD, 0x1C, 0x25, 0x08, 0x30, 0x00, 0x00,  // FSTP qword [0x3008]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xE1, // FABS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00, // FLD qword [0x2008]
+        0xD9, 0xE1, // FABS
+        0xDD, 0x1C, 0x25, 0x08, 0x30, 0x00, 0x00, // FSTP qword [0x3008]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -441,11 +485,12 @@ fn test_fabs_sequence() {
 
 #[test]
 fn test_fabs_max_value() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xE1,                                  // FABS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xE1, // FABS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -459,11 +504,12 @@ fn test_fabs_max_value() {
 
 #[test]
 fn test_fabs_min_positive() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xE1,                                  // FABS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xE1, // FABS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -472,16 +518,21 @@ fn test_fabs_min_positive() {
     emu.run(None).unwrap();
 
     let result = emu.maps.read_f64(0x3000).unwrap();
-    assert_eq!(result, f64::MIN_POSITIVE, "FABS of -MIN_POSITIVE should be MIN_POSITIVE");
+    assert_eq!(
+        result,
+        f64::MIN_POSITIVE,
+        "FABS of -MIN_POSITIVE should be MIN_POSITIVE"
+    );
 }
 
 #[test]
 fn test_fabs_pi() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xE1,                                  // FABS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xE1, // FABS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -495,11 +546,12 @@ fn test_fabs_pi() {
 
 #[test]
 fn test_fabs_e() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xE1,                                  // FABS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xE1, // FABS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -513,11 +565,12 @@ fn test_fabs_e() {
 
 #[test]
 fn test_fabs_subnormal() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xE1,                                  // FABS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xE1, // FABS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -527,16 +580,20 @@ fn test_fabs_subnormal() {
     emu.run(None).unwrap();
 
     let result = emu.maps.read_f64(0x3000).unwrap();
-    assert!(!result.is_sign_negative(), "FABS of subnormal should be positive");
+    assert!(
+        !result.is_sign_negative(),
+        "FABS of subnormal should be positive"
+    );
 }
 
 #[test]
 fn test_fabs_various_magnitudes() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xE1,                                  // FABS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xE1, // FABS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     let test_values = vec![
@@ -547,7 +604,7 @@ fn test_fabs_various_magnitudes() {
         emu.load_code_bytes(&code);
         emu.maps.write_f64(0x2000, val);
 
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
         let result = emu.maps.read_f64(0x3000).unwrap();
         assert_eq!(result, val.abs(), "FABS of {} should be {}", val, val.abs());
@@ -556,13 +613,14 @@ fn test_fabs_various_magnitudes() {
 
 #[test]
 fn test_fabs_mixed_operations() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xE1,                                  // FABS
-        0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00,  // FLD qword [0x2008]
-        0xDE, 0xC9,                                  // FMULP (multiply and pop)
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xE1, // FABS
+        0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00, // FLD qword [0x2008]
+        0xDE, 0xC9, // FMULP (multiply and pop)
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -577,11 +635,12 @@ fn test_fabs_mixed_operations() {
 
 #[test]
 fn test_fabs_denormal_positive() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xE1,                                  // FABS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xE1, // FABS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -591,16 +650,20 @@ fn test_fabs_denormal_positive() {
     emu.run(None).unwrap();
 
     let result = emu.maps.read_f64(0x3000).unwrap();
-    assert_eq!(result, denormal, "FABS of positive denormal preserves value");
+    assert_eq!(
+        result, denormal,
+        "FABS of positive denormal preserves value"
+    );
 }
 
 #[test]
 fn test_fabs_denormal_negative() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xE1,                                  // FABS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xE1, // FABS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -610,16 +673,20 @@ fn test_fabs_denormal_negative() {
     emu.run(None).unwrap();
 
     let result = emu.maps.read_f64(0x3000).unwrap();
-    assert_eq!(result, -denormal, "FABS of negative denormal makes it positive");
+    assert_eq!(
+        result, -denormal,
+        "FABS of negative denormal makes it positive"
+    );
 }
 
 #[test]
 fn test_fabs_alternating_signs() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xE1,                                  // FABS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xE1, // FABS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     let test_values = vec![-1.0, 2.0, -3.0, 4.0, -5.0];
@@ -629,7 +696,7 @@ fn test_fabs_alternating_signs() {
         emu.load_code_bytes(&code);
         emu.maps.write_f64(0x2000, *val);
 
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
         let result = emu.maps.read_f64(0x3000).unwrap();
         assert_eq!(result, *expected, "FABS of {} should be {}", val, expected);

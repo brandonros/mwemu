@@ -11,7 +11,8 @@ fn test_mingw32() {
     let sample = "../../test/exe32win_mingw.bin";
     emu.load_code(sample);
     // Keep this test aligned with the CLI check window where execution reaches ~119.
-    emu.run_to(119).expect("mingw32 should reach the early execution window");
+    emu.run_to(119)
+        .expect("mingw32 should reach the early execution window");
     assert!(emu.pos >= 119);
 }
 

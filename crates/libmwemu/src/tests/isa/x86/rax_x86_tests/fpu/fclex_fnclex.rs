@@ -30,33 +30,36 @@ use crate::*;
 const DATA_ADDR: u64 = 0x7000;
 
 // Status word bit definitions
-const IE_BIT: u16 = 0x0001;      // Invalid Operation
-const DE_BIT: u16 = 0x0002;      // Denormalized Operand
-const ZE_BIT: u16 = 0x0004;      // Zero Divide
-const OE_BIT: u16 = 0x0008;      // Overflow
-const UE_BIT: u16 = 0x0010;      // Underflow
-const PE_BIT: u16 = 0x0020;      // Precision
-const SF_BIT: u16 = 0x0040;      // Stack Fault
-const ES_BIT: u16 = 0x0080;      // Exception Summary Status
-const B_BIT: u16 = 0x8000;       // Busy
+const IE_BIT: u16 = 0x0001; // Invalid Operation
+const DE_BIT: u16 = 0x0002; // Denormalized Operand
+const ZE_BIT: u16 = 0x0004; // Zero Divide
+const OE_BIT: u16 = 0x0008; // Overflow
+const UE_BIT: u16 = 0x0010; // Underflow
+const PE_BIT: u16 = 0x0020; // Precision
+const SF_BIT: u16 = 0x0040; // Stack Fault
+const ES_BIT: u16 = 0x0080; // Exception Summary Status
+const B_BIT: u16 = 0x8000; // Busy
 
 const EXCEPTION_MASK: u16 = IE_BIT | DE_BIT | ZE_BIT | OE_BIT | UE_BIT | PE_BIT;
 
 // Helper function to write u16 to memory
 fn write_u16(mem: u64, addr: u64, val: u16) {
-    let mut emu = emu64();    emu.maps.write_bytes_slice(addr, &val.to_le_bytes());
+    let mut emu = emu64();
+    emu.maps.write_bytes_slice(addr, &val.to_le_bytes());
 }
 
 // Helper function to read u16 from memory
 fn read_u16(mem: u64, addr: u64) -> u16 {
-    let emu = emu64();    let mut buf = [0u8; 2];
+    let emu = emu64();
+    let mut buf = [0u8; 2];
     emu.maps.read_bytes_buff(&mut buf, addr);
     u16::from_le_bytes(buf)
 }
 
 // Helper function to write f64 to memory
 fn write_f64(mem: u64, addr: u64, val: f64) {
-    let mut emu = emu64();    emu.maps.write_bytes_slice(addr, &val.to_le_bytes());
+    let mut emu = emu64();
+    emu.maps.write_bytes_slice(addr, &val.to_le_bytes());
 }
 
 // ============================================================================
@@ -65,11 +68,12 @@ fn write_f64(mem: u64, addr: u64, val: f64) {
 
 #[test]
 fn test_fnclex_basic() {
-    let mut emu = emu64();    let code = [
-        0xDB, 0xE2,        // FNCLEX
-        0xDF, 0xE0,        // FNSTSW AX
-        0x66, 0x89, 0x04, 0x25, 0x00, 0x30, 0x00, 0x00,  // MOV word [0x3000], AX
-        0xF4,              // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDB, 0xE2, // FNCLEX
+        0xDF, 0xE0, // FNSTSW AX
+        0x66, 0x89, 0x04, 0x25, 0x00, 0x30, 0x00, 0x00, // MOV word [0x3000], AX
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -77,16 +81,20 @@ fn test_fnclex_basic() {
     emu.run(None).unwrap();
 
     let status = emu.maps.read_word(0x3000).unwrap();
-    assert_eq!(status & EXCEPTION_MASK, 0, "Exception flags should be cleared");
+    assert_eq!(
+        status & EXCEPTION_MASK,
+        0,
+        "Exception flags should be cleared"
+    );
 }
 
 #[test]
 fn test_fnclex_clears_exception_flags() {
-    let mut emu = emu64();    // FNCLEX should clear exception flags
+    let mut emu = emu64(); // FNCLEX should clear exception flags
     let code = [
-        0xDB, 0xE2,        // FNCLEX
-        0xDD, 0x3C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FNSTSW [0x3000]
-        0xF4,              // HLT
+        0xDB, 0xE2, // FNCLEX
+        0xDD, 0x3C, 0x25, 0x00, 0x30, 0x00, 0x00, // FNSTSW [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -94,19 +102,24 @@ fn test_fnclex_clears_exception_flags() {
     emu.run(None).unwrap();
 
     let status = emu.maps.read_word(0x3000).unwrap();
-    assert_eq!(status & EXCEPTION_MASK, 0, "FNCLEX should clear all exception flags");
+    assert_eq!(
+        status & EXCEPTION_MASK,
+        0,
+        "FNCLEX should clear all exception flags"
+    );
 }
 
 #[test]
 fn test_fnclex_multiple_times() {
-    let mut emu = emu64();    let code = [
-        0xDB, 0xE2,        // FNCLEX (1st time)
-        0xDF, 0xE0,        // FNSTSW AX
-        0x66, 0x89, 0x04, 0x25, 0x00, 0x30, 0x00, 0x00,  // MOV word [0x3000], AX
-        0xDB, 0xE2,        // FNCLEX (2nd time)
-        0xDF, 0xE0,        // FNSTSW AX
-        0x66, 0x89, 0x04, 0x25, 0x02, 0x30, 0x00, 0x00,  // MOV word [0x3002], AX
-        0xF4,              // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDB, 0xE2, // FNCLEX (1st time)
+        0xDF, 0xE0, // FNSTSW AX
+        0x66, 0x89, 0x04, 0x25, 0x00, 0x30, 0x00, 0x00, // MOV word [0x3000], AX
+        0xDB, 0xE2, // FNCLEX (2nd time)
+        0xDF, 0xE0, // FNSTSW AX
+        0x66, 0x89, 0x04, 0x25, 0x02, 0x30, 0x00, 0x00, // MOV word [0x3002], AX
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -115,18 +128,26 @@ fn test_fnclex_multiple_times() {
 
     let status1 = emu.maps.read_word(0x3000).unwrap();
     let status2 = emu.maps.read_word(0x3002).unwrap();
-    assert_eq!(status1 & EXCEPTION_MASK, 0, "First FNCLEX should clear exceptions");
-    assert_eq!(status2 & EXCEPTION_MASK, 0, "Second FNCLEX should clear exceptions");
+    assert_eq!(
+        status1 & EXCEPTION_MASK,
+        0,
+        "First FNCLEX should clear exceptions"
+    );
+    assert_eq!(
+        status2 & EXCEPTION_MASK,
+        0,
+        "Second FNCLEX should clear exceptions"
+    );
 }
 
 #[test]
 fn test_fnclex_clears_es_bit() {
-    let mut emu = emu64();    // FNCLEX should clear the ES (Exception Summary Status) bit
+    let mut emu = emu64(); // FNCLEX should clear the ES (Exception Summary Status) bit
     let code = [
-        0xDB, 0xE2,        // FNCLEX
-        0xDF, 0xE0,        // FNSTSW AX
-        0x66, 0x89, 0x04, 0x25, 0x00, 0x30, 0x00, 0x00,  // MOV word [0x3000], AX
-        0xF4,              // HLT
+        0xDB, 0xE2, // FNCLEX
+        0xDF, 0xE0, // FNSTSW AX
+        0x66, 0x89, 0x04, 0x25, 0x00, 0x30, 0x00, 0x00, // MOV word [0x3000], AX
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -139,12 +160,12 @@ fn test_fnclex_clears_es_bit() {
 
 #[test]
 fn test_fnclex_clears_sf_bit() {
-    let mut emu = emu64();    // FNCLEX should clear the SF (Stack Fault) bit
+    let mut emu = emu64(); // FNCLEX should clear the SF (Stack Fault) bit
     let code = [
-        0xDB, 0xE2,        // FNCLEX
-        0xDF, 0xE0,        // FNSTSW AX
-        0x66, 0x89, 0x04, 0x25, 0x00, 0x30, 0x00, 0x00,  // MOV word [0x3000], AX
-        0xF4,              // HLT
+        0xDB, 0xE2, // FNCLEX
+        0xDF, 0xE0, // FNSTSW AX
+        0x66, 0x89, 0x04, 0x25, 0x00, 0x30, 0x00, 0x00, // MOV word [0x3000], AX
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -161,11 +182,12 @@ fn test_fnclex_clears_sf_bit() {
 
 #[test]
 fn test_fclex_basic() {
-    let mut emu = emu64();    let code = [
-        0x9B, 0xDB, 0xE2,  // FCLEX (with FWAIT)
-        0xDF, 0xE0,        // FNSTSW AX
-        0x66, 0x89, 0x04, 0x25, 0x00, 0x30, 0x00, 0x00,  // MOV word [0x3000], AX
-        0xF4,              // HLT
+    let mut emu = emu64();
+    let code = [
+        0x9B, 0xDB, 0xE2, // FCLEX (with FWAIT)
+        0xDF, 0xE0, // FNSTSW AX
+        0x66, 0x89, 0x04, 0x25, 0x00, 0x30, 0x00, 0x00, // MOV word [0x3000], AX
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -173,16 +195,20 @@ fn test_fclex_basic() {
     emu.run(None).unwrap();
 
     let status = emu.maps.read_word(0x3000).unwrap();
-    assert_eq!(status & EXCEPTION_MASK, 0, "FCLEX should clear exception flags");
+    assert_eq!(
+        status & EXCEPTION_MASK,
+        0,
+        "FCLEX should clear exception flags"
+    );
 }
 
 #[test]
 fn test_fclex_clears_exception_flags() {
-    let mut emu = emu64();    // FCLEX should clear exception flags
+    let mut emu = emu64(); // FCLEX should clear exception flags
     let code = [
-        0x9B, 0xDB, 0xE2,  // FCLEX (with FWAIT)
-        0xDD, 0x3C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FNSTSW [0x3000]
-        0xF4,              // HLT
+        0x9B, 0xDB, 0xE2, // FCLEX (with FWAIT)
+        0xDD, 0x3C, 0x25, 0x00, 0x30, 0x00, 0x00, // FNSTSW [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -190,7 +216,11 @@ fn test_fclex_clears_exception_flags() {
     emu.run(None).unwrap();
 
     let status = emu.maps.read_word(0x3000).unwrap();
-    assert_eq!(status & EXCEPTION_MASK, 0, "FCLEX should clear all exception flags");
+    assert_eq!(
+        status & EXCEPTION_MASK,
+        0,
+        "FCLEX should clear all exception flags"
+    );
 }
 
 // ============================================================================
@@ -199,19 +229,19 @@ fn test_fclex_clears_exception_flags() {
 
 #[test]
 fn test_fclex_vs_fnclex() {
-    let mut emu = emu64();    // FCLEX and FNCLEX should have same effect in normal operation
+    let mut emu = emu64(); // FCLEX and FNCLEX should have same effect in normal operation
     let code1 = [
-        0x9B, 0xDB, 0xE2,  // FCLEX
-        0xDF, 0xE0,        // FNSTSW AX
-        0x66, 0x89, 0x04, 0x25, 0x00, 0x30, 0x00, 0x00,  // MOV word [0x3000], AX
-        0xF4,              // HLT
+        0x9B, 0xDB, 0xE2, // FCLEX
+        0xDF, 0xE0, // FNSTSW AX
+        0x66, 0x89, 0x04, 0x25, 0x00, 0x30, 0x00, 0x00, // MOV word [0x3000], AX
+        0xF4, // HLT
     ];
 
     let code2 = [
-        0xDB, 0xE2,        // FNCLEX
-        0xDF, 0xE0,        // FNSTSW AX
-        0x66, 0x89, 0x04, 0x25, 0x00, 0x30, 0x00, 0x00,  // MOV word [0x3000], AX
-        0xF4,              // HLT
+        0xDB, 0xE2, // FNCLEX
+        0xDF, 0xE0, // FNSTSW AX
+        0x66, 0x89, 0x04, 0x25, 0x00, 0x30, 0x00, 0x00, // MOV word [0x3000], AX
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code1);
@@ -231,13 +261,14 @@ fn test_fclex_vs_fnclex() {
 
 #[test]
 fn test_fnclex_then_fnstsw() {
-    let mut emu = emu64();    let code = [
-        0xDB, 0xE2,        // FNCLEX
-        0xDF, 0xE0,        // FNSTSW AX
-        0x66, 0x89, 0x04, 0x25, 0x00, 0x30, 0x00, 0x00,  // MOV word [0x3000], AX
-        0xDF, 0xE0,        // FNSTSW AX (2nd time)
-        0x66, 0x89, 0x04, 0x25, 0x02, 0x30, 0x00, 0x00,  // MOV word [0x3002], AX
-        0xF4,              // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDB, 0xE2, // FNCLEX
+        0xDF, 0xE0, // FNSTSW AX
+        0x66, 0x89, 0x04, 0x25, 0x00, 0x30, 0x00, 0x00, // MOV word [0x3000], AX
+        0xDF, 0xE0, // FNSTSW AX (2nd time)
+        0x66, 0x89, 0x04, 0x25, 0x02, 0x30, 0x00, 0x00, // MOV word [0x3002], AX
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -246,8 +277,16 @@ fn test_fnclex_then_fnstsw() {
 
     let status1 = emu.maps.read_word(0x3000).unwrap();
     let status2 = emu.maps.read_word(0x3002).unwrap();
-    assert_eq!(status1 & EXCEPTION_MASK, 0, "First FNSTSW should show cleared exceptions");
-    assert_eq!(status2 & EXCEPTION_MASK, 0, "Second FNSTSW should show cleared exceptions");
+    assert_eq!(
+        status1 & EXCEPTION_MASK,
+        0,
+        "First FNSTSW should show cleared exceptions"
+    );
+    assert_eq!(
+        status2 & EXCEPTION_MASK,
+        0,
+        "Second FNSTSW should show cleared exceptions"
+    );
 }
 
 // ============================================================================
@@ -256,14 +295,14 @@ fn test_fnclex_then_fnstsw() {
 
 #[test]
 fn test_fnclex_before_operations() {
-    let mut emu = emu64();    // FNCLEX before FPU operations
+    let mut emu = emu64(); // FNCLEX before FPU operations
     let code = [
-        0xDB, 0xE2,                                  // FNCLEX
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xDF, 0xE0,                                  // FNSTSW AX
-        0x66, 0x89, 0x04, 0x25, 0x00, 0x30, 0x00, 0x00,  // MOV word [0x3000], AX
-        0xDD, 0x1C, 0x25, 0x08, 0x30, 0x00, 0x00,  // FSTP qword [0x3008]
-        0xF4,              // HLT
+        0xDB, 0xE2, // FNCLEX
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xDF, 0xE0, // FNSTSW AX
+        0x66, 0x89, 0x04, 0x25, 0x00, 0x30, 0x00, 0x00, // MOV word [0x3000], AX
+        0xDD, 0x1C, 0x25, 0x08, 0x30, 0x00, 0x00, // FSTP qword [0x3008]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -272,21 +311,25 @@ fn test_fnclex_before_operations() {
     emu.run(None).unwrap();
 
     let status = emu.maps.read_word(0x3000).unwrap();
-    assert_eq!(status & EXCEPTION_MASK, 0, "Exceptions should still be cleared after FLD");
+    assert_eq!(
+        status & EXCEPTION_MASK,
+        0,
+        "Exceptions should still be cleared after FLD"
+    );
 }
 
 #[test]
 fn test_fnclex_after_operations() {
-    let mut emu = emu64();    // FNCLEX after FPU operations
+    let mut emu = emu64(); // FNCLEX after FPU operations
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00,  // FLD qword [0x2008]
-        0xDE, 0xC1,                                  // FADDP
-        0xDB, 0xE2,                                  // FNCLEX
-        0xDF, 0xE0,                                  // FNSTSW AX
-        0x66, 0x89, 0x04, 0x25, 0x00, 0x30, 0x00, 0x00,  // MOV word [0x3000], AX
-        0xDD, 0x1C, 0x25, 0x08, 0x30, 0x00, 0x00,  // FSTP qword [0x3008]
-        0xF4,              // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00, // FLD qword [0x2008]
+        0xDE, 0xC1, // FADDP
+        0xDB, 0xE2, // FNCLEX
+        0xDF, 0xE0, // FNSTSW AX
+        0x66, 0x89, 0x04, 0x25, 0x00, 0x30, 0x00, 0x00, // MOV word [0x3000], AX
+        0xDD, 0x1C, 0x25, 0x08, 0x30, 0x00, 0x00, // FSTP qword [0x3008]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -296,7 +339,11 @@ fn test_fnclex_after_operations() {
     emu.run(None).unwrap();
 
     let status = emu.maps.read_word(0x3000).unwrap();
-    assert_eq!(status & EXCEPTION_MASK, 0, "FNCLEX should clear exceptions after arithmetic");
+    assert_eq!(
+        status & EXCEPTION_MASK,
+        0,
+        "FNCLEX should clear exceptions after arithmetic"
+    );
 }
 
 // ============================================================================
@@ -305,11 +352,12 @@ fn test_fnclex_after_operations() {
 
 #[test]
 fn test_fnclex_individual_exception_bits() {
-    let mut emu = emu64();    let code = [
-        0xDB, 0xE2,        // FNCLEX
-        0xDF, 0xE0,        // FNSTSW AX
-        0x66, 0x89, 0x04, 0x25, 0x00, 0x30, 0x00, 0x00,  // MOV word [0x3000], AX
-        0xF4,              // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDB, 0xE2, // FNCLEX
+        0xDF, 0xE0, // FNSTSW AX
+        0x66, 0x89, 0x04, 0x25, 0x00, 0x30, 0x00, 0x00, // MOV word [0x3000], AX
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -331,13 +379,14 @@ fn test_fnclex_individual_exception_bits() {
 
 #[test]
 fn test_sequential_fnclex() {
-    let mut emu = emu64();    let code = [
-        0xDB, 0xE2,        // FNCLEX
-        0xDB, 0xE2,        // FNCLEX
-        0xDB, 0xE2,        // FNCLEX
-        0xDF, 0xE0,        // FNSTSW AX
-        0x66, 0x89, 0x04, 0x25, 0x00, 0x30, 0x00, 0x00,  // MOV word [0x3000], AX
-        0xF4,              // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDB, 0xE2, // FNCLEX
+        0xDB, 0xE2, // FNCLEX
+        0xDB, 0xE2, // FNCLEX
+        0xDF, 0xE0, // FNSTSW AX
+        0x66, 0x89, 0x04, 0x25, 0x00, 0x30, 0x00, 0x00, // MOV word [0x3000], AX
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -345,7 +394,11 @@ fn test_sequential_fnclex() {
     emu.run(None).unwrap();
 
     let status = emu.maps.read_word(0x3000).unwrap();
-    assert_eq!(status & EXCEPTION_MASK, 0, "Multiple FNCLEX should clear all exceptions");
+    assert_eq!(
+        status & EXCEPTION_MASK,
+        0,
+        "Multiple FNCLEX should clear all exceptions"
+    );
 }
 
 // ============================================================================
@@ -354,17 +407,17 @@ fn test_sequential_fnclex() {
 
 #[test]
 fn test_fnclex_after_comparison() {
-    let mut emu = emu64();    // FNCLEX after comparison (condition codes should not be cleared by FNCLEX)
+    let mut emu = emu64(); // FNCLEX after comparison (condition codes should not be cleared by FNCLEX)
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00,  // FLD qword [0x2008]
-        0xD8, 0xD1,                                  // FCOM ST(1)
-        0xDB, 0xE2,                                  // FNCLEX (clears exception flags, not condition codes)
-        0xDF, 0xE0,                                  // FNSTSW AX
-        0x66, 0x89, 0x04, 0x25, 0x00, 0x30, 0x00, 0x00,  // MOV word [0x3000], AX
-        0xDD, 0x1C, 0x25, 0x08, 0x30, 0x00, 0x00,  // FSTP qword [0x3008]
-        0xDD, 0x1C, 0x25, 0x10, 0x30, 0x00, 0x00,  // FSTP qword [0x3010]
-        0xF4,              // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00, // FLD qword [0x2008]
+        0xD8, 0xD1, // FCOM ST(1)
+        0xDB, 0xE2, // FNCLEX (clears exception flags, not condition codes)
+        0xDF, 0xE0, // FNSTSW AX
+        0x66, 0x89, 0x04, 0x25, 0x00, 0x30, 0x00, 0x00, // MOV word [0x3000], AX
+        0xDD, 0x1C, 0x25, 0x08, 0x30, 0x00, 0x00, // FSTP qword [0x3008]
+        0xDD, 0x1C, 0x25, 0x10, 0x30, 0x00, 0x00, // FSTP qword [0x3010]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -374,7 +427,11 @@ fn test_fnclex_after_comparison() {
     emu.run(None).unwrap();
 
     let status = emu.maps.read_word(0x3000).unwrap();
-    assert_eq!(status & EXCEPTION_MASK, 0, "Exception flags should be cleared");
+    assert_eq!(
+        status & EXCEPTION_MASK,
+        0,
+        "Exception flags should be cleared"
+    );
 }
 
 // ============================================================================
@@ -383,16 +440,17 @@ fn test_fnclex_after_comparison() {
 
 #[test]
 fn test_fnclex_complete_flow() {
-    let mut emu = emu64();    let code = [
-        0xDB, 0xE2,                                  // FNCLEX (clear any initial exceptions)
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00,  // FLD qword [0x2008]
-        0xDE, 0xC1,                                  // FADDP
-        0xDD, 0x3C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FNSTSW [0x3000] (before clear)
-        0xDB, 0xE2,                                  // FNCLEX
-        0xDD, 0x3C, 0x25, 0x02, 0x30, 0x00, 0x00,  // FNSTSW [0x3002] (after clear)
-        0xDD, 0x1C, 0x25, 0x08, 0x30, 0x00, 0x00,  // FSTP qword [0x3008]
-        0xF4,              // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDB, 0xE2, // FNCLEX (clear any initial exceptions)
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00, // FLD qword [0x2008]
+        0xDE, 0xC1, // FADDP
+        0xDD, 0x3C, 0x25, 0x00, 0x30, 0x00, 0x00, // FNSTSW [0x3000] (before clear)
+        0xDB, 0xE2, // FNCLEX
+        0xDD, 0x3C, 0x25, 0x02, 0x30, 0x00, 0x00, // FNSTSW [0x3002] (after clear)
+        0xDD, 0x1C, 0x25, 0x08, 0x30, 0x00, 0x00, // FSTP qword [0x3008]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -403,23 +461,27 @@ fn test_fnclex_complete_flow() {
 
     let status_before = emu.maps.read_word(0x3000).unwrap();
     let status_after = emu.maps.read_word(0x3002).unwrap();
-    assert_eq!(status_after & EXCEPTION_MASK, 0, "Exceptions should be cleared after FNCLEX");
+    assert_eq!(
+        status_after & EXCEPTION_MASK,
+        0,
+        "Exceptions should be cleared after FNCLEX"
+    );
 }
 
 #[test]
 fn test_fclex_multiple_operations() {
-    let mut emu = emu64();    // FCLEX with multiple operations
+    let mut emu = emu64(); // FCLEX with multiple operations
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00,  // FLD qword [0x2008]
-        0xDE, 0xC1,                                  // FADDP
-        0x9B, 0xDB, 0xE2,                           // FCLEX
-        0xDD, 0x04, 0x25, 0x10, 0x20, 0x00, 0x00,  // FLD qword [0x2010]
-        0xDE, 0xC1,                                  // FADDP
-        0xDF, 0xE0,                                  // FNSTSW AX
-        0x66, 0x89, 0x04, 0x25, 0x00, 0x30, 0x00, 0x00,  // MOV word [0x3000], AX
-        0xDD, 0x1C, 0x25, 0x08, 0x30, 0x00, 0x00,  // FSTP qword [0x3008]
-        0xF4,              // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00, // FLD qword [0x2008]
+        0xDE, 0xC1, // FADDP
+        0x9B, 0xDB, 0xE2, // FCLEX
+        0xDD, 0x04, 0x25, 0x10, 0x20, 0x00, 0x00, // FLD qword [0x2010]
+        0xDE, 0xC1, // FADDP
+        0xDF, 0xE0, // FNSTSW AX
+        0x66, 0x89, 0x04, 0x25, 0x00, 0x30, 0x00, 0x00, // MOV word [0x3000], AX
+        0xDD, 0x1C, 0x25, 0x08, 0x30, 0x00, 0x00, // FSTP qword [0x3008]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -430,7 +492,11 @@ fn test_fclex_multiple_operations() {
     emu.run(None).unwrap();
 
     let status = emu.maps.read_word(0x3000).unwrap();
-    assert_eq!(status & EXCEPTION_MASK, 0, "Exceptions should remain cleared");
+    assert_eq!(
+        status & EXCEPTION_MASK,
+        0,
+        "Exceptions should remain cleared"
+    );
 }
 
 // ============================================================================
@@ -439,10 +505,11 @@ fn test_fclex_multiple_operations() {
 
 #[test]
 fn test_fnclex_status_word_clean_state() {
-    let mut emu = emu64();    let code = [
-        0xDB, 0xE2,        // FNCLEX
-        0xDD, 0x3C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FNSTSW [0x3000]
-        0xF4,              // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDB, 0xE2, // FNCLEX
+        0xDD, 0x3C, 0x25, 0x00, 0x30, 0x00, 0x00, // FNSTSW [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -462,14 +529,14 @@ fn test_fnclex_status_word_clean_state() {
 
 #[test]
 fn test_fnclex_preserves_other_bits() {
-    let mut emu = emu64();    // FNCLEX should only clear exception flags, not affect other FPU state
+    let mut emu = emu64(); // FNCLEX should only clear exception flags, not affect other FPU state
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xDD, 0x3C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FNSTSW [0x3000] (before)
-        0xDB, 0xE2,                                  // FNCLEX
-        0xDD, 0x3C, 0x25, 0x02, 0x30, 0x00, 0x00,  // FNSTSW [0x3002] (after)
-        0xDD, 0x1C, 0x25, 0x08, 0x30, 0x00, 0x00,  // FSTP qword [0x3008]
-        0xF4,              // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xDD, 0x3C, 0x25, 0x00, 0x30, 0x00, 0x00, // FNSTSW [0x3000] (before)
+        0xDB, 0xE2, // FNCLEX
+        0xDD, 0x3C, 0x25, 0x02, 0x30, 0x00, 0x00, // FNSTSW [0x3002] (after)
+        0xDD, 0x1C, 0x25, 0x08, 0x30, 0x00, 0x00, // FSTP qword [0x3008]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);

@@ -30,7 +30,11 @@ fn test_btc_ax_bx_bit_0_set() {
     emu.run(None).unwrap();
 
     assert!(emu.flags().f_cf, "CF should be set (bit 0 was 1)");
-    assert_eq!(emu.regs().rax & 0xFFFF, 0b0000_0000_0000_0000, "AX: bit 0 should be complemented to 0");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0b0000_0000_0000_0000,
+        "AX: bit 0 should be complemented to 0"
+    );
 }
 
 #[test]
@@ -48,7 +52,11 @@ fn test_btc_ax_bx_bit_0_clear() {
     emu.run(None).unwrap();
 
     assert!(!emu.flags().f_cf, "CF should be clear (bit 0 was 0)");
-    assert_eq!(emu.regs().rax & 0xFFFF, 0b0000_0000_0000_0001, "AX: bit 0 should be complemented to 1");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0b0000_0000_0000_0001,
+        "AX: bit 0 should be complemented to 1"
+    );
 }
 
 #[test]
@@ -66,7 +74,11 @@ fn test_btc_ax_bx_bit_15() {
     emu.run(None).unwrap();
 
     assert!(emu.flags().f_cf, "CF should be set (bit 15 was 1)");
-    assert_eq!(emu.regs().rax & 0xFFFF, 0x0000, "AX: bit 15 should be complemented to 0");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0x0000,
+        "AX: bit 15 should be complemented to 0"
+    );
 }
 
 #[test]
@@ -84,7 +96,11 @@ fn test_btc_eax_ebx_bit_0() {
     emu.run(None).unwrap();
 
     assert!(emu.flags().f_cf, "CF should be set (bit 0 was 1)");
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0b0000_0000, "EAX: bit 0 should be complemented to 0");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0b0000_0000,
+        "EAX: bit 0 should be complemented to 0"
+    );
 }
 
 #[test]
@@ -102,7 +118,11 @@ fn test_btc_eax_ebx_bit_31() {
     emu.run(None).unwrap();
 
     assert!(emu.flags().f_cf, "CF should be set (bit 31 was 1)");
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x00000000, "EAX: bit 31 should be complemented to 0");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x00000000,
+        "EAX: bit 31 should be complemented to 0"
+    );
 }
 
 #[test]
@@ -120,7 +140,11 @@ fn test_btc_rax_rbx_bit_0() {
     emu.run(None).unwrap();
 
     assert!(emu.flags().f_cf, "CF should be set (bit 0 was 1)");
-    assert_eq!(emu.regs().rax, 0b0000_0000, "RAX: bit 0 should be complemented to 0");
+    assert_eq!(
+        emu.regs().rax,
+        0b0000_0000,
+        "RAX: bit 0 should be complemented to 0"
+    );
 }
 
 #[test]
@@ -138,7 +162,11 @@ fn test_btc_rax_rbx_bit_63() {
     emu.run(None).unwrap();
 
     assert!(emu.flags().f_cf, "CF should be set (bit 63 was 1)");
-    assert_eq!(emu.regs().rax, 0x0000_0000_0000_0000, "RAX: bit 63 should be complemented to 0");
+    assert_eq!(
+        emu.regs().rax,
+        0x0000_0000_0000_0000,
+        "RAX: bit 63 should be complemented to 0"
+    );
 }
 
 #[test]
@@ -155,7 +183,11 @@ fn test_btc_ax_imm8_bit_0() {
     emu.run(None).unwrap();
 
     assert!(emu.flags().f_cf, "CF should be set (bit 0 was 1)");
-    assert_eq!(emu.regs().rax & 0xFFFF, 0b0000_0000_0000_0000, "AX: bit 0 should be complemented to 0");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0b0000_0000_0000_0000,
+        "AX: bit 0 should be complemented to 0"
+    );
 }
 
 #[test]
@@ -172,7 +204,11 @@ fn test_btc_ax_imm8_bit_15() {
     emu.run(None).unwrap();
 
     assert!(!emu.flags().f_cf, "CF should be clear (bit 15 was 0)");
-    assert_eq!(emu.regs().rax & 0xFFFF, 0x8000, "AX: bit 15 should be complemented to 1");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0x8000,
+        "AX: bit 15 should be complemented to 1"
+    );
 }
 
 #[test]
@@ -189,7 +225,11 @@ fn test_btc_eax_imm8_bit_0() {
     emu.run(None).unwrap();
 
     assert!(!emu.flags().f_cf, "CF should be clear (bit 0 was 0)");
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0b0000_0001, "EAX: bit 0 should be complemented to 1");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0b0000_0001,
+        "EAX: bit 0 should be complemented to 1"
+    );
 }
 
 #[test]
@@ -206,7 +246,11 @@ fn test_btc_eax_imm8_bit_31() {
     emu.run(None).unwrap();
 
     assert!(!emu.flags().f_cf, "CF should be clear (bit 31 was 0)");
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x80000000, "EAX: bit 31 should be complemented to 1");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x80000000,
+        "EAX: bit 31 should be complemented to 1"
+    );
 }
 
 #[test]
@@ -223,7 +267,11 @@ fn test_btc_rax_imm8_bit_0() {
     emu.run(None).unwrap();
 
     assert!(emu.flags().f_cf, "CF should be set (bit 0 was 1)");
-    assert_eq!(emu.regs().rax, 0b0000_0000, "RAX: bit 0 should be complemented to 0");
+    assert_eq!(
+        emu.regs().rax,
+        0b0000_0000,
+        "RAX: bit 0 should be complemented to 0"
+    );
 }
 
 #[test]
@@ -240,7 +288,11 @@ fn test_btc_rax_imm8_bit_63() {
     emu.run(None).unwrap();
 
     assert!(!emu.flags().f_cf, "CF should be clear (bit 63 was 0)");
-    assert_eq!(emu.regs().rax, 0x8000_0000_0000_0000, "RAX: bit 63 should be complemented to 1");
+    assert_eq!(
+        emu.regs().rax,
+        0x8000_0000_0000_0000,
+        "RAX: bit 63 should be complemented to 1"
+    );
 }
 
 #[test]
@@ -257,7 +309,11 @@ fn test_btc_double_complement() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x12345678, "EAX: double complement should return to original");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x12345678,
+        "EAX: double complement should return to original"
+    );
 }
 
 #[test]
@@ -274,7 +330,11 @@ fn test_btc_alternating_bits() {
     emu.run(None).unwrap();
 
     assert!(emu.flags().f_cf, "CF should be set (bit 1 was 1)");
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xAAAAAAAA & !0x2, "EAX: bit 1 should be complemented");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xAAAAAAAA & !0x2,
+        "EAX: bit 1 should be complemented"
+    );
 }
 
 #[test]
@@ -291,7 +351,11 @@ fn test_btc_preserves_other_bits() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xFFFFFFFF & !(1 << 5), "EAX: only bit 5 should change");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xFFFFFFFF & !(1 << 5),
+        "EAX: only bit 5 should change"
+    );
 }
 
 #[test]
@@ -309,7 +373,11 @@ fn test_btc_with_extended_registers() {
     emu.run(None).unwrap();
 
     assert!(emu.flags().f_cf, "CF should be set (bit 0 was 1)");
-    assert_eq!(emu.regs().r8 & 0xFFFFFFFF, 0b0000_0000, "R8D: bit 0 should be complemented to 0");
+    assert_eq!(
+        emu.regs().r8 & 0xFFFFFFFF,
+        0b0000_0000,
+        "R8D: bit 0 should be complemented to 0"
+    );
 }
 
 #[test]
@@ -326,7 +394,11 @@ fn test_btc_r15_imm8() {
     emu.run(None).unwrap();
 
     assert!(!emu.flags().f_cf, "CF should be clear (bit 32 was 0)");
-    assert_eq!(emu.regs().r15, 0x1_0000_0000, "R15: bit 32 should be complemented to 1");
+    assert_eq!(
+        emu.regs().r15,
+        0x1_0000_0000,
+        "R15: bit 32 should be complemented to 1"
+    );
 }
 
 #[test]
@@ -364,7 +436,10 @@ fn test_btc_mem32_reg() {
 
     assert!(!emu.flags().f_cf, "CF should be clear (bit 16 was 0)");
     let result = emu.maps.read_dword(DATA_ADDR).unwrap();
-    assert_eq!(result, 0x00010000, "Memory: bit 16 should be complemented to 1");
+    assert_eq!(
+        result, 0x00010000,
+        "Memory: bit 16 should be complemented to 1"
+    );
 }
 
 #[test]
@@ -383,7 +458,10 @@ fn test_btc_mem64_reg() {
 
     assert!(emu.flags().f_cf, "CF should be set (bit 40 was 1)");
     let result = emu.maps.read_qword(DATA_ADDR).unwrap();
-    assert_eq!(result, 0x000_0000_0000, "Memory: bit 40 should be complemented to 0");
+    assert_eq!(
+        result, 0x000_0000_0000,
+        "Memory: bit 40 should be complemented to 0"
+    );
 }
 
 #[test]
@@ -419,7 +497,11 @@ fn test_btc_toggle_pattern() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 1 << 10, "EAX: bit 10 should be set after 3 toggles");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        1 << 10,
+        "EAX: bit 10 should be set after 3 toggles"
+    );
 }
 
 #[test]
@@ -436,7 +518,11 @@ fn test_btc_all_bits_set() {
     emu.run(None).unwrap();
 
     assert!(emu.flags().f_cf, "CF should be set (bit 17 was 1)");
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xFFFFFFFF & !(1 << 17), "EAX: bit 17 should be clear");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xFFFFFFFF & !(1 << 17),
+        "EAX: bit 17 should be clear"
+    );
 }
 
 #[test]
@@ -453,7 +539,11 @@ fn test_btc_all_bits_clear() {
     emu.run(None).unwrap();
 
     assert!(!emu.flags().f_cf, "CF should be clear (bit 17 was 0)");
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 1 << 17, "EAX: bit 17 should be set");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        1 << 17,
+        "EAX: bit 17 should be set"
+    );
 }
 
 #[test]
@@ -470,7 +560,11 @@ fn test_btc_bit_position_modulo_16() {
     emu.run(None).unwrap();
 
     assert!(emu.flags().f_cf, "CF should be set (bit 0 was 1)");
-    assert_eq!(emu.regs().rax & 0xFFFF, 0x0000, "AX: bit 0 should be complemented");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0x0000,
+        "AX: bit 0 should be complemented"
+    );
 }
 
 #[test]
@@ -487,7 +581,11 @@ fn test_btc_bit_position_modulo_32() {
     emu.run(None).unwrap();
 
     assert!(emu.flags().f_cf, "CF should be set (bit 0 was 1)");
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x0000, "EAX: bit 0 should be complemented");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x0000,
+        "EAX: bit 0 should be complemented"
+    );
 }
 
 #[test]
@@ -520,7 +618,11 @@ fn test_btc_creates_single_bit_set() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 1 << 20, "EAX: only bit 20 should be set");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        1 << 20,
+        "EAX: only bit 20 should be set"
+    );
 }
 
 #[test]
@@ -536,7 +638,11 @@ fn test_btc_clears_single_bit() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xFFFFFFFF & !(1 << 20), "EAX: only bit 20 should be clear");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xFFFFFFFF & !(1 << 20),
+        "EAX: only bit 20 should be clear"
+    );
 }
 
 #[test]
@@ -552,7 +658,11 @@ fn test_btc_multiple_different_bits() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 1 << 5, "EAX: bit 5 should be set");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        1 << 5,
+        "EAX: bit 5 should be set"
+    );
 
     let code = [
         0x0f, 0xbb, 0xd8, // BTC EAX, EBX
@@ -562,5 +672,9 @@ fn test_btc_multiple_different_bits() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, (1 << 5) | (1 << 10), "EAX: bits 5 and 10 should be set");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        (1 << 5) | (1 << 10),
+        "EAX: bits 5 and 10 should be set"
+    );
 }

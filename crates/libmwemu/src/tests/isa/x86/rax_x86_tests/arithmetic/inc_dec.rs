@@ -90,7 +90,11 @@ fn test_inc_al_memory() {
     emu.maps.write_byte(DATA_ADDR, 42);
 
     emu.run(None).unwrap();
-    assert_eq!(emu.maps.read_byte(DATA_ADDR).unwrap(), 43, "INC [RBX]: 42 + 1 = 43");
+    assert_eq!(
+        emu.maps.read_byte(DATA_ADDR).unwrap(),
+        43,
+        "INC [RBX]: 42 + 1 = 43"
+    );
 }
 
 // ============================================================================
@@ -165,7 +169,11 @@ fn test_dec_al_memory() {
     emu.maps.write_byte(DATA_ADDR, 42);
 
     emu.run(None).unwrap();
-    assert_eq!(emu.maps.read_byte(DATA_ADDR).unwrap(), 41, "DEC [RBX]: 42 - 1 = 41");
+    assert_eq!(
+        emu.maps.read_byte(DATA_ADDR).unwrap(),
+        41,
+        "DEC [RBX]: 42 - 1 = 41"
+    );
 }
 
 // ============================================================================
@@ -181,7 +189,11 @@ fn test_inc_ax_basic() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFF, 0x1235, "INC AX: 0x1234 + 1 = 0x1235");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0x1235,
+        "INC AX: 0x1234 + 1 = 0x1235"
+    );
 }
 
 #[test]
@@ -226,7 +238,11 @@ fn test_dec_ax_basic() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFF, 0x1233, "DEC AX: 0x1234 - 1 = 0x1233");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0x1233,
+        "DEC AX: 0x1234 - 1 = 0x1233"
+    );
 }
 
 #[test]
@@ -239,7 +255,11 @@ fn test_dec_ax_underflow() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFF, 0xFFFF, "DEC AX: 0x0000 - 1 = 0xFFFF");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0xFFFF,
+        "DEC AX: 0x0000 - 1 = 0xFFFF"
+    );
     assert!(emu.flags().f_sf, "SF should be set");
 }
 
@@ -343,7 +363,11 @@ fn test_dec_eax_underflow() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0xFFFFFFFF, "DEC EAX: 0x00000000 - 1 = 0xFFFFFFFF");
+    assert_eq!(
+        emu.regs().rax,
+        0xFFFFFFFF,
+        "DEC EAX: 0x00000000 - 1 = 0xFFFFFFFF"
+    );
     assert!(emu.flags().f_sf, "SF should be set");
 }
 
@@ -755,7 +779,7 @@ fn test_inc_as_loop_counter() {
         0xff, 0xc0, // INC EAX
         0xff, 0xc0, // INC EAX
         0xff, 0xc0, // INC EAX
-        0xf4,       // HLT
+        0xf4, // HLT
     ];
     emu.regs_mut().rax = 0;
     emu.load_code_bytes(&code);
@@ -772,7 +796,7 @@ fn test_dec_as_loop_counter() {
         0xff, 0xc8, // DEC EAX
         0xff, 0xc8, // DEC EAX
         0xff, 0xc8, // DEC EAX
-        0xf4,       // HLT
+        0xf4, // HLT
     ];
     emu.regs_mut().rax = 5;
     emu.load_code_bytes(&code);
@@ -791,7 +815,11 @@ fn test_inc_preserves_high_bytes() {
     emu.run(None).unwrap();
 
     assert_eq!(emu.regs().rax & 0xFF, 0x79);
-    assert_eq!(emu.regs().rax & !0xFF, 0xDEADBEEF_12345600, "High bytes should be preserved");
+    assert_eq!(
+        emu.regs().rax & !0xFF,
+        0xDEADBEEF_12345600,
+        "High bytes should be preserved"
+    );
 }
 
 #[test]
@@ -804,5 +832,9 @@ fn test_dec_preserves_high_bytes() {
     emu.run(None).unwrap();
 
     assert_eq!(emu.regs().rax & 0xFF, 0x77);
-    assert_eq!(emu.regs().rax & !0xFF, 0xDEADBEEF_12345600, "High bytes should be preserved");
+    assert_eq!(
+        emu.regs().rax & !0xFF,
+        0xDEADBEEF_12345600,
+        "High bytes should be preserved"
+    );
 }
