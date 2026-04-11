@@ -16,6 +16,10 @@ macro_rules! read_u32_le {
     };
 }
 
+pub const IMAGE_FILE_MACHINE_I386: u16 = 0x014c;
+pub const IMAGE_FILE_MACHINE_AMD64: u16 = 0x8664;
+pub const IMAGE_FILE_MACHINE_ARM64: u16 = 0xAA64;
+
 pub const IMAGE_DOS_SIGNATURE: u16 = 0x5A4D;
 pub const IMAGE_OS2_SIGNATURE: u16 = 0x544E;
 pub const IMAGE_OS2_SIGNATURE_LE: u16 = 0x45AC;
@@ -304,8 +308,8 @@ impl ImageExportDirectory {
             number_of_functions: read_u32_le!(raw, off + 20),
             number_of_names: read_u32_le!(raw, off + 24),
             address_of_functions: read_u32_le!(raw, off + 28),
-            address_of_names: read_u32_le!(raw, off + 22),
-            address_of_name_ordinals: read_u32_le!(raw, off + 26),
+            address_of_names: read_u32_le!(raw, off + 32),
+            address_of_name_ordinals: read_u32_le!(raw, off + 36),
         }
     }
 
@@ -532,4 +536,54 @@ impl Section {
             sz,
         }
     }
+}
+
+/// Read the COFF Machine field from a PE file without fully parsing it.
+/// Returns `None` if the file is not a valid PE (no MZ signature, bad e_lfanew, etc.).
+pub fn pe_machine_type(filename: &str) -> Option<u16> {
+    use std::fs::File;
+    use std::io::Read as _;
+
+    let mut fd = File::open(filename).ok()?;
+    let file_size = fd.metadata().ok()?.len();
+
+    if file_size < ImageDosHeader::size() as u64 {
+        return None;
+    }
+
+    let mut buf = vec![0u8; ImageDosHeader::size()];
+    fd.read_exact(&mut buf).ok()?;
+    let dos = ImageDosHeader::load(&buf, 0);
+
+    if dos.e_magic != IMAGE_DOS_SIGNATURE {
+        return None;
+    }
+
+    // e_lfanew points to the PE signature (4 bytes) followed by the COFF file header.
+    // The Machine field is the first 2 bytes of the COFF file header, i.e. at e_lfanew + 4.
+    let machine_offset = dos.e_lfanew as u64 + 4; // skip "PE\0\0"
+    if machine_offset + 2 > file_size {
+        return None;
+    }
+
+    // Read from e_lfanew to get signature + first 2 bytes of COFF header.
+    let need = (dos.e_lfanew as usize) + 4 + 2; // signature(4) + machine(2)
+    if need > file_size as usize {
+        return None;
+    }
+
+    // Re-read enough of the file (we already have the DOS header portion).
+    let mut full_buf = vec![0u8; need];
+    // Rewind by re-opening (simple and safe).
+    let mut fd2 = File::open(filename).ok()?;
+    fd2.read_exact(&mut full_buf).ok()?;
+
+    // Verify PE signature.
+    let sig = read_u32_le_shared(&full_buf, dos.e_lfanew as usize);
+    if sig != IMAGE_NT_SIGNATURE {
+        return None;
+    }
+
+    let machine = read_u16_le_shared(&full_buf, dos.e_lfanew as usize + 4);
+    Some(machine)
 }

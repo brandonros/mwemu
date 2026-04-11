@@ -11,7 +11,7 @@ use crate::windows::structures::TEB64;
 /// this NULL, which makes loader code fault. If the slot is NULL or points at unmapped memory,
 /// install or reuse a dedicated zero-filled page and write its base to `PEB+0x90`.
 pub fn ensure_peb_system_dependent_07(emu: &mut emu::Emu) {
-    if !emu.cfg.is_x64() {
+    if !emu.cfg.arch.is_64bits() {
         return;
     }
     let peb_base = match emu.maps.get_map_by_name("peb") {
@@ -37,7 +37,7 @@ pub fn ensure_peb_system_dependent_07(emu: &mut emu::Emu) {
 
 /// `TEB+0x2C8` points at the thread activation-context stack.
 fn ensure_teb_activation_context_stack(emu: &mut emu::Emu) {
-    if !emu.cfg.is_x64() {
+    if !emu.cfg.arch.is_64bits() {
         return;
     }
     let teb_base = match emu.maps.get_map_by_name("teb") {
@@ -65,7 +65,7 @@ fn ensure_teb_activation_context_stack(emu: &mut emu::Emu) {
 
 /// `PEB+0x68` (`system_dependent_06`) is consumed by loader-side helpers on the real path.
 fn ensure_peb_system_dependent_06(emu: &mut emu::Emu) {
-    if !emu.cfg.is_x64() {
+    if !emu.cfg.arch.is_64bits() {
         return;
     }
     let peb_base = match emu.maps.get_map_by_name("peb") {
@@ -92,7 +92,7 @@ fn ensure_peb_system_dependent_06(emu: &mut emu::Emu) {
 
 /// Map a minimal NLS data page for the three code-page table pointers stored in the PEB.
 pub fn ensure_peb_nls_tables(emu: &mut emu::Emu) {
-    if !emu.cfg.is_x64() {
+    if !emu.cfg.arch.is_64bits() {
         return;
     }
     let peb_base = match emu.maps.get_map_by_name("peb") {

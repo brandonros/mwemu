@@ -307,30 +307,59 @@ impl Emu {
             self.disable_ctrlc();
         }
 
-        //log::trace!("initializing regs");
-        if clear_registers {
-            self.regs_mut().clear::<64>();
+        // Ensure arch_state and thread context match the target architecture before
+        // touching any registers, since regs_mut()/regs_aarch64_mut() panic on mismatch.
+        if self.cfg.is_aarch64() {
+            if matches!(self.arch_state, super::ArchState::X86 { .. }) {
+                self.arch_state = super::ArchState::AArch64 {
+                    instruction: None,
+                    instruction_cache: crate::emu::disassemble::InstructionCache::new(),
+                };
+            }
+            if matches!(
+                self.threads[self.current_thread_id].arch,
+                crate::threading::context::ArchThreadState::X86 { .. }
+            ) {
+                let id = self.threads[self.current_thread_id].id;
+                self.threads[self.current_thread_id] =
+                    crate::threading::context::ThreadContext::new(id, self.cfg.arch);
+            }
         }
-        if clear_flags {
-            self.flags_mut().clear();
-        }
-        //self.regs().rand();
 
-        self.regs_mut().rip = self.cfg.entry_point;
-        if self.cfg.is_x64() {
-            self.maps.is_64bits = self.cfg.arch.is_64bits();
-            self.init_win32_mem64();
-            self.init_stack64();
+        //log::trace!("initializing regs");
+        if self.cfg.is_aarch64() {
+            // AArch64: zero all registers; no x86 flags to clear.
+            if clear_registers {
+                *self.regs_aarch64_mut() = crate::arch::aarch64::regs::RegsAarch64::new();
+            }
+            self.regs_aarch64_mut().pc = self.cfg.entry_point;
+        } else {
+            if clear_registers {
+                self.regs_mut().clear::<64>();
+            }
+            if clear_flags {
+                self.flags_mut().clear();
+            }
+            self.regs_mut().rip = self.cfg.entry_point;
+        }
+        if self.cfg.arch.is_64bits() {
+            self.maps.is_64bits = true;
+            if self.cfg.is_aarch64() {
+                self.init_win_aarch64();
+            } else {
+                self.init_win32_mem64();
+                self.init_stack64();
+            }
         } else {
             // 32bits
-            self.maps.is_64bits = self.cfg.arch.is_64bits();
+            self.maps.is_64bits = false;
             self.regs_mut().sanitize32();
             self.init_win32_mem32();
             self.init_stack32();
         }
 
         // loading banzai on 32bits
-        if !self.cfg.is_x64() {
+        if self.cfg.arch.is_64bits() == false {
             let mut rdr = ReaderBuilder::new()
                 .from_path(format!("{}/banzai.csv", self.cfg.maps_folder))
                 .expect("banzai.csv not found on maps folder, please download last mwemu maps");
@@ -618,6 +647,21 @@ impl Emu {
 
         assert!(self.maps.mem_test(), "It doesn't pass the memory tests!!");
         log::trace!("memory test Ok.");
+    }
+
+    /// Initialize Windows ARM64 session: sets up aarch64 stack and full PEB64/TEB64/LDR64
+    /// memory layout. Arch state and thread context must already be switched to AArch64
+    /// before calling this (done at the top of init_win32).
+    ///
+    /// Reuses the same 64-bit Windows memory setup as x86_64 since PEB64/TEB64/LDR
+    /// structures are architecture-neutral; the difference is register semantics and stack init.
+    fn init_win_aarch64(&mut self) {
+        // Set up the aarch64 stack first (uses SP register instead of RSP/RBP)
+        // so that the stack map exists when init_win32_mem64 writes TEB stack bounds.
+        self.init_stack_aarch64();
+
+        // Set up the 64-bit Windows memory (PEB64, TEB64, LDR, DLLs, heap)
+        self.init_win32_mem64();
     }
 
     /// This is called from init(), this setup the 64bits windows memory simulation.

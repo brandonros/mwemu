@@ -5,8 +5,9 @@ use crate::emu::Emu;
 use crate::loaders::elf::elf32::Elf32;
 use crate::loaders::elf::elf64::Elf64;
 use crate::loaders::macho::macho64::Macho64;
-use crate::loaders::pe::pe32::PE32;
-use crate::loaders::pe::pe64::PE64;
+use crate::loaders::pe::{
+    pe_machine_type, IMAGE_FILE_MACHINE_AMD64, IMAGE_FILE_MACHINE_ARM64, IMAGE_FILE_MACHINE_I386,
+};
 use crate::maps::mem64::Permission;
 use crate::winapi::winapi64;
 use crate::windows::constants;
@@ -98,11 +99,15 @@ impl Emu {
             log::trace!("elf64 x86_64 detected.");
             self.load_elf64(filename);
 
-        // PE32
-        } else if !self.cfg.is_x64() && PE32::is_pe32(filename) && !self.cfg.shellcode {
-            log::trace!("PE32 header detected.");
+        // PE: use COFF Machine field to distinguish x86 / x86_64 / ARM64
+        } else if !self.cfg.shellcode
+            && pe_machine_type(filename) == Some(IMAGE_FILE_MACHINE_I386)
+        {
+            log::trace!("PE32 x86 header detected (Machine=0x{:04x}).", IMAGE_FILE_MACHINE_I386);
             let clear_registers = false; // TODO: this needs to be more dynamic, like if we have a register set via args or not
             let clear_flags = false; // TODO: this needs to be more dynamic, like if we have a flag set via args or not
+            self.cfg.arch = Arch::X86;
+            self.os = crate::arch::OperatingSystem::Windows;
             self.init_win32(clear_registers, clear_flags);
             let (base, _pe_off) = self.load_pe32(filename, true, 0);
             let ep = self.regs().rip;
@@ -118,11 +123,35 @@ impl Emu {
 
             self.regs_mut().rip = ep;
 
-        // PE64
-        } else if self.cfg.is_x64() && PE64::is_pe64(filename) && !self.cfg.shellcode {
-            log::trace!("PE64 header detected.");
+        // PE64 ARM64
+        } else if !self.cfg.shellcode
+            && pe_machine_type(filename) == Some(IMAGE_FILE_MACHINE_ARM64)
+        {
+            log::trace!(
+                "PE64 ARM64 header detected (Machine=0x{:04x}). Windows AArch64 PE recognized.",
+                IMAGE_FILE_MACHINE_ARM64
+            );
+            self.cfg.arch = Arch::Aarch64;
+            self.os = crate::arch::OperatingSystem::Windows;
+            self.maps.is_64bits = true;
+            // Windows ARM64 init/bootstrap is not yet implemented.
+            // The binary is correctly identified; stop here so it does not fall through
+            // to the PE32 or shellcode path.
+            log::warn!(
+                "Windows ARM64 PE loading is not yet fully supported. \
+                 The file was recognized as a Windows AArch64 binary but cannot be emulated yet."
+            );
+            return;
+
+        // PE64 x86_64
+        } else if !self.cfg.shellcode
+            && pe_machine_type(filename) == Some(IMAGE_FILE_MACHINE_AMD64)
+        {
+            log::trace!("PE64 x86_64 header detected (Machine=0x{:04x}).", IMAGE_FILE_MACHINE_AMD64);
             let clear_registers = false; // TODO: this needs to be more dynamic, like if we have a register set via args or not
             let clear_flags = false; // TODO: this needs to be more dynamic, like if we have a flag set via args or not
+            self.cfg.arch = Arch::X86_64;
+            self.os = crate::arch::OperatingSystem::Windows;
             self.init_win32(clear_registers, clear_flags);
             let (base, _pe_off) = self.load_pe64(filename, true, 0);
             let ep = self.regs().rip;

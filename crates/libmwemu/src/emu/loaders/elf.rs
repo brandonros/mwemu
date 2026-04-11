@@ -1,8 +1,9 @@
+use std::collections::HashMap;
+use std::path::Path;
+
 use crate::emu::Emu;
 use crate::loaders::elf::elf64::Elf64;
 use crate::windows::constants;
-use std::collections::HashMap;
-use std::path::Path;
 
 impl Emu {
     /// Loads an ELF64 parsing sections etc, powered by elf64.rs
@@ -28,6 +29,11 @@ impl Emu {
             self.init_linux64_aarch64();
         } else {
             self.init_linux64(dyn_link);
+        }
+
+        // --- Dynamic linking: load stub libs and apply relocations ---
+        if dyn_link {
+            self.load_elf64_dynamic_libs(&mut elf64);
         }
 
         // Get .text addr and size
@@ -79,42 +85,53 @@ impl Emu {
             );
         }
 
-        if dyn_link {
-            let mut export_map: HashMap<String, u64> = HashMap::new();
+        self.elf64 = Some(elf64);
+    }
 
-            for lib in elf64.get_dynamic() {
-                log::trace!("dynamic library {}", lib);
+    /// Load dynamic libraries for an ELF64 binary.
+    /// Loads real stub ELFs from disk, then applies relocations.
+    fn load_elf64_dynamic_libs(&mut self, elf64: &mut Elf64) {
+        let mut export_map: HashMap<String, u64> = HashMap::new();
 
-                let Some(local_path) = self.resolve_linux_stub_path(&lib) else {
-                    log::warn!("elf64: could not locate linux stub library {}", lib);
+        let libs = elf64.get_dynamic();
+        elf64.needed_libs = libs.clone();
+
+        for lib in &libs {
+            log::trace!("dynamic library {}", lib);
+
+            let Some(local_path) = self.resolve_linux_stub_path(lib) else {
+                log::warn!("elf64: could not locate linux stub library {}", lib);
+                continue;
+            };
+
+            let mut elflib = match Elf64::parse(&local_path) {
+                Ok(lib) => lib,
+                Err(err) => {
+                    log::warn!("elf64: failed to parse {}: {}", local_path, err);
                     continue;
-                };
-
-                let mut elflib = match Elf64::parse(&local_path) {
-                    Ok(lib) => lib,
-                    Err(err) => {
-                        log::warn!("elf64: failed to parse {}: {}", local_path, err);
-                        continue;
-                    }
-                };
-
-                let map_name = lib.rsplit('/').next().unwrap_or(&lib);
-                elflib.load(&mut self.maps, map_name, true, true, constants::CFG_DEFAULT_BASE);
-
-                for (sym, addr) in elflib.exported_symbols() {
-                    export_map.entry(sym.clone()).or_insert(addr);
-                    elf64.addr_to_symbol.insert(addr, sym.clone());
-                    elf64.sym_to_addr.insert(sym, addr);
                 }
-            }
+            };
 
-            let unresolved = elf64.apply_dynamic_relocations(&mut self.maps, &export_map);
-            if !unresolved.is_empty() {
-                log::warn!("elf64: unresolved dynamic imports: {:?}", unresolved);
+            let map_name = lib.rsplit('/').next().unwrap_or(lib);
+            elflib.load(&mut self.maps, map_name, true, true, constants::CFG_DEFAULT_BASE);
+
+            for (sym, addr) in elflib.exported_symbols() {
+                export_map.entry(sym.clone()).or_insert(addr);
+                elf64.addr_to_symbol.insert(addr, sym.clone());
+                elf64.sym_to_addr.insert(sym, addr);
             }
         }
 
-        self.elf64 = Some(elf64);
+        if !export_map.is_empty() {
+            if self.cfg.arch.is_aarch64() {
+                elf64.apply_rela_aarch64(&mut self.maps, &export_map);
+            } else {
+                let unresolved = elf64.apply_dynamic_relocations(&mut self.maps, &export_map);
+                if !unresolved.is_empty() {
+                    log::warn!("elf64: unresolved dynamic imports: {:?}", unresolved);
+                }
+            }
+        }
     }
 
     fn resolve_linux_stub_path(&self, lib_name: &str) -> Option<String> {
@@ -124,8 +141,13 @@ impl Emu {
             candidates.push(self.cfg.get_maps_folder(lib_name));
         }
 
-        candidates.push(format!("maps/maps_linux/{}", lib_name));
-        candidates.push(format!("../../maps/maps_linux/{}", lib_name));
+        if self.cfg.arch.is_aarch64() {
+            candidates.push(format!("maps/maps_linux_aarch64/{}", lib_name));
+            candidates.push(format!("../../maps/maps_linux_aarch64/{}", lib_name));
+        } else {
+            candidates.push(format!("maps/maps_linux/{}", lib_name));
+            candidates.push(format!("../../maps/maps_linux/{}", lib_name));
+        }
 
         candidates
             .into_iter()

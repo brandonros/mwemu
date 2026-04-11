@@ -71,6 +71,8 @@ pub const STT_FUNC: u8 = 2;
 pub const STT_OBJECT: u8 = 1;
 pub const R_X86_64_GLOB_DAT: u32 = 6;
 pub const R_X86_64_JUMP_SLOT: u32 = 7;
+pub const R_AARCH64_GLOB_DAT: u32 = 1025;
+pub const R_AARCH64_JUMP_SLOT: u32 = 1026;
 
 #[derive(Debug)]
 pub struct Elf64 {
@@ -437,6 +439,103 @@ impl Elf64 {
 
             off += rela_ent;
         }
+    }
+
+    /// Apply AArch64 relocations (.rela.dyn and .rela.plt) using section headers.
+    /// Handles R_AARCH64_GLOB_DAT and R_AARCH64_JUMP_SLOT.
+    pub fn apply_rela_aarch64(
+        &mut self,
+        maps: &mut Maps,
+        export_map: &HashMap<String, u64>,
+    ) {
+        let rela_sections: Vec<(u64, u64)> = self
+            .elf_shdr
+            .iter()
+            .filter(|shdr| {
+                let name = self.get_section_name(shdr.sh_name as usize);
+                name == ".rela.dyn" || name == ".rela.plt"
+            })
+            .map(|shdr| (shdr.sh_offset, shdr.sh_size))
+            .collect();
+
+        let entsize = 24usize; // sizeof(Elf64_Rela)
+
+        for (sh_offset, sh_size) in rela_sections {
+            let mut off = sh_offset as usize;
+            let end = off + sh_size as usize;
+
+            while off + entsize <= end && off + entsize <= self.bin.len() {
+                let r_offset = read_u64_le!(self.bin, off);
+                let r_info = read_u64_le!(self.bin, off + 8);
+
+                let r_type = (r_info & 0xFFFFFFFF) as u32;
+                let r_sym = (r_info >> 32) as u32;
+
+                if r_type != R_AARCH64_GLOB_DAT && r_type != R_AARCH64_JUMP_SLOT {
+                    off += entsize;
+                    continue;
+                }
+
+                let sym_name = self.get_dynsym_name(r_sym);
+                if sym_name.is_empty() {
+                    off += entsize;
+                    continue;
+                }
+
+                if let Some(&target_addr) = export_map.get(&sym_name) {
+                    let got_addr = if r_offset < self.base {
+                        r_offset + self.base
+                    } else {
+                        r_offset
+                    };
+
+                    maps.write_qword(got_addr, target_addr);
+                    self.sym_to_addr.insert(sym_name.clone(), target_addr);
+                    self.addr_to_symbol.insert(target_addr, sym_name);
+                }
+
+                off += entsize;
+            }
+        }
+    }
+
+    /// Look up a symbol name from .dynsym by index.
+    fn get_dynsym_name(&self, sym_index: u32) -> String {
+        let idx = sym_index as usize;
+        if idx < self.elf_dynsym.len() {
+            return self.elf_dynsym[idx].st_dynstr_name.clone();
+        }
+
+        // Fallback: read from raw binary
+        let dynsym_shdr = self.elf_shdr.iter().find(|shdr| {
+            self.get_section_name(shdr.sh_name as usize) == ".dynsym"
+        });
+        let Some(shdr) = dynsym_shdr else {
+            return String::new();
+        };
+
+        let entry_off = shdr.sh_offset as usize + (idx * 24);
+        if entry_off + 4 > self.bin.len() {
+            return String::new();
+        }
+
+        let st_name = read_u32_le!(self.bin, entry_off);
+        if st_name == 0 || self.elf_dynstr_off == 0 {
+            return String::new();
+        }
+
+        let name_off = (self.elf_dynstr_off + st_name as u64) as usize;
+        if name_off >= self.bin.len() {
+            return String::new();
+        }
+
+        let end = self.bin[name_off..]
+            .iter()
+            .position(|&c| c == 0)
+            .unwrap_or(self.bin.len() - name_off);
+        std::str::from_utf8(&self.bin[name_off..name_off + end])
+            .unwrap_or("")
+            .to_string()
     }
 
     /*

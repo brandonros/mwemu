@@ -204,11 +204,16 @@ impl Emu {
             }
         };
 
-        // Look up symbol name from address
+        // Look up symbol name from address (check both Mach-O and ELF maps)
         let symbol = self
             .macho64
             .as_ref()
             .and_then(|m| m.addr_to_symbol.get(&addr).cloned())
+            .or_else(|| {
+                self.elf64
+                    .as_ref()
+                    .and_then(|e| e.addr_to_symbol.get(&addr).cloned())
+            })
             .unwrap_or_else(|| format!("unknown_0x{:x}", addr));
 
         log::info!(
