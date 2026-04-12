@@ -31,10 +31,8 @@ fn macho64_hello_raw_syscall() {
     for i in 0..20 {
         let pc_before = emu.regs_aarch64().pc;
         let ok = emu.step();
-        if !ok {
-            eprintln!("step {} failed at pc=0x{:x}", i, pc_before);
-            break;
-        }
+        assert!(ok, "step {} failed at pc=0x{:x}", i, pc_before);
+        assert_ne!(emu.regs_aarch64().pc, 0, "pc should never fall to 0");
         // After executing SVC for write (x16=4), check x0/x1/x2
         // After executing SVC for exit (x16=1), stop
         if emu.regs_aarch64().x[16] == 1 {
@@ -58,22 +56,42 @@ fn macho64_hello_libc_load() {
     assert!(emu.cfg.arch.is_aarch64());
     let pc = emu.regs_aarch64().pc;
     assert!(pc >= 0x100000000, "entry 0x{:x} should be in __TEXT", pc);
+    assert!(emu.macho64.is_some(), "Mach-O metadata should be loaded");
 
-    // Try to run and see what fails - this needs dylib support
+    let macho = emu.macho64.as_ref().unwrap();
+    let printf_addr = macho
+        .addr_to_symbol
+        .iter()
+        .find(|(_, sym)| sym.trim_start_matches('_').contains("printf"))
+        .map(|(addr, sym)| (*addr, sym.clone()))
+        .expect("expected a resolved printf symbol in the loaded dylib map");
+
+    let printf_map = emu.maps.get_addr_name(printf_addr.0).unwrap_or("unmapped");
+    assert!(
+        printf_map.contains("libSystem.B"),
+        "printf should resolve into libSystem.B, got map '{}' at 0x{:x} ({})",
+        printf_map,
+        printf_addr.0,
+        printf_addr.1
+    );
+
+    // Step until the first intercepted API call. Success means we reach a
+    // library call, break cleanly, and never fall off into pc=0x0.
+    let mut saw_api_break = false;
     let mut last_pc = pc;
-    let mut steps = 0;
-    for i in 0..50 {
+    for i in 0..100 {
+        let pc_before = emu.regs_aarch64().pc;
         let ok = emu.step();
-        if !ok {
-            eprintln!(
-                "step {} failed at pc=0x{:x} (instruction not implemented or bad memory access)",
-                i,
-                emu.regs_aarch64().pc
-            );
+        assert!(ok, "step {} failed at pc=0x{:x}", i, pc_before);
+        last_pc = emu.regs_aarch64().pc;
+        assert_ne!(last_pc, 0, "pc should never fall to 0");
+
+        if emu.force_break {
+            saw_api_break = true;
             break;
         }
-        last_pc = emu.regs_aarch64().pc;
-        steps = i + 1;
     }
-    eprintln!("executed {} steps, last_pc=0x{:x}", steps, last_pc);
+
+    assert!(saw_api_break, "expected to intercept a libSystem API call");
+    assert_ne!(last_pc, 0, "final pc should be a valid return address");
 }

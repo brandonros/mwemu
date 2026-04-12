@@ -29,13 +29,24 @@ fn test_enter_basic_no_nesting() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.regs_mut().rbp = 0x2000;
     emu.run(None).unwrap();
 
     // ENTER 0,0 should: PUSH RBP, MOV RBP, RSP
-    assert_eq!(emu.regs().rsp, 0x1000 - 8, "RSP decremented by 8 (pushed RBP)");
+    assert_eq!(
+        emu.regs().rsp,
+        0x1000 - 8,
+        "RSP decremented by 8 (pushed RBP)"
+    );
     assert_eq!(emu.regs().rbp, 0x1000 - 8, "RBP = RSP after PUSH");
 
     let saved_rbp = emu.maps.read_qword(0x1000 - 8).unwrap();
@@ -50,13 +61,24 @@ fn test_enter_allocate_8_bytes() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.regs_mut().rbp = 0x2000;
     emu.run(None).unwrap();
 
     assert_eq!(emu.regs().rbp, 0x1000 - 8, "RBP set after pushing");
-    assert_eq!(emu.regs().rsp, 0x1000 - 16, "RSP = RBP - 8 (allocated space)");
+    assert_eq!(
+        emu.regs().rsp,
+        0x1000 - 16,
+        "RSP = RBP - 8 (allocated space)"
+    );
 
     let saved_rbp = emu.maps.read_qword(0x1000 - 8).unwrap();
     assert_eq!(saved_rbp, 0x2000, "Old RBP saved");
@@ -70,7 +92,14 @@ fn test_enter_allocate_16_bytes() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.regs_mut().rbp = 0x2000;
     emu.run(None).unwrap();
@@ -90,7 +119,14 @@ fn test_enter_allocate_32_bytes() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.regs_mut().rbp = 0x2000;
     emu.run(None).unwrap();
@@ -107,7 +143,14 @@ fn test_enter_allocate_64_bytes() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.regs_mut().rbp = 0x2000;
     emu.run(None).unwrap();
@@ -124,7 +167,14 @@ fn test_enter_allocate_128_bytes() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.regs_mut().rbp = 0x2000;
     emu.run(None).unwrap();
@@ -141,7 +191,14 @@ fn test_enter_allocate_256_bytes() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.regs_mut().rbp = 0x2000;
     emu.run(None).unwrap();
@@ -158,7 +215,14 @@ fn test_enter_allocate_1024_bytes() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x2000-(0x2000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x2000 - (0x2000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x2000;
     emu.regs_mut().rbp = 0x3000;
     emu.run(None).unwrap();
@@ -175,7 +239,14 @@ fn test_enter_allocate_max_16bit() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x20000-(0x20000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x20000 - (0x20000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x20000;
     emu.regs_mut().rbp = 0x30000;
     emu.run(None).unwrap();
@@ -196,7 +267,14 @@ fn test_enter_nesting_level_1_no_alloc() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.regs_mut().rbp = 0x2000;
     emu.run(None).unwrap();
@@ -221,7 +299,14 @@ fn test_enter_nesting_level_1_with_alloc() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.regs_mut().rbp = 0x2000;
     emu.run(None).unwrap();
@@ -244,7 +329,14 @@ fn test_enter_nesting_level_2() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x2000-(0x2000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x2000 - (0x2000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x2000;
     emu.regs_mut().rbp = 0x3000;
 
@@ -263,7 +355,14 @@ fn test_enter_nesting_level_3() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x2000-(0x2000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x2000 - (0x2000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x2000;
     emu.regs_mut().rbp = 0x3000;
 
@@ -283,7 +382,14 @@ fn test_enter_nesting_level_4_with_alloc() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x2000-(0x2000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x2000 - (0x2000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x2000;
     emu.regs_mut().rbp = 0x3000;
     emu.run(None).unwrap();
@@ -299,7 +405,14 @@ fn test_enter_nesting_level_5() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x3000-(0x3000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x3000 - (0x3000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x3000;
     emu.regs_mut().rbp = 0x4000;
     emu.run(None).unwrap();
@@ -322,7 +435,14 @@ fn test_enter_preserves_other_registers() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.run(None).unwrap();
 
@@ -340,7 +460,14 @@ fn test_enter_preserves_flags() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.run(None).unwrap();
 
@@ -360,7 +487,14 @@ fn test_enter_leave_roundtrip() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.regs_mut().rbp = 0x2000;
     emu.run(None).unwrap();
@@ -382,13 +516,28 @@ fn test_enter_leave_nested() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.regs_mut().rbp = 0x2000;
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rsp, 0x1000, "RSP restored after nested ENTER/LEAVE");
-    assert_eq!(emu.regs().rbp, 0x2000, "RBP restored after nested ENTER/LEAVE");
+    assert_eq!(
+        emu.regs().rsp,
+        0x1000,
+        "RSP restored after nested ENTER/LEAVE"
+    );
+    assert_eq!(
+        emu.regs().rbp,
+        0x2000,
+        "RBP restored after nested ENTER/LEAVE"
+    );
 }
 
 // ============================================================================
@@ -403,7 +552,14 @@ fn test_enter_high_stack_address() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x100000-(0x100000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x100000 - (0x100000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x100000;
     emu.regs_mut().rbp = 0x200000;
     emu.run(None).unwrap();
@@ -423,7 +579,14 @@ fn test_enter_low_stack_address() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x100-(0x100 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x100 - (0x100 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x100;
     emu.regs_mut().rbp = 0x200;
     emu.run(None).unwrap();
@@ -452,7 +615,14 @@ fn test_enter_multiple_calls() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x2000-(0x2000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x2000 - (0x2000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x2000;
     emu.regs_mut().rbp = 0x3000;
     emu.run(None).unwrap();
@@ -468,7 +638,14 @@ fn test_enter_with_odd_allocation() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.regs_mut().rbp = 0x2000;
     emu.run(None).unwrap();
@@ -485,7 +662,14 @@ fn test_enter_allocation_alignment() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.regs_mut().rbp = 0x2000;
     emu.run(None).unwrap();
@@ -511,7 +695,14 @@ fn test_enter_frame_pointer_chain() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x2000-(0x2000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x2000 - (0x2000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x2000;
     emu.regs_mut().rbp = 0x3000;
     emu.run(None).unwrap();
@@ -538,7 +729,14 @@ fn test_enter_small_local_vars() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.regs_mut().rbp = 0x2000;
     emu.run(None).unwrap();
@@ -555,7 +753,14 @@ fn test_enter_large_local_array() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x2000-(0x2000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x2000 - (0x2000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x2000;
     emu.regs_mut().rbp = 0x3000;
     emu.run(None).unwrap();
@@ -572,7 +777,14 @@ fn test_enter_no_locals() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.regs_mut().rbp = 0x2000;
     emu.run(None).unwrap();
@@ -595,7 +807,14 @@ fn test_enter_then_push() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.regs_mut().rbp = 0x2000;
     emu.run(None).unwrap();
@@ -616,7 +835,14 @@ fn test_enter_then_mov_to_local() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.regs_mut().rbp = 0x2000;
     emu.run(None).unwrap();
@@ -638,7 +864,14 @@ fn test_enter_with_parameter_access() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.regs_mut().rbp = 0x2000;
     emu.run(None).unwrap();
@@ -658,7 +891,14 @@ fn test_enter_nesting_level_10() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x3000-(0x3000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x3000 - (0x3000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x3000;
     emu.regs_mut().rbp = 0x4000;
     emu.run(None).unwrap();
@@ -674,7 +914,14 @@ fn test_enter_nesting_level_16() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x4000-(0x4000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x4000 - (0x4000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x4000;
     emu.regs_mut().rbp = 0x5000;
     emu.run(None).unwrap();
@@ -690,12 +937,23 @@ fn test_enter_nesting_level_31() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x5000-(0x5000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x5000 - (0x5000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x5000;
     emu.regs_mut().rbp = 0x6000;
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rsp, 0x5000 - 256, "RSP with max nesting level 31");
+    assert_eq!(
+        emu.regs().rsp,
+        0x5000 - 256,
+        "RSP with max nesting level 31"
+    );
 }
 
 // ============================================================================
@@ -710,7 +968,14 @@ fn test_enter_zero_allocation_zero_nesting() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.regs_mut().rbp = 0x2000;
     emu.run(None).unwrap();
@@ -727,7 +992,14 @@ fn test_enter_with_same_rbp_rsp() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x1000-(0x1000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x1000 - (0x1000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x1000;
     emu.regs_mut().rbp = 0x1000; // RBP == RSP
     emu.run(None).unwrap();
@@ -748,7 +1020,14 @@ fn test_enter_consecutive_same_size() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x2000-(0x2000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x2000 - (0x2000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x2000;
     emu.regs_mut().rbp = 0x3000;
     emu.run(None).unwrap();
@@ -767,7 +1046,14 @@ fn test_enter_mixed_sizes() {
     ];
     let mut emu = emu64();
     emu.load_code_bytes(&code);
-    emu.maps.create_map("stack_test", 0x3000-(0x3000 / 2), 0x1000, crate::maps::mem64::Permission::READ_WRITE_EXECUTE).unwrap();
+    emu.maps
+        .create_map(
+            "stack_test",
+            0x3000 - (0x3000 / 2),
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE_EXECUTE,
+        )
+        .unwrap();
     emu.regs_mut().rsp = 0x3000;
     emu.regs_mut().rbp = 0x4000;
     emu.run(None).unwrap();

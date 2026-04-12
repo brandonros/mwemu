@@ -25,3 +25,7 @@ test.zip*
 __pycache__
 node_modules/
 .cache/
+.zig*
+CACHEDIR.TARGET
+.package-cache
+.cargo/registry

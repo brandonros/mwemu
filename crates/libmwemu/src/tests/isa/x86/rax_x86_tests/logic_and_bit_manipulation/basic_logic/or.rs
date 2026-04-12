@@ -56,7 +56,11 @@ fn test_or_al_imm8_zero_with_zero() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFF, 0x42, "AL: 0x42 OR 0 = 0x42 (identity)");
+    assert_eq!(
+        emu.regs().rax & 0xFF,
+        0x42,
+        "AL: 0x42 OR 0 = 0x42 (identity)"
+    );
 }
 
 #[test]
@@ -150,7 +154,11 @@ fn test_or_rm64_imm8_sign_extended() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rbx, 0xFFFFFFFFFFFFFFFF, "RBX: OR with -1 sets all bits");
+    assert_eq!(
+        emu.regs().rbx,
+        0xFFFFFFFFFFFFFFFF,
+        "RBX: OR with -1 sets all bits"
+    );
 }
 
 // ============================================================================
@@ -170,7 +178,11 @@ fn test_or_rm8_r8_basic() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFF, 0xFF, "AL: 0xAA OR 0x55 = 0xFF (all bits)");
+    assert_eq!(
+        emu.regs().rax & 0xFF,
+        0xFF,
+        "AL: 0xAA OR 0x55 = 0xFF (all bits)"
+    );
 }
 
 #[test]
@@ -461,7 +473,8 @@ fn test_or_dword_ptr_mem() {
     let DATA_ADDR = 0x7000;
     let mut emu = emu64();
     let code = [
-        0x81, 0x0d, 0xf6, 0x0f, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x00, // OR DWORD PTR [rip+0x0FF6], 0x00FF0000
+        0x81, 0x0d, 0xf6, 0x0f, 0x00, 0x00, 0x00, 0x00, 0xFF,
+        0x00, // OR DWORD PTR [rip+0x0FF6], 0x00FF0000
         0xf4,
     ];
     emu.load_code_bytes(&code);

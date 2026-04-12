@@ -6,7 +6,7 @@ pub fn sc32lin_rshell() {
     helpers::setup();
 
     let mut emu = emu32();
-    emu.cfg.maps_folder = "../../maps/maps32/".to_string();
+    emu.cfg.maps_folder = "../../maps/windows/x86/".to_string();
 
     let sample = "../../test/sc32lin_rshell.bin";
     emu.load_code(sample);
@@ -14,9 +14,7 @@ pub fn sc32lin_rshell() {
     let sockaddr = emu.maps.read_bytes(emu.regs().get_ecx(), 9);
     assert_eq!(
         sockaddr,
-        &[
-            0x02, 0x00, 0x05, 0x39, 0x01, 0x03, 0x03, 0x07, 0x01
-        ][..]
+        &[0x02, 0x00, 0x05, 0x39, 0x01, 0x03, 0x03, 0x07, 0x01][..]
     );
 
     emu.run_to(42);

@@ -24,7 +24,11 @@ fn test_bzhi_eax_ebx_ecx_index_0() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0, "EAX should be zero (all bits masked)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0,
+        "EAX should be zero (all bits masked)"
+    );
     assert!(emu.flags().f_zf, "ZF should be set (result is zero)");
     assert!(!emu.flags().f_cf, "CF should be clear (index < 32)");
 }
@@ -43,7 +47,11 @@ fn test_bzhi_eax_ebx_ecx_index_8() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x78, "EAX should contain lower 8 bits");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x78,
+        "EAX should contain lower 8 bits"
+    );
     assert!(!emu.flags().f_zf, "ZF should be clear (result is non-zero)");
     assert!(!emu.flags().f_cf, "CF should be clear");
 }
@@ -62,7 +70,11 @@ fn test_bzhi_eax_ebx_ecx_index_16() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x5678, "EAX should contain lower 16 bits");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x5678,
+        "EAX should contain lower 16 bits"
+    );
     assert!(!emu.flags().f_zf, "ZF should be clear");
 }
 
@@ -80,7 +92,11 @@ fn test_bzhi_eax_ebx_ecx_index_32() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x12345678, "EAX should contain all bits");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x12345678,
+        "EAX should contain all bits"
+    );
     assert!(!emu.flags().f_zf, "ZF should be clear");
     assert!(emu.flags().f_cf, "CF should be set (index >= 32)");
 }
@@ -99,7 +115,11 @@ fn test_bzhi_eax_ebx_ecx_index_beyond() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x12345678, "EAX should contain all bits");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x12345678,
+        "EAX should contain all bits"
+    );
     assert!(emu.flags().f_cf, "CF should be set (index >= 32)");
 }
 
@@ -135,7 +155,11 @@ fn test_bzhi_rax_rbx_rcx_index_32() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x9ABCDEF0, "RAX should contain lower 32 bits");
+    assert_eq!(
+        emu.regs().rax,
+        0x9ABCDEF0,
+        "RAX should contain lower 32 bits"
+    );
     assert!(!emu.flags().f_zf, "ZF should be clear");
 }
 
@@ -153,7 +177,11 @@ fn test_bzhi_rax_rbx_rcx_index_64() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x123456789ABCDEF0, "RAX should contain all bits");
+    assert_eq!(
+        emu.regs().rax,
+        0x123456789ABCDEF0,
+        "RAX should contain all bits"
+    );
     assert!(emu.flags().f_cf, "CF should be set (index >= 64)");
 }
 
@@ -190,7 +218,11 @@ fn test_bzhi_with_extended_registers() {
     emu.run(None).unwrap();
 
     let expected = 0xABCDEF01 & ((1u32 << 12) - 1);
-    assert_eq!(emu.regs().r8 & 0xFFFFFFFF, expected as u64, "R8D should contain lower 12 bits");
+    assert_eq!(
+        emu.regs().r8 & 0xFFFFFFFF,
+        expected as u64,
+        "R8D should contain lower 12 bits"
+    );
 }
 
 #[test]
@@ -199,7 +231,8 @@ fn test_bzhi_mem32() {
     let mut emu = emu64();
     // BZHI EAX, [mem], ECX
     let code = [
-        0xc4, 0xe2, 0x70, 0xf5, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // BZHI EAX, [DATA_ADDR], ECX
+        0xc4, 0xe2, 0x70, 0xf5, 0x04, 0x25, 0x00, 0x20, 0x00,
+        0x00, // BZHI EAX, [DATA_ADDR], ECX
         0xf4,
     ];
     emu.regs_mut().rcx = 8; // index 8
@@ -207,7 +240,11 @@ fn test_bzhi_mem32() {
     emu.maps.write_dword(DATA_ADDR, 0xAABBCCDD);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xDD, "EAX should contain lower 8 bits from memory");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xDD,
+        "EAX should contain lower 8 bits from memory"
+    );
 }
 
 #[test]
@@ -216,7 +253,8 @@ fn test_bzhi_mem64() {
     let mut emu = emu64();
     // BZHI RAX, [mem], RCX
     let code = [
-        0xc4, 0xe2, 0xf0, 0xf5, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // BZHI RAX, [DATA_ADDR], RCX
+        0xc4, 0xe2, 0xf0, 0xf5, 0x04, 0x25, 0x00, 0x20, 0x00,
+        0x00, // BZHI RAX, [DATA_ADDR], RCX
         0xf4,
     ];
     emu.regs_mut().rcx = 16; // index 16
@@ -225,7 +263,11 @@ fn test_bzhi_mem64() {
     emu.run(None).unwrap();
 
     let expected = 0x0123456789ABCDEF & ((1u64 << 16) - 1);
-    assert_eq!(emu.regs().rax, expected, "RAX should contain lower 16 bits from memory");
+    assert_eq!(
+        emu.regs().rax,
+        expected,
+        "RAX should contain lower 16 bits from memory"
+    );
 }
 
 #[test]
@@ -241,14 +283,19 @@ fn test_bzhi_mask_creation() {
         emu.regs_mut().rbx = 0xFFFFFFFF;
         emu.regs_mut().rcx = index;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
         let expected = if index >= 32 {
             0xFFFFFFFF
         } else {
             ((1u64 << index) - 1) & 0xFFFFFFFF
         };
-        assert_eq!(emu.regs().rax & 0xFFFFFFFF, expected, "Should create {}-bit mask", index);
+        assert_eq!(
+            emu.regs().rax & 0xFFFFFFFF,
+            expected,
+            "Should create {}-bit mask",
+            index
+        );
     }
 }
 
@@ -265,7 +312,11 @@ fn test_bzhi_nibble_mask() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x8, "EAX should contain lower nibble");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x8,
+        "EAX should contain lower nibble"
+    );
 }
 
 #[test]
@@ -282,7 +333,11 @@ fn test_bzhi_preserves_source() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rbx & 0xFFFFFFFF, 0x12345678, "EBX should be unchanged");
+    assert_eq!(
+        emu.regs().rbx & 0xFFFFFFFF,
+        0x12345678,
+        "EBX should be unchanged"
+    );
     assert_eq!(emu.regs().rcx & 0xFFFFFFFF, 16, "ECX should be unchanged");
 }
 
@@ -299,7 +354,11 @@ fn test_bzhi_index_modulo_behavior() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0, "EAX should be zero (index wraps to 0)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0,
+        "EAX should be zero (index wraps to 0)"
+    );
 }
 
 #[test]
@@ -316,7 +375,11 @@ fn test_bzhi_alternating_pattern() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xAAAA, "EAX should contain lower 16 bits of pattern");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xAAAA,
+        "EAX should contain lower 16 bits of pattern"
+    );
 }
 
 #[test]
@@ -332,7 +395,11 @@ fn test_bzhi_single_bit() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 1, "EAX should contain only bit 0");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        1,
+        "EAX should contain only bit 0"
+    );
 }
 
 #[test]
@@ -349,7 +416,11 @@ fn test_bzhi_sparse_bits() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x1001, "EAX should contain bits 0 and 12 only");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x1001,
+        "EAX should contain bits 0 and 12 only"
+    );
 }
 
 #[test]
@@ -372,9 +443,16 @@ fn test_bzhi_field_extraction() {
         emu.regs_mut().rbx = value;
         emu.regs_mut().rcx = index;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
-        assert_eq!(emu.regs().rax & 0xFFFFFFFF, expected, "BZHI(0x{:X}, {}) should be 0x{:X}", value, index, expected);
+        assert_eq!(
+            emu.regs().rax & 0xFFFFFFFF,
+            expected,
+            "BZHI(0x{:X}, {}) should be 0x{:X}",
+            value,
+            index,
+            expected
+        );
     }
 }
 
@@ -414,7 +492,7 @@ fn test_bzhi_cf_boundary_32bit() {
         emu.regs_mut().rbx = 0xFFFFFFFF;
         emu.regs_mut().rcx = index;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
         if expect_cf {
             assert!(emu.flags().f_cf, "CF should be set for index {}", index);
@@ -442,7 +520,7 @@ fn test_bzhi_cf_boundary_64bit() {
         emu.regs_mut().rbx = 0xFFFFFFFFFFFFFFFF;
         emu.regs_mut().rcx = index;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
         if expect_cf {
             assert!(emu.flags().f_cf, "CF should be set for index {}", index);
@@ -467,5 +545,9 @@ fn test_bzhi_combines_with_shifts() {
     emu.run(None).unwrap();
 
     let expected = (0x12345678 >> 8) & 0xFFFF;
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, expected as u64, "Should extract bits 8-23");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        expected as u64,
+        "Should extract bits 8-23"
+    );
 }

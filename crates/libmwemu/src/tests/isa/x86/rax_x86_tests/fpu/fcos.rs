@@ -19,12 +19,14 @@ const DATA_ADDR: u64 = 0x7000;
 
 // Helper function to write f64 to memory
 fn write_f64(mem: u64, addr: u64, val: f64) {
-    let mut emu = emu64();    emu.maps.write_bytes_slice(addr, &val.to_le_bytes());
+    let mut emu = emu64();
+    emu.maps.write_bytes_slice(addr, &val.to_le_bytes());
 }
 
 // Helper function to read f64 from memory
 fn read_f64(mem: u64, addr: u64) -> f64 {
-    let emu = emu64();    let mut buf = [0u8; 8];
+    let emu = emu64();
+    let mut buf = [0u8; 8];
     emu.maps.read_bytes_buff(&mut buf, addr);
     f64::from_le_bytes(buf)
 }
@@ -35,12 +37,12 @@ fn read_f64(mem: u64, addr: u64) -> f64 {
 
 #[test]
 fn test_fcos_zero() {
-    let mut emu = emu64();    // cos(0) = 1
+    let mut emu = emu64(); // cos(0) = 1
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFF,                                  // FCOS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFF, // FCOS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -49,17 +51,21 @@ fn test_fcos_zero() {
     emu.run(None).unwrap();
 
     let result = emu.maps.read_f64(0x3000).unwrap();
-    assert!((result - 1.0).abs() < 1e-10, "cos(0) should be 1.0, got {}", result);
+    assert!(
+        (result - 1.0).abs() < 1e-10,
+        "cos(0) should be 1.0, got {}",
+        result
+    );
 }
 
 #[test]
 fn test_fcos_pi_over_2() {
-    let mut emu = emu64();    // cos(π/2) ≈ 0
+    let mut emu = emu64(); // cos(π/2) ≈ 0
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFF,                                  // FCOS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFF, // FCOS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -68,17 +74,21 @@ fn test_fcos_pi_over_2() {
     emu.run(None).unwrap();
 
     let result = emu.maps.read_f64(0x3000).unwrap();
-    assert!(result.abs() < 1e-10, "cos(π/2) should be ~0, got {}", result);
+    assert!(
+        result.abs() < 1e-10,
+        "cos(π/2) should be ~0, got {}",
+        result
+    );
 }
 
 #[test]
 fn test_fcos_pi() {
-    let mut emu = emu64();    // cos(π) = -1
+    let mut emu = emu64(); // cos(π) = -1
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFF,                                  // FCOS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFF, // FCOS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -87,17 +97,21 @@ fn test_fcos_pi() {
     emu.run(None).unwrap();
 
     let result = emu.maps.read_f64(0x3000).unwrap();
-    assert!((result + 1.0).abs() < 1e-10, "cos(π) should be -1.0, got {}", result);
+    assert!(
+        (result + 1.0).abs() < 1e-10,
+        "cos(π) should be -1.0, got {}",
+        result
+    );
 }
 
 #[test]
 fn test_fcos_two_pi() {
-    let mut emu = emu64();    // cos(2π) = 1
+    let mut emu = emu64(); // cos(2π) = 1
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFF,                                  // FCOS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFF, // FCOS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -106,17 +120,21 @@ fn test_fcos_two_pi() {
     emu.run(None).unwrap();
 
     let result = emu.maps.read_f64(0x3000).unwrap();
-    assert!((result - 1.0).abs() < 1e-10, "cos(2π) should be 1.0, got {}", result);
+    assert!(
+        (result - 1.0).abs() < 1e-10,
+        "cos(2π) should be 1.0, got {}",
+        result
+    );
 }
 
 #[test]
 fn test_fcos_pi_over_4() {
-    let mut emu = emu64();    // cos(π/4) ≈ √2/2 ≈ 0.7071
+    let mut emu = emu64(); // cos(π/4) ≈ √2/2 ≈ 0.7071
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFF,                                  // FCOS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFF, // FCOS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -126,17 +144,21 @@ fn test_fcos_pi_over_4() {
 
     let result = emu.maps.read_f64(0x3000).unwrap();
     let expected = 1.0 / 2.0_f64.sqrt();
-    assert!((result - expected).abs() < 1e-10, "cos(π/4) should be √2/2, got {}", result);
+    assert!(
+        (result - expected).abs() < 1e-10,
+        "cos(π/4) should be √2/2, got {}",
+        result
+    );
 }
 
 #[test]
 fn test_fcos_pi_over_3() {
-    let mut emu = emu64();    // cos(π/3) = 0.5
+    let mut emu = emu64(); // cos(π/3) = 0.5
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFF,                                  // FCOS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFF, // FCOS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -145,17 +167,21 @@ fn test_fcos_pi_over_3() {
     emu.run(None).unwrap();
 
     let result = emu.maps.read_f64(0x3000).unwrap();
-    assert!((result - 0.5).abs() < 1e-10, "cos(π/3) should be 0.5, got {}", result);
+    assert!(
+        (result - 0.5).abs() < 1e-10,
+        "cos(π/3) should be 0.5, got {}",
+        result
+    );
 }
 
 #[test]
 fn test_fcos_pi_over_6() {
-    let mut emu = emu64();    // cos(π/6) ≈ √3/2 ≈ 0.866
+    let mut emu = emu64(); // cos(π/6) ≈ √3/2 ≈ 0.866
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFF,                                  // FCOS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFF, // FCOS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -165,7 +191,11 @@ fn test_fcos_pi_over_6() {
 
     let result = emu.maps.read_f64(0x3000).unwrap();
     let expected = 3.0_f64.sqrt() / 2.0;
-    assert!((result - expected).abs() < 1e-10, "cos(π/6) should be √3/2, got {}", result);
+    assert!(
+        (result - expected).abs() < 1e-10,
+        "cos(π/6) should be √3/2, got {}",
+        result
+    );
 }
 
 // ============================================================================
@@ -174,12 +204,12 @@ fn test_fcos_pi_over_6() {
 
 #[test]
 fn test_fcos_negative_pi_over_2() {
-    let mut emu = emu64();    // cos(-π/2) ≈ 0
+    let mut emu = emu64(); // cos(-π/2) ≈ 0
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFF,                                  // FCOS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFF, // FCOS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -188,17 +218,21 @@ fn test_fcos_negative_pi_over_2() {
     emu.run(None).unwrap();
 
     let result = emu.maps.read_f64(0x3000).unwrap();
-    assert!(result.abs() < 1e-10, "cos(-π/2) should be ~0, got {}", result);
+    assert!(
+        result.abs() < 1e-10,
+        "cos(-π/2) should be ~0, got {}",
+        result
+    );
 }
 
 #[test]
 fn test_fcos_negative_pi() {
-    let mut emu = emu64();    // cos(-π) = -1
+    let mut emu = emu64(); // cos(-π) = -1
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFF,                                  // FCOS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFF, // FCOS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -207,17 +241,21 @@ fn test_fcos_negative_pi() {
     emu.run(None).unwrap();
 
     let result = emu.maps.read_f64(0x3000).unwrap();
-    assert!((result + 1.0).abs() < 1e-10, "cos(-π) should be -1.0, got {}", result);
+    assert!(
+        (result + 1.0).abs() < 1e-10,
+        "cos(-π) should be -1.0, got {}",
+        result
+    );
 }
 
 #[test]
 fn test_fcos_negative_pi_over_4() {
-    let mut emu = emu64();    // cos(-π/4) = cos(π/4) ≈ √2/2
+    let mut emu = emu64(); // cos(-π/4) = cos(π/4) ≈ √2/2
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFF,                                  // FCOS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFF, // FCOS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -227,7 +265,11 @@ fn test_fcos_negative_pi_over_4() {
 
     let result = emu.maps.read_f64(0x3000).unwrap();
     let expected = 1.0 / 2.0_f64.sqrt();
-    assert!((result - expected).abs() < 1e-10, "cos(-π/4) should be √2/2, got {}", result);
+    assert!(
+        (result - expected).abs() < 1e-10,
+        "cos(-π/4) should be √2/2, got {}",
+        result
+    );
 }
 
 // ============================================================================
@@ -236,12 +278,12 @@ fn test_fcos_negative_pi_over_4() {
 
 #[test]
 fn test_fcos_small_positive() {
-    let mut emu = emu64();    // cos(0.1) ≈ 0.995
+    let mut emu = emu64(); // cos(0.1) ≈ 0.995
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFF,                                  // FCOS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFF, // FCOS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -256,12 +298,12 @@ fn test_fcos_small_positive() {
 
 #[test]
 fn test_fcos_small_negative() {
-    let mut emu = emu64();    // cos(-0.1) ≈ 0.995
+    let mut emu = emu64(); // cos(-0.1) ≈ 0.995
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFF,                                  // FCOS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFF, // FCOS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -276,12 +318,12 @@ fn test_fcos_small_negative() {
 
 #[test]
 fn test_fcos_very_small() {
-    let mut emu = emu64();    // cos(0.001) ≈ 1.0
+    let mut emu = emu64(); // cos(0.001) ≈ 1.0
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFF,                                  // FCOS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFF, // FCOS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -300,31 +342,36 @@ fn test_fcos_very_small() {
 
 #[test]
 fn test_fcos_three_pi_over_2() {
-    let mut emu = emu64();    // cos(3π/2) ≈ 0
+    let mut emu = emu64(); // cos(3π/2) ≈ 0
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFF,                                  // FCOS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFF, // FCOS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
-    emu.maps.write_f64(0x2000, 3.0 * std::f64::consts::FRAC_PI_2);
+    emu.maps
+        .write_f64(0x2000, 3.0 * std::f64::consts::FRAC_PI_2);
 
     emu.run(None).unwrap();
 
     let result = emu.maps.read_f64(0x3000).unwrap();
-    assert!(result.abs() < 1e-10, "cos(3π/2) should be ~0, got {}", result);
+    assert!(
+        result.abs() < 1e-10,
+        "cos(3π/2) should be ~0, got {}",
+        result
+    );
 }
 
 #[test]
 fn test_fcos_four_pi() {
-    let mut emu = emu64();    // cos(4π) = 1
+    let mut emu = emu64(); // cos(4π) = 1
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFF,                                  // FCOS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFF, // FCOS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -333,17 +380,21 @@ fn test_fcos_four_pi() {
     emu.run(None).unwrap();
 
     let result = emu.maps.read_f64(0x3000).unwrap();
-    assert!((result - 1.0).abs() < 1e-10, "cos(4π) should be 1.0, got {}", result);
+    assert!(
+        (result - 1.0).abs() < 1e-10,
+        "cos(4π) should be 1.0, got {}",
+        result
+    );
 }
 
 #[test]
 fn test_fcos_six_pi() {
-    let mut emu = emu64();    // cos(6π) = 1
+    let mut emu = emu64(); // cos(6π) = 1
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFF,                                  // FCOS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFF, // FCOS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -352,7 +403,11 @@ fn test_fcos_six_pi() {
     emu.run(None).unwrap();
 
     let result = emu.maps.read_f64(0x3000).unwrap();
-    assert!((result - 1.0).abs() < 1e-10, "cos(6π) should be 1.0, got {}", result);
+    assert!(
+        (result - 1.0).abs() < 1e-10,
+        "cos(6π) should be 1.0, got {}",
+        result
+    );
 }
 
 // ============================================================================
@@ -361,12 +416,12 @@ fn test_fcos_six_pi() {
 
 #[test]
 fn test_fcos_ten() {
-    let mut emu = emu64();    // cos(10)
+    let mut emu = emu64(); // cos(10)
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFF,                                  // FCOS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFF, // FCOS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -381,12 +436,12 @@ fn test_fcos_ten() {
 
 #[test]
 fn test_fcos_hundred() {
-    let mut emu = emu64();    // cos(100)
+    let mut emu = emu64(); // cos(100)
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFF,                                  // FCOS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFF, // FCOS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -401,12 +456,12 @@ fn test_fcos_hundred() {
 
 #[test]
 fn test_fcos_thousand() {
-    let mut emu = emu64();    // cos(1000)
+    let mut emu = emu64(); // cos(1000)
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFF,                                  // FCOS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFF, // FCOS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -425,12 +480,12 @@ fn test_fcos_thousand() {
 
 #[test]
 fn test_fcos_symmetry_1() {
-    let mut emu = emu64();    // cos(x) = cos(-x)
+    let mut emu = emu64(); // cos(x) = cos(-x)
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFF,                                  // FCOS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFF, // FCOS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     let angle = 1.234;
@@ -445,17 +500,20 @@ fn test_fcos_symmetry_1() {
     emu.run(None).unwrap();
     let result_neg = emu.maps.read_f64(0x3000).unwrap();
 
-    assert!((result_pos - result_neg).abs() < 1e-10, "cos(x) should equal cos(-x)");
+    assert!(
+        (result_pos - result_neg).abs() < 1e-10,
+        "cos(x) should equal cos(-x)"
+    );
 }
 
 #[test]
 fn test_fcos_symmetry_pi_3() {
-    let mut emu = emu64();    // cos(x) = cos(-x) for x = π/3
+    let mut emu = emu64(); // cos(x) = cos(-x) for x = π/3
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFF,                                  // FCOS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFF, // FCOS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     let angle = std::f64::consts::FRAC_PI_3;
@@ -470,7 +528,10 @@ fn test_fcos_symmetry_pi_3() {
     emu.run(None).unwrap();
     let result_neg = emu.maps.read_f64(0x3000).unwrap();
 
-    assert!((result_pos - result_neg).abs() < 1e-10, "cos(π/3) should equal cos(-π/3)");
+    assert!(
+        (result_pos - result_neg).abs() < 1e-10,
+        "cos(π/3) should equal cos(-π/3)"
+    );
 }
 
 // ============================================================================
@@ -479,23 +540,28 @@ fn test_fcos_symmetry_pi_3() {
 
 #[test]
 fn test_fcos_result_in_range() {
-    let mut emu = emu64();    let test_values = vec![0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 5.0, 10.0, -0.5, -1.0, -2.0];
+    let mut emu = emu64();
+    let test_values = vec![0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 5.0, 10.0, -0.5, -1.0, -2.0];
 
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFF,                                  // FCOS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFF, // FCOS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     for val in test_values {
         emu.load_code_bytes(&code);
         emu.maps.write_f64(0x2000, val);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
         let result = emu.maps.read_f64(0x3000).unwrap();
 
-        assert!(result >= -1.0 && result <= 1.0,
-                "cos({}) = {} should be in range [-1, 1]", val, result);
+        assert!(
+            result >= -1.0 && result <= 1.0,
+            "cos({}) = {} should be in range [-1, 1]",
+            val,
+            result
+        );
     }
 }
 
@@ -505,11 +571,12 @@ fn test_fcos_result_in_range() {
 
 #[test]
 fn test_fcos_quadrant_1() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFF,                                  // FCOS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFF, // FCOS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -522,53 +589,68 @@ fn test_fcos_quadrant_1() {
 
 #[test]
 fn test_fcos_quadrant_2() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFF,                                  // FCOS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFF, // FCOS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
-    emu.maps.write_f64(0x2000, 3.0 * std::f64::consts::FRAC_PI_4);
+    emu.maps
+        .write_f64(0x2000, 3.0 * std::f64::consts::FRAC_PI_4);
     emu.run(None).unwrap();
     let result = emu.maps.read_f64(0x3000).unwrap();
 
-    assert!(result < 0.0 && result > -1.0, "cos(3π/4) should be in (-1, 0)");
+    assert!(
+        result < 0.0 && result > -1.0,
+        "cos(3π/4) should be in (-1, 0)"
+    );
 }
 
 #[test]
 fn test_fcos_quadrant_3() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFF,                                  // FCOS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFF, // FCOS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
-    emu.maps.write_f64(0x2000, 5.0 * std::f64::consts::FRAC_PI_4);
+    emu.maps
+        .write_f64(0x2000, 5.0 * std::f64::consts::FRAC_PI_4);
     emu.run(None).unwrap();
     let result = emu.maps.read_f64(0x3000).unwrap();
 
-    assert!(result < 0.0 && result > -1.0, "cos(5π/4) should be in (-1, 0)");
+    assert!(
+        result < 0.0 && result > -1.0,
+        "cos(5π/4) should be in (-1, 0)"
+    );
 }
 
 #[test]
 fn test_fcos_quadrant_4() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFF,                                  // FCOS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFF, // FCOS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
-    emu.maps.write_f64(0x2000, 7.0 * std::f64::consts::FRAC_PI_4);
+    emu.maps
+        .write_f64(0x2000, 7.0 * std::f64::consts::FRAC_PI_4);
     emu.run(None).unwrap();
     let result = emu.maps.read_f64(0x3000).unwrap();
 
-    assert!(result > 0.0 && result < 1.0, "cos(7π/4) should be in (0, 1)");
+    assert!(
+        result > 0.0 && result < 1.0,
+        "cos(7π/4) should be in (0, 1)"
+    );
 }
 
 // ============================================================================
@@ -577,14 +659,15 @@ fn test_fcos_quadrant_4() {
 
 #[test]
 fn test_fcos_sequence() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFF,                                  // FCOS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00,  // FLD qword [0x2008]
-        0xD9, 0xFF,                                  // FCOS
-        0xDD, 0x1C, 0x25, 0x08, 0x30, 0x00, 0x00,  // FSTP qword [0x3008]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFF, // FCOS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00, // FLD qword [0x2008]
+        0xD9, 0xFF, // FCOS
+        0xDD, 0x1C, 0x25, 0x08, 0x30, 0x00, 0x00, // FSTP qword [0x3008]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -601,13 +684,13 @@ fn test_fcos_sequence() {
 
 #[test]
 fn test_fcos_twice() {
-    let mut emu = emu64();    // cos(cos(x))
+    let mut emu = emu64(); // cos(cos(x))
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFF,                                  // FCOS
-        0xD9, 0xFF,                                  // FCOS (again)
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFF, // FCOS
+        0xD9, 0xFF, // FCOS (again)
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -626,12 +709,12 @@ fn test_fcos_twice() {
 
 #[test]
 fn test_fcos_positive_zero() {
-    let mut emu = emu64();    // cos(+0) = 1
+    let mut emu = emu64(); // cos(+0) = 1
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFF,                                  // FCOS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFF, // FCOS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -640,17 +723,20 @@ fn test_fcos_positive_zero() {
     emu.run(None).unwrap();
 
     let result = emu.maps.read_f64(0x3000).unwrap();
-    assert!((result - 1.0).abs() < 1e-15, "cos(+0) should be exactly 1.0");
+    assert!(
+        (result - 1.0).abs() < 1e-15,
+        "cos(+0) should be exactly 1.0"
+    );
 }
 
 #[test]
 fn test_fcos_negative_zero() {
-    let mut emu = emu64();    // cos(-0) = 1
+    let mut emu = emu64(); // cos(-0) = 1
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFF,                                  // FCOS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFF, // FCOS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -659,16 +745,20 @@ fn test_fcos_negative_zero() {
     emu.run(None).unwrap();
 
     let result = emu.maps.read_f64(0x3000).unwrap();
-    assert!((result - 1.0).abs() < 1e-15, "cos(-0) should be exactly 1.0");
+    assert!(
+        (result - 1.0).abs() < 1e-15,
+        "cos(-0) should be exactly 1.0"
+    );
 }
 
 #[test]
 fn test_fcos_various_angles() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFF,                                  // FCOS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFF, // FCOS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     let test_angles = vec![0.25, 0.75, 1.25, 2.5, 3.5, 4.5, 5.5];
@@ -676,21 +766,27 @@ fn test_fcos_various_angles() {
     for angle in test_angles {
         emu.load_code_bytes(&code);
         emu.maps.write_f64(0x2000, angle);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
         let result = emu.maps.read_f64(0x3000).unwrap();
         let expected = angle.cos();
-        assert!((result - expected).abs() < 1e-10,
-                "cos({}) mismatch: expected {}, got {}", angle, expected, result);
+        assert!(
+            (result - expected).abs() < 1e-10,
+            "cos({}) mismatch: expected {}, got {}",
+            angle,
+            expected,
+            result
+        );
     }
 }
 
 #[test]
 fn test_fcos_arbitrary_values() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xFF,                                  // FCOS
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xFF, // FCOS
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     let test_values = vec![0.12345, 1.98765, 2.71828, 3.33333, 5.55555];
@@ -698,10 +794,9 @@ fn test_fcos_arbitrary_values() {
     for val in test_values {
         emu.load_code_bytes(&code);
         emu.maps.write_f64(0x2000, val);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
         let result = emu.maps.read_f64(0x3000).unwrap();
         let expected = val.cos();
-        assert!((result - expected).abs() < 1e-10,
-                "cos({}) mismatch", val);
+        assert!((result - expected).abs() < 1e-10, "cos({}) mismatch", val);
     }
 }

@@ -115,7 +115,11 @@ fn test_and_ax_imm16_basic() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFF, 0x0004, "AX: 0x1234 AND 0x000F = 0x0004");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0x0004,
+        "AX: 0x1234 AND 0x000F = 0x0004"
+    );
 }
 
 #[test]
@@ -209,7 +213,11 @@ fn test_and_rax_imm32_negative() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x123456789ABCDEF0, "RAX: no change with all ones");
+    assert_eq!(
+        emu.regs().rax,
+        0x123456789ABCDEF0,
+        "RAX: no change with all ones"
+    );
 }
 
 // ============================================================================
@@ -249,7 +257,11 @@ fn test_and_rm8_imm8_dh() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!((emu.regs().rdx >> 8) & 0xFF, 0x55, "DH: 0xFF AND 0x55 = 0x55");
+    assert_eq!(
+        (emu.regs().rdx >> 8) & 0xFF,
+        0x55,
+        "DH: 0xFF AND 0x55 = 0x55"
+    );
 }
 
 // ============================================================================
@@ -265,7 +277,11 @@ fn test_and_rm16_imm16_bx() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rbx & 0xFFFF, 0x0FF0, "BX: 0xFFFF AND 0x0FF0 = 0x0FF0");
+    assert_eq!(
+        emu.regs().rbx & 0xFFFF,
+        0x0FF0,
+        "BX: 0xFFFF AND 0x0FF0 = 0x0FF0"
+    );
 }
 
 #[test]
@@ -349,7 +365,11 @@ fn test_and_rm16_imm8_sign_ext() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rbx & 0xFFFF, 0x1234, "BX: AND with 0xFFFF (no change)");
+    assert_eq!(
+        emu.regs().rbx & 0xFFFF,
+        0x1234,
+        "BX: AND with 0xFFFF (no change)"
+    );
 }
 
 #[test]
@@ -361,7 +381,11 @@ fn test_and_rm32_imm8_sign_ext() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rbx, 0x0000000F, "EBX: AND with sign-extended imm8");
+    assert_eq!(
+        emu.regs().rbx,
+        0x0000000F,
+        "EBX: AND with sign-extended imm8"
+    );
 }
 
 #[test]
@@ -373,7 +397,11 @@ fn test_and_rm64_imm8_sign_ext() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x123456789ABCDEF0, "RAX: align to 16-byte boundary");
+    assert_eq!(
+        emu.regs().rax,
+        0x123456789ABCDEF0,
+        "RAX: align to 16-byte boundary"
+    );
 }
 
 // ============================================================================
@@ -403,7 +431,11 @@ fn test_and_rm16_r16_ax_bx() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFF, 0x00FF, "AX: 0xFFFF AND 0x00FF = 0x00FF");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0x00FF,
+        "AX: 0xFFFF AND 0x00FF = 0x00FF"
+    );
 }
 
 #[test]
@@ -429,7 +461,11 @@ fn test_and_rm64_r64_rax_rbx() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x00000000FFFFFFFF, "RAX: mask to low 32 bits");
+    assert_eq!(
+        emu.regs().rax,
+        0x00000000FFFFFFFF,
+        "RAX: mask to low 32 bits"
+    );
 }
 
 // ============================================================================
@@ -460,7 +496,11 @@ fn test_and_r16_rm16_ax_bx() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFF, 0x0204, "AX: 0x1234 AND 0x0F0F = 0x0204");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0x0204,
+        "AX: 0x1234 AND 0x0F0F = 0x0204"
+    );
 }
 
 #[test]
@@ -531,7 +571,11 @@ fn test_and_rsi_rdi() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rsi, 0xAAAAAAAAAAAAAAAA, "RSI: AND with same value");
+    assert_eq!(
+        emu.regs().rsi,
+        0xAAAAAAAAAAAAAAAA,
+        "RSI: AND with same value"
+    );
 }
 
 // ============================================================================
@@ -639,7 +683,8 @@ fn test_and_word_ptr_imm16() {
     let DATA_ADDR = 0x7000;
     let mut emu = emu64();
     let code = [
-        0x66, 0x81, 0x25, 0xf7, 0x0f, 0x00, 0x00, 0xF0, 0x0F, // AND WORD PTR [rip+0x0FF7], 0x0FF0
+        0x66, 0x81, 0x25, 0xf7, 0x0f, 0x00, 0x00, 0xF0,
+        0x0F, // AND WORD PTR [rip+0x0FF7], 0x0FF0
         0xf4,
     ];
     emu.load_code_bytes(&code);
@@ -656,7 +701,8 @@ fn test_and_dword_ptr_imm32() {
     let DATA_ADDR = 0x7000;
     let mut emu = emu64();
     let code = [
-        0x81, 0x25, 0xf6, 0x0f, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, // AND DWORD PTR [rip+0x0FF6], 0x000000FF
+        0x81, 0x25, 0xf6, 0x0f, 0x00, 0x00, 0xFF, 0x00, 0x00,
+        0x00, // AND DWORD PTR [rip+0x0FF6], 0x000000FF
         0xf4,
     ];
     emu.load_code_bytes(&code);
@@ -673,7 +719,8 @@ fn test_and_qword_ptr_imm32() {
     let DATA_ADDR = 0x7000;
     let mut emu = emu64();
     let code = [
-        0x48, 0x81, 0x25, 0xf5, 0x0f, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, // AND QWORD PTR [rip+0x0FF5], 0x0000FFFF
+        0x48, 0x81, 0x25, 0xf5, 0x0f, 0x00, 0x00, 0xFF, 0xFF, 0x00,
+        0x00, // AND QWORD PTR [rip+0x0FF5], 0x0000FFFF
         0xf4,
     ];
     emu.load_code_bytes(&code);

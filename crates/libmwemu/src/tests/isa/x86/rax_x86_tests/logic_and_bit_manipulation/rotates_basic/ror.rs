@@ -59,7 +59,11 @@ fn test_ror_al_1_with_lsb() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFF, 0xA1, "AL: 0x43 ROR 1 = 0xA1 (LSB rotates to MSB)");
+    assert_eq!(
+        emu.regs().rax & 0xFF,
+        0xA1,
+        "AL: 0x43 ROR 1 = 0xA1 (LSB rotates to MSB)"
+    );
     assert!(emu.flags().f_cf, "CF: receives LSB (was 1)");
 }
 
@@ -111,7 +115,11 @@ fn test_ror_full_rotation_8bit() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFF, 0x42, "AL: full rotation returns to original");
+    assert_eq!(
+        emu.regs().rax & 0xFF,
+        0x42,
+        "AL: full rotation returns to original"
+    );
 }
 
 #[test]
@@ -123,13 +131,18 @@ fn test_ror_count_zero_preserves_flags() {
         0xf4,
     ];
     emu.regs_mut().rax = 0x42;
-    emu.flags_mut().load(0x2 | flags::F_CF | flags::F_ZF | flags::F_OF);
+    emu.flags_mut()
+        .load(0x2 | flags::F_CF | flags::F_ZF | flags::F_OF);
     let initial_flags = emu.flags().dump();
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
     assert_eq!(emu.regs().rax & 0xFF, 0x42, "AL unchanged");
-    assert_eq!(emu.flags().dump(), initial_flags, "Flags unchanged when count is 0");
+    assert_eq!(
+        emu.flags().dump(),
+        initial_flags,
+        "Flags unchanged when count is 0"
+    );
 }
 
 // ============================================================================
@@ -167,7 +180,11 @@ fn test_ror_ax_cl() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFF, 0x0001, "AX: 0x8000 ROR 15 = 0x0001");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0x0001,
+        "AX: 0x8000 ROR 15 = 0x0001"
+    );
     assert!(!emu.flags().f_cf, "CF: last bit rotated was 0");
 }
 
@@ -200,7 +217,11 @@ fn test_ror_full_rotation_16bit() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFF, 0x1234, "AX: full rotation returns to original");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0x1234,
+        "AX: full rotation returns to original"
+    );
 }
 
 // ============================================================================
@@ -220,7 +241,11 @@ fn test_ror_eax_1() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x091A2B3C, "EAX: 0x12345678 ROR 1 = 0x091A2B3C");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x091A2B3C,
+        "EAX: 0x12345678 ROR 1 = 0x091A2B3C"
+    );
     assert!(!emu.flags().f_cf, "CF: LSB was 0");
 }
 
@@ -238,7 +263,11 @@ fn test_ror_eax_cl() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x00000001, "EAX: 0x80000000 ROR 31 = 0x00000001");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x00000001,
+        "EAX: 0x80000000 ROR 31 = 0x00000001"
+    );
 }
 
 #[test]
@@ -254,7 +283,11 @@ fn test_ror_eax_imm8() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x78123456, "EAX: 0x12345678 ROR 8 = 0x78123456");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x78123456,
+        "EAX: 0x12345678 ROR 8 = 0x78123456"
+    );
 }
 
 #[test]
@@ -270,7 +303,11 @@ fn test_ror_eax_with_lsb() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x80000000, "EAX: 0x00000001 ROR 1 = 0x80000000");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x80000000,
+        "EAX: 0x00000001 ROR 1 = 0x80000000"
+    );
     assert!(emu.flags().f_cf, "CF: LSB was 1");
 }
 
@@ -288,7 +325,11 @@ fn test_ror_full_rotation_32bit() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x12345678, "EAX: full rotation returns to original");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x12345678,
+        "EAX: full rotation returns to original"
+    );
 }
 
 // ============================================================================
@@ -308,7 +349,11 @@ fn test_ror_rax_1() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x091A2B3C4D5E6F78, "RAX: 0x123456789ABCDEF0 ROR 1");
+    assert_eq!(
+        emu.regs().rax,
+        0x091A2B3C4D5E6F78,
+        "RAX: 0x123456789ABCDEF0 ROR 1"
+    );
     assert!(!emu.flags().f_cf, "CF: LSB was 0");
 }
 
@@ -326,7 +371,11 @@ fn test_ror_rax_cl() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x0000000000000001, "RAX: 0x8000000000000000 ROR 63");
+    assert_eq!(
+        emu.regs().rax,
+        0x0000000000000001,
+        "RAX: 0x8000000000000000 ROR 63"
+    );
 }
 
 #[test]
@@ -342,7 +391,11 @@ fn test_ror_rax_imm8() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0xDEF0123456789ABC, "RAX: 0x123456789ABCDEF0 ROR 16");
+    assert_eq!(
+        emu.regs().rax,
+        0xDEF0123456789ABC,
+        "RAX: 0x123456789ABCDEF0 ROR 16"
+    );
 }
 
 #[test]
@@ -358,7 +411,11 @@ fn test_ror_rax_with_lsb() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x8000000000000000, "RAX: 0x0000000000000001 ROR 1");
+    assert_eq!(
+        emu.regs().rax,
+        0x8000000000000000,
+        "RAX: 0x0000000000000001 ROR 1"
+    );
     assert!(emu.flags().f_cf, "CF: LSB was 1");
 }
 
@@ -376,7 +433,11 @@ fn test_ror_full_rotation_64bit() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x123456789ABCDEF0, "RAX: full rotation returns to original");
+    assert_eq!(
+        emu.regs().rax,
+        0x123456789ABCDEF0,
+        "RAX: full rotation returns to original"
+    );
 }
 
 // ============================================================================
@@ -414,7 +475,11 @@ fn test_ror_r10w_cl() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().r10 & 0xFFFF, 0x4123, "R10W: 0x1234 ROR 4 = 0x4123");
+    assert_eq!(
+        emu.regs().r10 & 0xFFFF,
+        0x4123,
+        "R10W: 0x1234 ROR 4 = 0x4123"
+    );
 }
 
 #[test]
@@ -430,7 +495,11 @@ fn test_ror_r12d_imm8() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().r12 & 0xFFFFFFFF, 0x78123456, "R12D: 0x12345678 ROR 8 = 0x78123456");
+    assert_eq!(
+        emu.regs().r12 & 0xFFFFFFFF,
+        0x78123456,
+        "R12D: 0x12345678 ROR 8 = 0x78123456"
+    );
 }
 
 #[test]
@@ -446,7 +515,11 @@ fn test_ror_r15_1() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().r15, 0x7F6E5D4C3B2A1908, "R15: 0xFEDCBA9876543210 ROR 1");
+    assert_eq!(
+        emu.regs().r15,
+        0x7F6E5D4C3B2A1908,
+        "R15: 0xFEDCBA9876543210 ROR 1"
+    );
 }
 
 // ============================================================================
@@ -459,7 +532,9 @@ fn test_ror_byte_ptr_1() {
     let mut emu = emu64();
     // ROR byte ptr [DATA_ADDR], 1
     let code = [
-        0xd0, 0x0c, 0x25, // ROR byte ptr [DATA_ADDR], 1
+        0xd0,
+        0x0c,
+        0x25, // ROR byte ptr [DATA_ADDR], 1
         (DATA_ADDR & 0xFF) as u8,
         ((DATA_ADDR >> 8) & 0xFF) as u8,
         ((DATA_ADDR >> 16) & 0xFF) as u8,
@@ -481,7 +556,10 @@ fn test_ror_word_ptr_cl() {
     let mut emu = emu64();
     // ROR word ptr [DATA_ADDR], CL
     let code = [
-        0x66, 0xd3, 0x0c, 0x25, // ROR word ptr [DATA_ADDR], CL
+        0x66,
+        0xd3,
+        0x0c,
+        0x25, // ROR word ptr [DATA_ADDR], CL
         (DATA_ADDR & 0xFF) as u8,
         ((DATA_ADDR >> 8) & 0xFF) as u8,
         ((DATA_ADDR >> 16) & 0xFF) as u8,
@@ -504,7 +582,9 @@ fn test_ror_dword_ptr_imm8() {
     let mut emu = emu64();
     // ROR dword ptr [DATA_ADDR], imm8
     let code = [
-        0xc1, 0x0c, 0x25, // ROR dword ptr [DATA_ADDR], imm8
+        0xc1,
+        0x0c,
+        0x25, // ROR dword ptr [DATA_ADDR], imm8
         (DATA_ADDR & 0xFF) as u8,
         ((DATA_ADDR >> 8) & 0xFF) as u8,
         ((DATA_ADDR >> 16) & 0xFF) as u8,
@@ -527,7 +607,10 @@ fn test_ror_qword_ptr_cl() {
     let mut emu = emu64();
     // ROR qword ptr [DATA_ADDR], CL
     let code = [
-        0x48, 0xd3, 0x0c, 0x25, // ROR qword ptr [DATA_ADDR], CL
+        0x48,
+        0xd3,
+        0x0c,
+        0x25, // ROR qword ptr [DATA_ADDR], CL
         (DATA_ADDR & 0xFF) as u8,
         ((DATA_ADDR >> 8) & 0xFF) as u8,
         ((DATA_ADDR >> 16) & 0xFF) as u8,
@@ -541,7 +624,10 @@ fn test_ror_qword_ptr_cl() {
     emu.run(None).unwrap();
     let result = emu.maps.read_qword(DATA_ADDR).unwrap();
 
-    assert_eq!(result, 0xDEF0123456789ABC, "Memory: 0x123456789ABCDEF0 ROR 16");
+    assert_eq!(
+        result, 0xDEF0123456789ABC,
+        "Memory: 0x123456789ABCDEF0 ROR 16"
+    );
 }
 
 // ============================================================================
@@ -560,7 +646,11 @@ fn test_ror_byte_swap_endianness() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x78123456, "EAX: bytes rotated");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x78123456,
+        "EAX: bytes rotated"
+    );
 }
 
 #[test]
@@ -576,7 +666,11 @@ fn test_ror_overflow_flag_1bit() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x80000000, "EAX: 0x00000001 ROR 1");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x80000000,
+        "EAX: 0x00000001 ROR 1"
+    );
     assert!(emu.flags().f_of, "OF: MSB XOR next-to-MSB = 1");
 }
 
@@ -610,7 +704,11 @@ fn test_ror_chained_rotations() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x02468ACF, "EAX: three 1-bit rotations");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x02468ACF,
+        "EAX: three 1-bit rotations"
+    );
 }
 
 #[test]
@@ -625,7 +723,11 @@ fn test_ror_all_ones() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xFFFFFFFF, "EAX: all ones stay all ones");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xFFFFFFFF,
+        "EAX: all ones stay all ones"
+    );
     assert!(emu.flags().f_cf, "CF: LSB was 1");
 }
 
@@ -657,7 +759,11 @@ fn test_ror_extract_low_bits() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x00001234, "EAX: high word moved to low");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x00001234,
+        "EAX: high word moved to low"
+    );
 }
 
 #[test]
@@ -672,6 +778,10 @@ fn test_ror_alternating_bits() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x55555555, "EAX: alternating bits rotated");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x55555555,
+        "EAX: alternating bits rotated"
+    );
     assert!(!emu.flags().f_cf, "CF: LSB was 0");
 }

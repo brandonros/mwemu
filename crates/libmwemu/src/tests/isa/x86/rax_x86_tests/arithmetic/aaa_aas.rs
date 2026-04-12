@@ -67,7 +67,11 @@ fn test_aaa_adjustment_needed_low_nibble() {
 
     // AX = 0x000A + 0x0106 = 0x0110, then AL masked to 0x0F -> 0x00
     assert_eq!(emu.regs().rax & 0xFF, 0x00, "AL should be 0 after masking");
-    assert_eq!((emu.regs().rax >> 8) & 0xFF, 0x01, "AH should be incremented to 1");
+    assert_eq!(
+        (emu.regs().rax >> 8) & 0xFF,
+        0x01,
+        "AH should be incremented to 1"
+    );
     assert!(emu.flags().f_cf, "CF should be set");
     assert!(emu.flags().f_af, "AF should be set");
 }
@@ -84,8 +88,16 @@ fn test_aaa_adjustment_needed_af_set() {
     emu.run(None).unwrap();
 
     // AX = 0x0005 + 0x0106 = 0x010B, then AL masked to 0x0F -> 0x0B
-    assert_eq!(emu.regs().rax & 0xFF, 0x0B, "AL should be 0x0B after masking");
-    assert_eq!((emu.regs().rax >> 8) & 0xFF, 0x01, "AH should be incremented");
+    assert_eq!(
+        emu.regs().rax & 0xFF,
+        0x0B,
+        "AL should be 0x0B after masking"
+    );
+    assert_eq!(
+        (emu.regs().rax >> 8) & 0xFF,
+        0x01,
+        "AH should be incremented"
+    );
     assert!(emu.flags().f_cf, "CF should be set");
     assert!(emu.flags().f_af, "AF should be set");
 }
@@ -98,7 +110,7 @@ fn test_aaa_all_digits_0_through_9() {
         let code = [0x37, 0xf4]; // AAA, HLT
         emu.regs_mut().rax = digit;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
         assert_eq!(emu.regs().rax & 0xFF, digit, "AL should remain {}", digit);
         assert!(!emu.flags().f_cf, "CF should be clear for digit {}", digit);
@@ -114,11 +126,21 @@ fn test_aaa_values_0a_through_0f() {
         let code = [0x37, 0xf4]; // AAA, HLT
         emu.regs_mut().rax = val;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
         let expected_al = val.wrapping_add(6) & 0x0F;
-        assert_eq!(emu.regs().rax & 0xFF, expected_al, "AL should be masked for value 0x{:02X}", val);
-        assert_eq!((emu.regs().rax >> 8) & 0xFF, 0x01, "AH should be 1 for value 0x{:02X}", val);
+        assert_eq!(
+            emu.regs().rax & 0xFF,
+            expected_al,
+            "AL should be masked for value 0x{:02X}",
+            val
+        );
+        assert_eq!(
+            (emu.regs().rax >> 8) & 0xFF,
+            0x01,
+            "AH should be 1 for value 0x{:02X}",
+            val
+        );
         assert!(emu.flags().f_cf, "CF should be set for value 0x{:02X}", val);
         assert!(emu.flags().f_af, "AF should be set for value 0x{:02X}", val);
     }
@@ -150,7 +172,11 @@ fn test_aaa_bcd_addition_example() {
     emu.run(None).unwrap();
 
     assert_eq!(emu.regs().rax & 0xFF, 0x05, "AL should be 5 (ones digit)");
-    assert_eq!((emu.regs().rax >> 8) & 0xFF, 0x01, "AH should be 1 (tens digit)");
+    assert_eq!(
+        (emu.regs().rax >> 8) & 0xFF,
+        0x01,
+        "AH should be 1 (tens digit)"
+    );
 }
 
 #[test]
@@ -162,7 +188,11 @@ fn test_aaa_preserves_high_bits() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax >> 16, 0xDEADBEEF_1234, "High bits should be preserved");
+    assert_eq!(
+        emu.regs().rax >> 16,
+        0xDEADBEEF_1234,
+        "High bits should be preserved"
+    );
 }
 
 #[test]
@@ -191,7 +221,11 @@ fn test_aaa_ah_overflow() {
     emu.run(None).unwrap();
 
     // 0xFF0A + 0x0106 = 0x10010, AX wraps to 0x0010, then AL masked to 0x00
-    assert_eq!(emu.regs().rax & 0xFFFF, 0x0000, "AX should wrap and mask to 0");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0x0000,
+        "AX should wrap and mask to 0"
+    );
 }
 
 // ============================================================================
@@ -230,7 +264,11 @@ fn test_aas_adjustment_needed_low_nibble() {
     // AL = AL - 6 = 0x0F - 6 = 0x09, then masked to 0x0F -> 0x09
     // AH = AH - 1 = 0x00 - 1 = 0xFF
     assert_eq!(emu.regs().rax & 0xFF, 0x09, "AL should be 9");
-    assert_eq!((emu.regs().rax >> 8) & 0xFF, 0xFF, "AH should be 0xFF (decremented)");
+    assert_eq!(
+        (emu.regs().rax >> 8) & 0xFF,
+        0xFF,
+        "AH should be 0xFF (decremented)"
+    );
     assert!(emu.flags().f_cf, "CF should be set");
     assert!(emu.flags().f_af, "AF should be set");
 }
@@ -249,7 +287,11 @@ fn test_aas_adjustment_needed_af_set() {
     // AL = AL - 6 = 5 - 6 = -1 = 0xFF, masked to 0x0F -> 0x0F
     // AH borrows from AL subtraction, then decrements by 1
     assert_eq!(emu.regs().rax & 0xFF, 0x0F, "AL should be 0x0F");
-    assert_eq!((emu.regs().rax >> 8) & 0xFF, 0xFE, "AH should be decremented with borrow");
+    assert_eq!(
+        (emu.regs().rax >> 8) & 0xFF,
+        0xFE,
+        "AH should be decremented with borrow"
+    );
     assert!(emu.flags().f_cf, "CF should be set");
     assert!(emu.flags().f_af, "AF should be set");
 }
@@ -262,7 +304,7 @@ fn test_aas_all_digits_0_through_9() {
         let code = [0x3F, 0xf4]; // AAS, HLT
         emu.regs_mut().rax = digit;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
         assert_eq!(emu.regs().rax & 0xFF, digit, "AL should remain {}", digit);
         assert!(!emu.flags().f_cf, "CF should be clear for digit {}", digit);
@@ -278,11 +320,21 @@ fn test_aas_values_0a_through_0f() {
         let code = [0x3F, 0xf4]; // AAS, HLT
         emu.regs_mut().rax = val;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
         let expected_al = ((val as i8 - 6) as u8) & 0x0F;
-        assert_eq!(emu.regs().rax & 0xFF, expected_al as u64, "AL should be adjusted for value 0x{:02X}", val);
-        assert_eq!((emu.regs().rax >> 8) & 0xFF, 0xFF, "AH should be 0xFF for value 0x{:02X}", val);
+        assert_eq!(
+            emu.regs().rax & 0xFF,
+            expected_al as u64,
+            "AL should be adjusted for value 0x{:02X}",
+            val
+        );
+        assert_eq!(
+            (emu.regs().rax >> 8) & 0xFF,
+            0xFF,
+            "AH should be 0xFF for value 0x{:02X}",
+            val
+        );
         assert!(emu.flags().f_cf, "CF should be set for value 0x{:02X}", val);
         assert!(emu.flags().f_af, "AF should be set for value 0x{:02X}", val);
     }
@@ -329,7 +381,11 @@ fn test_aas_preserves_high_bits() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax >> 16, 0xDEADBEEF_1234, "High bits should be preserved");
+    assert_eq!(
+        emu.regs().rax >> 16,
+        0xDEADBEEF_1234,
+        "High bits should be preserved"
+    );
 }
 
 #[test]
@@ -478,7 +534,11 @@ fn test_aaa_boundary_9_to_10() {
     emu.regs_mut().rax = 0x000A;
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
-    assert_eq!(emu.regs().rax & 0xFFFF, 0x0100, "AL=0x0A should adjust to 0x0100");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0x0100,
+        "AL=0x0A should adjust to 0x0100"
+    );
     assert!(emu.flags().f_af, "AF should be set for 0x0A");
 }
 
@@ -516,7 +576,11 @@ fn test_aaa_unpacked_bcd_chain() {
 
     // 0x0011 + 0x0106 = 0x0117, masked -> 0x0107
     assert_eq!(emu.regs().rax & 0xFF, 0x07, "AL should be 7 (ones digit)");
-    assert_eq!((emu.regs().rax >> 8) & 0xFF, 0x01, "AH should be 1 (tens digit)");
+    assert_eq!(
+        (emu.regs().rax >> 8) & 0xFF,
+        0x01,
+        "AH should be 1 (tens digit)"
+    );
 }
 
 #[test]
@@ -545,7 +609,11 @@ fn test_aaa_masking_high_nibble() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFF, 0x05, "AL should be 5 (high nibble masked)");
+    assert_eq!(
+        emu.regs().rax & 0xFF,
+        0x05,
+        "AL should be 5 (high nibble masked)"
+    );
 }
 
 #[test]
@@ -557,5 +625,9 @@ fn test_aas_masking_high_nibble() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFF, 0x08, "AL should be 8 (high nibble masked)");
+    assert_eq!(
+        emu.regs().rax & 0xFF,
+        0x08,
+        "AL should be 8 (high nibble masked)"
+    );
 }

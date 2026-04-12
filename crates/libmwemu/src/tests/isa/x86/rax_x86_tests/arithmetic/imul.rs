@@ -35,7 +35,7 @@ fn test_imul_al_positive_basic() {
     let mut emu = emu64();
     let code = [
         0xf6, 0xeb, // IMUL BL (F6 /5, ModRM=11_101_011)
-        0xf4,       // HLT
+        0xf4, // HLT
     ];
     emu.regs_mut().rax = 0x05; // AL = 5
     emu.regs_mut().rbx = 0x03; // BL = 3
@@ -59,7 +59,10 @@ fn test_imul_al_negative_by_positive() {
     emu.run(None).unwrap();
 
     assert_eq!(emu.regs().rax & 0xFFFF, 0xFFF1, "-5 * 3 = -15 (0xFFF1)");
-    assert!(!emu.flags().f_cf, "CF should be clear (fits in sign-extended AL)");
+    assert!(
+        !emu.flags().f_cf,
+        "CF should be clear (fits in sign-extended AL)"
+    );
 }
 
 #[test]
@@ -84,12 +87,15 @@ fn test_imul_al_overflow() {
     // 100 * 2 = 200 (0x00C8), doesn't fit in sign-extended i8 (-128 to 127)
     let code = [0xf6, 0xeb, 0xf4]; // IMUL BL
     emu.regs_mut().rax = 100; // AL = 100
-    emu.regs_mut().rbx = 2;   // BL = 2
+    emu.regs_mut().rbx = 2; // BL = 2
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
     assert_eq!(emu.regs().rax & 0xFFFF, 0x00C8, "100 * 2 = 200");
-    assert!(emu.flags().f_cf, "CF should be set (doesn't fit in i8 range)");
+    assert!(
+        emu.flags().f_cf,
+        "CF should be set (doesn't fit in i8 range)"
+    );
     assert!(emu.flags().f_of, "OF should be set");
 }
 
@@ -100,7 +106,7 @@ fn test_imul_al_max_positive() {
     // 127 * 1 = 127 (fits in i8)
     let code = [0xf6, 0xeb, 0xf4]; // IMUL BL
     emu.regs_mut().rax = 127; // AL = 127 (max i8)
-    emu.regs_mut().rbx = 1;   // BL = 1
+    emu.regs_mut().rbx = 1; // BL = 1
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
@@ -115,7 +121,7 @@ fn test_imul_al_min_negative() {
     // -128 * 1 = -128 (0xFF80, fits in sign-extended i8)
     let code = [0xf6, 0xeb, 0xf4]; // IMUL BL
     emu.regs_mut().rax = 0x80; // AL = -128 (min i8)
-    emu.regs_mut().rbx = 1;    // BL = 1
+    emu.regs_mut().rbx = 1; // BL = 1
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
@@ -130,7 +136,7 @@ fn test_imul_al_overflow_negative() {
     // -128 * 2 = -256 (0xFF00), doesn't fit in i8
     let code = [0xf6, 0xeb, 0xf4]; // IMUL BL
     emu.regs_mut().rax = 0x80; // AL = -128
-    emu.regs_mut().rbx = 2;    // BL = 2
+    emu.regs_mut().rbx = 2; // BL = 2
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
@@ -165,7 +171,7 @@ fn test_imul_ax_positive_basic() {
         0xf4,
     ];
     emu.regs_mut().rax = 100; // AX = 100
-    emu.regs_mut().rbx = 50;  // BX = 50
+    emu.regs_mut().rbx = 50; // BX = 50
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
@@ -186,8 +192,15 @@ fn test_imul_ax_negative_by_positive() {
     emu.run(None).unwrap();
 
     assert_eq!(emu.regs().rax & 0xFFFF, 0xEC78, "AX (low word)");
-    assert_eq!(emu.regs().rdx & 0xFFFF, 0xFFFF, "DX (high word, sign extension)");
-    assert!(!emu.flags().f_cf, "CF should be clear (fits in sign-extended)");
+    assert_eq!(
+        emu.regs().rdx & 0xFFFF,
+        0xFFFF,
+        "DX (high word, sign extension)"
+    );
+    assert!(
+        !emu.flags().f_cf,
+        "CF should be clear (fits in sign-extended)"
+    );
 }
 
 #[test]
@@ -255,7 +268,11 @@ fn test_imul_eax_negative_by_positive() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax as i32, -2000000, "EAX: -1000 * 2000 = -2000000");
+    assert_eq!(
+        emu.regs().rax as i32,
+        -2000000,
+        "EAX: -1000 * 2000 = -2000000"
+    );
     assert_eq!(emu.regs().rdx, 0xFFFFFFFF, "EDX (sign extension)");
     assert!(!emu.flags().f_cf, "CF should be clear");
 }
@@ -374,11 +391,15 @@ fn test_imul_two_op_16bit_basic() {
         0xf4,
     ];
     emu.regs_mut().rax = 100; // AX = 100
-    emu.regs_mut().rbx = 50;  // BX = 50 (will be overwritten with result)
+    emu.regs_mut().rbx = 50; // BX = 50 (will be overwritten with result)
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rbx & 0xFFFF, 5000, "BX = BX * AX = 50 * 100 = 5000");
+    assert_eq!(
+        emu.regs().rbx & 0xFFFF,
+        5000,
+        "BX = BX * AX = 50 * 100 = 5000"
+    );
     assert!(!emu.flags().f_cf, "CF should be clear (no truncation)");
 }
 
@@ -393,7 +414,11 @@ fn test_imul_two_op_16bit_negative() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!((emu.regs().rbx & 0xFFFF) as i16, -5000, "BX = -50 * 100 = -5000");
+    assert_eq!(
+        (emu.regs().rbx & 0xFFFF) as i16,
+        -5000,
+        "BX = -50 * 100 = -5000"
+    );
     assert!(!emu.flags().f_cf, "CF should be clear");
 }
 
@@ -441,7 +466,11 @@ fn test_imul_two_op_32bit_negative() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rbx as i32, -2000000, "EBX = -1000 * 2000 = -2000000");
+    assert_eq!(
+        emu.regs().rbx as i32,
+        -2000000,
+        "EBX = -1000 * 2000 = -2000000"
+    );
     assert!(!emu.flags().f_cf, "CF should be clear");
 }
 
@@ -519,7 +548,7 @@ fn test_imul_three_op_imm8_basic() {
         0xf4,
     ];
     emu.regs_mut().rax = 50; // AX = 50
-    emu.regs_mut().rbx = 0;  // BX will be set to AX * 10
+    emu.regs_mut().rbx = 0; // BX will be set to AX * 10
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
@@ -536,7 +565,11 @@ fn test_imul_three_op_imm8_negative() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!((emu.regs().rbx & 0xFFFF) as i16, -500, "BX = 100 * -5 = -500");
+    assert_eq!(
+        (emu.regs().rbx & 0xFFFF) as i16,
+        -500,
+        "BX = 100 * -5 = -500"
+    );
     assert!(!emu.flags().f_cf, "CF should be clear");
 }
 
@@ -617,7 +650,11 @@ fn test_imul_three_op_imm32_negative() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rbx as i32, -2000000, "EBX = 2000 * -1000 = -2000000");
+    assert_eq!(
+        emu.regs().rbx as i32,
+        -2000000,
+        "EBX = 2000 * -1000 = -2000000"
+    );
     assert!(!emu.flags().f_cf, "CF should be clear");
 }
 
@@ -664,7 +701,7 @@ fn test_imul_r8_one_operand() {
         0xf4,
     ];
     emu.regs_mut().rax = 20; // AL = 20
-    emu.regs_mut().r8 = 5;   // R8B = 5
+    emu.regs_mut().r8 = 5; // R8B = 5
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 

@@ -22,7 +22,6 @@
 // - AF: Undefined for non-zero count
 // - Count is 0: No flags affected
 
-
 use crate::*;
 
 // ============================================================================
@@ -138,7 +137,11 @@ fn test_shl_count_masked_8bit() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFF, 0x88, "AL: 0x11 << 3 = 0x88 (count masked)");
+    assert_eq!(
+        emu.regs().rax & 0xFF,
+        0x88,
+        "AL: 0x11 << 3 = 0x88 (count masked)"
+    );
 }
 
 #[test]
@@ -150,13 +153,18 @@ fn test_shl_count_zero_preserves_flags() {
         0xf4,
     ];
     emu.regs_mut().rax = 0x42;
-    emu.flags_mut().load(0x2 | flags::F_CF | flags::F_ZF | flags::F_OF);
+    emu.flags_mut()
+        .load(0x2 | flags::F_CF | flags::F_ZF | flags::F_OF);
     let initial_flags = emu.flags().dump();
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
     assert_eq!(emu.regs().rax & 0xFF, 0x42, "AL unchanged");
-    assert_eq!(emu.flags().dump(), initial_flags, "Flags unchanged when count is 0");
+    assert_eq!(
+        emu.flags().dump(),
+        initial_flags,
+        "Flags unchanged when count is 0"
+    );
 }
 
 // ============================================================================
@@ -252,7 +260,11 @@ fn test_shl_eax_1() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x2468ACF0, "EAX: 0x12345678 << 1 = 0x2468ACF0");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x2468ACF0,
+        "EAX: 0x12345678 << 1 = 0x2468ACF0"
+    );
     assert!(!emu.flags().f_cf, "CF should be clear");
     assert!(!emu.flags().f_of, "OF should be clear");
 }
@@ -271,7 +283,11 @@ fn test_shl_eax_cl() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x80000000, "EAX: 0x00000001 << 31 = 0x80000000");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x80000000,
+        "EAX: 0x00000001 << 31 = 0x80000000"
+    );
     assert!(!emu.flags().f_cf, "CF: last bit shifted out was 0");
     assert!(emu.flags().f_sf, "SF should be set");
 }
@@ -289,7 +305,11 @@ fn test_shl_eax_imm8() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x12345600, "EAX: 0x00123456 << 8 = 0x12345600");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x12345600,
+        "EAX: 0x00123456 << 8 = 0x12345600"
+    );
     assert!(!emu.flags().f_cf, "CF should be clear");
 }
 
@@ -305,7 +325,11 @@ fn test_shl_eax_with_carry() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x00000002, "EAX: 0x80000001 << 1 = 0x00000002");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x00000002,
+        "EAX: 0x80000001 << 1 = 0x00000002"
+    );
     assert!(emu.flags().f_cf, "CF should be set (MSB was 1)");
     assert!(emu.flags().f_of, "OF: MSB XOR CF = 0 XOR 1 = 1");
 }
@@ -323,7 +347,11 @@ fn test_shl_count_masked_32bit() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x80000000, "EAX: 0x00000001 << 31 = 0x80000000 (count masked)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x80000000,
+        "EAX: 0x00000001 << 31 = 0x80000000 (count masked)"
+    );
 }
 
 // ============================================================================
@@ -343,7 +371,11 @@ fn test_shl_rax_1() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x2468ACF13579BDE0, "RAX: 0x123456789ABCDEF0 << 1");
+    assert_eq!(
+        emu.regs().rax,
+        0x2468ACF13579BDE0,
+        "RAX: 0x123456789ABCDEF0 << 1"
+    );
     assert!(!emu.flags().f_cf, "CF should be clear");
     assert!(!emu.flags().f_of, "OF should be clear");
 }
@@ -362,7 +394,11 @@ fn test_shl_rax_cl() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x8000000000000000, "RAX: 0x0000000000000001 << 63");
+    assert_eq!(
+        emu.regs().rax,
+        0x8000000000000000,
+        "RAX: 0x0000000000000001 << 63"
+    );
     assert!(!emu.flags().f_cf, "CF: last bit shifted out was 0");
     assert!(emu.flags().f_sf, "SF should be set");
 }
@@ -380,7 +416,11 @@ fn test_shl_rax_imm8() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x123456789ABC0000, "RAX: 0x0000123456789ABC << 16");
+    assert_eq!(
+        emu.regs().rax,
+        0x123456789ABC0000,
+        "RAX: 0x0000123456789ABC << 16"
+    );
     assert!(!emu.flags().f_cf, "CF should be clear");
 }
 
@@ -396,7 +436,11 @@ fn test_shl_rax_with_carry() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x0000000000000002, "RAX: 0x8000000000000001 << 1");
+    assert_eq!(
+        emu.regs().rax,
+        0x0000000000000002,
+        "RAX: 0x8000000000000001 << 1"
+    );
     assert!(emu.flags().f_cf, "CF should be set (MSB was 1)");
     assert!(emu.flags().f_of, "OF: MSB XOR CF = 0 XOR 1 = 1");
 }
@@ -414,7 +458,11 @@ fn test_shl_count_masked_64bit() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x8000000000000000, "RAX: 0x0000000000000001 << 63 (count masked to 6 bits)");
+    assert_eq!(
+        emu.regs().rax,
+        0x8000000000000000,
+        "RAX: 0x0000000000000001 << 63 (count masked to 6 bits)"
+    );
 }
 
 // ============================================================================
@@ -453,7 +501,11 @@ fn test_shl_r10w_cl() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().r10 & 0xFFFF, 0x2340, "R10W: 0x1234 << 4 = 0x2340");
+    assert_eq!(
+        emu.regs().r10 & 0xFFFF,
+        0x2340,
+        "R10W: 0x1234 << 4 = 0x2340"
+    );
 }
 
 #[test]
@@ -469,7 +521,11 @@ fn test_shl_r12d_imm8() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().r12 & 0xFFFFFFFF, 0x34567800, "R12D: 0x12345678 << 8 = 0x34567800");
+    assert_eq!(
+        emu.regs().r12 & 0xFFFFFFFF,
+        0x34567800,
+        "R12D: 0x12345678 << 8 = 0x34567800"
+    );
 }
 
 #[test]
@@ -485,7 +541,11 @@ fn test_shl_r15_1() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().r15, 0x02468ACF13579BDE, "R15: 0x0123456789ABCDEF << 1");
+    assert_eq!(
+        emu.regs().r15,
+        0x02468ACF13579BDE,
+        "R15: 0x0123456789ABCDEF << 1"
+    );
 }
 
 // ============================================================================
@@ -498,7 +558,9 @@ fn test_shl_byte_ptr_1() {
     let mut emu = emu64();
     // SHL byte ptr [DATA_ADDR], 1
     let code = [
-        0xd0, 0x24, 0x25, // SHL byte ptr [DATA_ADDR], 1
+        0xd0,
+        0x24,
+        0x25, // SHL byte ptr [DATA_ADDR], 1
         (DATA_ADDR & 0xFF) as u8,
         ((DATA_ADDR >> 8) & 0xFF) as u8,
         ((DATA_ADDR >> 16) & 0xFF) as u8,
@@ -521,7 +583,10 @@ fn test_shl_word_ptr_cl() {
     let mut emu = emu64();
     // SHL word ptr [DATA_ADDR], CL
     let code = [
-        0x66, 0xd3, 0x24, 0x25, // SHL word ptr [DATA_ADDR], CL
+        0x66,
+        0xd3,
+        0x24,
+        0x25, // SHL word ptr [DATA_ADDR], CL
         (DATA_ADDR & 0xFF) as u8,
         ((DATA_ADDR >> 8) & 0xFF) as u8,
         ((DATA_ADDR >> 16) & 0xFF) as u8,
@@ -544,7 +609,9 @@ fn test_shl_dword_ptr_imm8() {
     let mut emu = emu64();
     // SHL dword ptr [DATA_ADDR], imm8
     let code = [
-        0xc1, 0x24, 0x25, // SHL dword ptr [DATA_ADDR], imm8
+        0xc1,
+        0x24,
+        0x25, // SHL dword ptr [DATA_ADDR], imm8
         (DATA_ADDR & 0xFF) as u8,
         ((DATA_ADDR >> 8) & 0xFF) as u8,
         ((DATA_ADDR >> 16) & 0xFF) as u8,
@@ -567,7 +634,10 @@ fn test_shl_qword_ptr_cl() {
     let mut emu = emu64();
     // SHL qword ptr [DATA_ADDR], CL
     let code = [
-        0x48, 0xd3, 0x24, 0x25, // SHL qword ptr [DATA_ADDR], CL
+        0x48,
+        0xd3,
+        0x24,
+        0x25, // SHL qword ptr [DATA_ADDR], CL
         (DATA_ADDR & 0xFF) as u8,
         ((DATA_ADDR >> 8) & 0xFF) as u8,
         ((DATA_ADDR >> 16) & 0xFF) as u8,
@@ -581,7 +651,10 @@ fn test_shl_qword_ptr_cl() {
     emu.run(None).unwrap();
     let result = emu.maps.read_qword(DATA_ADDR).unwrap();
 
-    assert_eq!(result, 0x56789ABCDEF00000, "Memory: 0x123456789ABCDEF0 << 16");
+    assert_eq!(
+        result, 0x56789ABCDEF00000,
+        "Memory: 0x123456789ABCDEF0 << 16"
+    );
 }
 
 // ============================================================================
@@ -618,7 +691,11 @@ fn test_shl_align_to_page_boundary() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x123456789ABCD000, "RAX aligned to 4KB boundary");
+    assert_eq!(
+        emu.regs().rax,
+        0x123456789ABCD000,
+        "RAX aligned to 4KB boundary"
+    );
 }
 
 #[test]
@@ -633,7 +710,11 @@ fn test_shl_extract_high_bits() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0xFFFFFFFF00000000, "RAX: low 32 bits moved to high");
+    assert_eq!(
+        emu.regs().rax,
+        0xFFFFFFFF00000000,
+        "RAX: low 32 bits moved to high"
+    );
 }
 
 #[test]
@@ -649,7 +730,11 @@ fn test_shl_overflow_flag_1bit_same_sign() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x80000000, "EAX: 0x40000000 << 1 = 0x80000000");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x80000000,
+        "EAX: 0x40000000 << 1 = 0x80000000"
+    );
     assert!(!emu.flags().f_cf, "CF: bit shifted out was 0");
     assert!(emu.flags().f_of, "OF: MSB(result) XOR CF = 1 XOR 0 = 1");
 }
@@ -667,7 +752,11 @@ fn test_shl_overflow_flag_1bit_different_sign() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x80000000, "EAX: 0xC0000000 << 1 = 0x80000000");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x80000000,
+        "EAX: 0xC0000000 << 1 = 0x80000000"
+    );
     assert!(emu.flags().f_cf, "CF: bit shifted out was 1");
     assert!(!emu.flags().f_of, "OF: MSB(result) XOR CF = 1 XOR 1 = 0");
     // OF = old_MSB XOR new_MSB = 1 XOR 1 = 0? Or is it MSB XOR CF?
@@ -720,7 +809,11 @@ fn test_shl_all_ones() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xFFFFFFFE, "EAX: 0xFFFFFFFF << 1 = 0xFFFFFFFE");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xFFFFFFFE,
+        "EAX: 0xFFFFFFFF << 1 = 0xFFFFFFFE"
+    );
     assert!(emu.flags().f_cf, "CF: MSB was 1");
     assert!(emu.flags().f_sf, "SF: result is negative");
     assert!(!emu.flags().f_zf, "ZF: result is not zero");

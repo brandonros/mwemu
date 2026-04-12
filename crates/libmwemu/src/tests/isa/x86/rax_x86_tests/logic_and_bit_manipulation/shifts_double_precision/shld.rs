@@ -40,7 +40,11 @@ fn test_shld_ax_bx_imm8() {
     emu.run(None).unwrap();
 
     // AX: 0001_0010_0011_0100 shifted left by 4
-    assert_eq!(emu.regs().rax & 0xFFFF, 0x234A, "AX: 0x1234 SHLD 4 from 0xABCD = 0x234A");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0x234A,
+        "AX: 0x1234 SHLD 4 from 0xABCD = 0x234A"
+    );
     assert!(emu.flags().f_cf, "CF: bit shifted out was 1");
 }
 
@@ -60,7 +64,11 @@ fn test_shld_ax_bx_cl() {
     emu.run(None).unwrap();
 
     // AX high byte = 0x34, fill with BX high byte = 0xAB
-    assert_eq!(emu.regs().rax & 0xFFFF, 0x34AB, "AX: 0x1234 SHLD 8 from 0xABCD = 0x34AB");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0x34AB,
+        "AX: 0x1234 SHLD 8 from 0xABCD = 0x34AB"
+    );
 }
 
 #[test]
@@ -77,7 +85,11 @@ fn test_shld_ax_bx_1bit() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFF, 0x8000, "AX: 0x4000 SHLD 1 = 0x8000");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0x8000,
+        "AX: 0x4000 SHLD 1 = 0x8000"
+    );
     assert!(!emu.flags().f_cf, "CF: bit shifted out was 0");
     assert!(emu.flags().f_of, "OF: sign changed from + to -");
 }
@@ -96,7 +108,11 @@ fn test_shld_ax_full_rotation() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFF, 0xABCD, "AX: completely replaced by BX");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0xABCD,
+        "AX: completely replaced by BX"
+    );
 }
 
 // ============================================================================
@@ -117,7 +133,11 @@ fn test_shld_eax_ebx_imm8() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x2345678A, "EAX: 0x12345678 SHLD 4 from 0xABCDEF01");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x2345678A,
+        "EAX: 0x12345678 SHLD 4 from 0xABCDEF01"
+    );
 }
 
 #[test]
@@ -135,7 +155,11 @@ fn test_shld_eax_ebx_cl() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x345678AB, "EAX: 0x12345678 SHLD 8 from 0xABCDEF01");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x345678AB,
+        "EAX: 0x12345678 SHLD 8 from 0xABCDEF01"
+    );
 }
 
 #[test]
@@ -169,7 +193,11 @@ fn test_shld_eax_count_masked() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x345678AB, "EAX: count masked to 8");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x345678AB,
+        "EAX: count masked to 8"
+    );
 }
 
 #[test]
@@ -244,7 +272,11 @@ fn test_shld_rax_count_masked_64bit() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x56789ABCDEF0FEDC, "RAX: count masked to 16");
+    assert_eq!(
+        emu.regs().rax,
+        0x56789ABCDEF0FEDC,
+        "RAX: count masked to 16"
+    );
 }
 
 #[test]
@@ -261,7 +293,11 @@ fn test_shld_rax_full_width() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x123456789ABCDEF0, "RAX: unchanged when count masks to 0");
+    assert_eq!(
+        emu.regs().rax,
+        0x123456789ABCDEF0,
+        "RAX: unchanged when count masks to 0"
+    );
 }
 
 // ============================================================================
@@ -300,7 +336,11 @@ fn test_shld_r10d_r11d_cl() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().r10 & 0xFFFFFFFF, 0x345678AB, "R10D: SHLD from R11D");
+    assert_eq!(
+        emu.regs().r10 & 0xFFFFFFFF,
+        0x345678AB,
+        "R10D: SHLD from R11D"
+    );
 }
 
 #[test]
@@ -330,7 +370,11 @@ fn test_shld_word_ptr_imm8() {
     let mut emu = emu64();
     // SHLD word ptr [DATA_ADDR], BX, imm8
     let code = [
-        0x66, 0x0f, 0xa4, 0x1c, 0x25, // SHLD word ptr [DATA_ADDR], BX, imm8
+        0x66,
+        0x0f,
+        0xa4,
+        0x1c,
+        0x25, // SHLD word ptr [DATA_ADDR], BX, imm8
         (DATA_ADDR & 0xFF) as u8,
         ((DATA_ADDR >> 8) & 0xFF) as u8,
         ((DATA_ADDR >> 16) & 0xFF) as u8,
@@ -354,7 +398,10 @@ fn test_shld_dword_ptr_cl() {
     let mut emu = emu64();
     // SHLD dword ptr [DATA_ADDR], EBX, CL
     let code = [
-        0x0f, 0xa5, 0x1c, 0x25, // SHLD dword ptr [DATA_ADDR], EBX, CL
+        0x0f,
+        0xa5,
+        0x1c,
+        0x25, // SHLD dword ptr [DATA_ADDR], EBX, CL
         (DATA_ADDR & 0xFF) as u8,
         ((DATA_ADDR >> 8) & 0xFF) as u8,
         ((DATA_ADDR >> 16) & 0xFF) as u8,
@@ -369,7 +416,10 @@ fn test_shld_dword_ptr_cl() {
     emu.run(None).unwrap();
     let result = emu.maps.read_dword(DATA_ADDR).unwrap();
 
-    assert_eq!(result, 0x345678AB, "Memory: 0x12345678 SHLD 8 from 0xABCDEF01");
+    assert_eq!(
+        result, 0x345678AB,
+        "Memory: 0x12345678 SHLD 8 from 0xABCDEF01"
+    );
 }
 
 #[test]
@@ -378,7 +428,11 @@ fn test_shld_qword_ptr_imm8() {
     let mut emu = emu64();
     // SHLD qword ptr [DATA_ADDR], RBX, imm8
     let code = [
-        0x48, 0x0f, 0xa4, 0x1c, 0x25, // SHLD qword ptr [DATA_ADDR], RBX, imm8
+        0x48,
+        0x0f,
+        0xa4,
+        0x1c,
+        0x25, // SHLD qword ptr [DATA_ADDR], RBX, imm8
         (DATA_ADDR & 0xFF) as u8,
         ((DATA_ADDR >> 8) & 0xFF) as u8,
         ((DATA_ADDR >> 16) & 0xFF) as u8,
@@ -417,9 +471,17 @@ fn test_shld_multi_precision_shift() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0xEDCBA98765432100, "RAX: low 64 bits shifted");
+    assert_eq!(
+        emu.regs().rax,
+        0xEDCBA98765432100,
+        "RAX: low 64 bits shifted"
+    );
     // RBX: 0x123456789ABCDEF0 << 4 with high 4 bits of 0xEDCBA98765432100
-    assert_eq!(emu.regs().rbx, 0x23456789ABCDEF0E, "RBX: high 64 bits with fill from RAX");
+    assert_eq!(
+        emu.regs().rbx,
+        0x23456789ABCDEF0E,
+        "RBX: high 64 bits with fill from RAX"
+    );
 }
 
 #[test]
@@ -436,7 +498,11 @@ fn test_shld_extract_bits() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x0000ABCD, "EAX: extracted high 16 bits from EBX");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x0000ABCD,
+        "EAX: extracted high 16 bits from EBX"
+    );
 }
 
 #[test]
@@ -452,7 +518,11 @@ fn test_shld_flag_behavior() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x00000000, "EAX: 0x80000000 SHLD 1 = 0x00000000");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x00000000,
+        "EAX: 0x80000000 SHLD 1 = 0x00000000"
+    );
     assert!(emu.flags().f_cf, "CF: bit shifted out was 1");
     // OF: sign changed from negative to positive
     assert!(emu.flags().f_of, "OF: sign changed");
@@ -474,7 +544,11 @@ fn test_shld_concatenate_values() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x00000000, "EAX: concatenated result");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x00000000,
+        "EAX: concatenated result"
+    );
 }
 
 #[test]

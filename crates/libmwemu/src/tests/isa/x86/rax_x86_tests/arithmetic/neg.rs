@@ -28,13 +28,17 @@ fn test_neg_al_positive() {
     let mut emu = emu64();
     let code = [
         0xf6, 0xd8, // NEG AL (F6 /3, ModRM=11_011_000)
-        0xf4,       // HLT
+        0xf4, // HLT
     ];
     emu.regs_mut().rax = 0x42; // 66
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFF, 0xBE, "NEG 0x42 (66) = 0xBE (-66 in two's complement)");
+    assert_eq!(
+        emu.regs().rax & 0xFF,
+        0xBE,
+        "NEG 0x42 (66) = 0xBE (-66 in two's complement)"
+    );
     assert!(emu.flags().f_cf, "CF should be set (operand was non-zero)");
     assert!(emu.flags().f_sf, "SF should be set (negative result)");
     assert!(!emu.flags().f_zf, "ZF should be clear");
@@ -49,7 +53,11 @@ fn test_neg_al_one() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFF, 0xFF, "NEG 1 = 0xFF (-1 in two's complement)");
+    assert_eq!(
+        emu.regs().rax & 0xFF,
+        0xFF,
+        "NEG 1 = 0xFF (-1 in two's complement)"
+    );
     assert!(emu.flags().f_cf, "CF should be set");
     assert!(emu.flags().f_sf, "SF should be set");
 }
@@ -95,7 +103,11 @@ fn test_neg_al_signed_overflow() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFF, 0x80, "NEG 0x80 (-128) = 0x80 (overflow)");
+    assert_eq!(
+        emu.regs().rax & 0xFF,
+        0x80,
+        "NEG 0x80 (-128) = 0x80 (overflow)"
+    );
     assert!(emu.flags().f_cf, "CF should be set (non-zero operand)");
     assert!(emu.flags().f_of, "OF should be set (signed overflow)");
     assert!(emu.flags().f_sf, "SF should be set");
@@ -155,7 +167,11 @@ fn test_neg_preserves_high_bytes_8bit() {
     emu.run(None).unwrap();
 
     assert_eq!(emu.regs().rax & 0xFF, 0x88, "AL: NEG 0x78 = 0x88");
-    assert_eq!(emu.regs().rax & !0xFF, 0xDEADBEEF_12345600, "High bytes preserved");
+    assert_eq!(
+        emu.regs().rax & !0xFF,
+        0xDEADBEEF_12345600,
+        "High bytes preserved"
+    );
 }
 
 // ============================================================================
@@ -203,7 +219,11 @@ fn test_neg_ax_signed_overflow() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFF, 0x8000, "NEG 0x8000 = 0x8000 (overflow)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0x8000,
+        "NEG 0x8000 = 0x8000 (overflow)"
+    );
     assert!(emu.flags().f_of, "OF should be set");
     assert!(emu.flags().f_cf, "CF should be set");
 }
@@ -244,7 +264,11 @@ fn test_neg_preserves_high_bytes_16bit() {
     emu.run(None).unwrap();
 
     assert_eq!(emu.regs().rax & 0xFFFF, 0xA988, "AX: NEG 0x5678");
-    assert_eq!(emu.regs().rax & !0xFFFF, 0xDEADBEEF_12340000, "Upper bits preserved");
+    assert_eq!(
+        emu.regs().rax & !0xFFFF,
+        0xDEADBEEF_12340000,
+        "Upper bits preserved"
+    );
 }
 
 // ============================================================================
@@ -292,7 +316,11 @@ fn test_neg_eax_signed_overflow() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x80000000, "NEG 0x80000000 = 0x80000000 (overflow)");
+    assert_eq!(
+        emu.regs().rax,
+        0x80000000,
+        "NEG 0x80000000 = 0x80000000 (overflow)"
+    );
     assert!(emu.flags().f_of, "OF should be set");
     assert!(emu.flags().f_cf, "CF should be set");
 }
@@ -393,7 +421,11 @@ fn test_neg_rax_signed_overflow() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x8000000000000000, "NEG 0x8000...000 = overflow");
+    assert_eq!(
+        emu.regs().rax,
+        0x8000000000000000,
+        "NEG 0x8000...000 = overflow"
+    );
     assert!(emu.flags().f_of, "OF should be set");
     assert!(emu.flags().f_cf, "CF should be set");
 }
@@ -693,7 +725,7 @@ fn test_neg_double_negation() {
     let code = [
         0xf6, 0xd8, // NEG AL (first time)
         0xf6, 0xd8, // NEG AL (second time)
-        0xf4,       // HLT
+        0xf4, // HLT
     ];
     emu.regs_mut().rax = 0x42;
     emu.load_code_bytes(&code);

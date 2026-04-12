@@ -27,7 +27,11 @@ fn test_bextr_eax_ebx_ecx_basic() {
     emu.run(None).unwrap();
 
     // 0x12345678 >> 4 = 0x01234567, mask 8 bits = 0x67
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x67, "EAX should contain extracted bits");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x67,
+        "EAX should contain extracted bits"
+    );
     assert!(!emu.flags().f_zf, "ZF should be clear (result is non-zero)");
     assert!(!emu.flags().f_cf, "CF should be clear");
 }
@@ -65,7 +69,11 @@ fn test_bextr_eax_ebx_ecx_start_0() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xFFFF, "EAX should contain lower 16 bits");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xFFFF,
+        "EAX should contain lower 16 bits"
+    );
     assert!(!emu.flags().f_zf, "ZF should be clear");
 }
 
@@ -101,7 +109,11 @@ fn test_bextr_eax_ebx_ecx_length_0() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0, "EAX should be zero (length=0)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0,
+        "EAX should be zero (length=0)"
+    );
     assert!(emu.flags().f_zf, "ZF should be set");
 }
 
@@ -119,7 +131,11 @@ fn test_bextr_eax_ebx_ecx_full_32bits() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x12345678, "EAX should contain all bits");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x12345678,
+        "EAX should contain all bits"
+    );
     assert!(!emu.flags().f_zf, "ZF should be clear");
 }
 
@@ -174,7 +190,11 @@ fn test_bextr_start_beyond_operand_size() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0, "EAX should be zero (start beyond size)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0,
+        "EAX should be zero (start beyond size)"
+    );
     assert!(emu.flags().f_zf, "ZF should be set");
 }
 
@@ -192,7 +212,11 @@ fn test_bextr_length_exceeds_remaining() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xFFF, "EAX should contain remaining bits");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xFFF,
+        "EAX should contain remaining bits"
+    );
     assert!(!emu.flags().f_zf, "ZF should be clear");
 }
 
@@ -211,7 +235,11 @@ fn test_bextr_with_extended_registers() {
     emu.run(None).unwrap();
 
     let expected = (0xABCDEF01 >> 4) & 0xFFF;
-    assert_eq!(emu.regs().r8 & 0xFFFFFFFF, expected, "R8D should contain extracted bits");
+    assert_eq!(
+        emu.regs().r8 & 0xFFFFFFFF,
+        expected,
+        "R8D should contain extracted bits"
+    );
 }
 
 #[test]
@@ -220,7 +248,8 @@ fn test_bextr_mem32() {
     let mut emu = emu64();
     // BEXTR EAX, [mem], ECX
     let code = [
-        0xc4, 0xe2, 0x70, 0xf7, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // BEXTR EAX, [DATA_ADDR], ECX
+        0xc4, 0xe2, 0x70, 0xf7, 0x04, 0x25, 0x00, 0x20, 0x00,
+        0x00, // BEXTR EAX, [DATA_ADDR], ECX
         0xf4,
     ];
     emu.regs_mut().rcx = (8 << 8) | 8; // length=8, start=8
@@ -228,7 +257,11 @@ fn test_bextr_mem32() {
     emu.maps.write_dword(DATA_ADDR, 0xAABBCCDD);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xCC, "EAX should contain extracted bits from memory");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xCC,
+        "EAX should contain extracted bits from memory"
+    );
 }
 
 #[test]
@@ -237,7 +270,8 @@ fn test_bextr_mem64() {
     let mut emu = emu64();
     // BEXTR RAX, [mem], RCX
     let code = [
-        0xc4, 0xe2, 0xf0, 0xf7, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // BEXTR RAX, [DATA_ADDR], RCX
+        0xc4, 0xe2, 0xf0, 0xf7, 0x04, 0x25, 0x00, 0x20, 0x00,
+        0x00, // BEXTR RAX, [DATA_ADDR], RCX
         0xf4,
     ];
     emu.regs_mut().rcx = (16 << 8) | 16; // length=16, start=16
@@ -245,7 +279,11 @@ fn test_bextr_mem64() {
     emu.maps.write_qword(DATA_ADDR, 0x0123456789ABCDEF);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x89AB, "RAX should contain extracted bits from memory");
+    assert_eq!(
+        emu.regs().rax,
+        0x89AB,
+        "RAX should contain extracted bits from memory"
+    );
 }
 
 #[test]
@@ -262,10 +300,15 @@ fn test_bextr_nibble_extraction() {
         emu.regs_mut().rbx = value;
         emu.regs_mut().rcx = (4 << 8) | (nibble_idx * 4); // length=4, start=nibble_idx*4
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
         let expected = (value >> (nibble_idx * 4)) & 0xF;
-        assert_eq!(emu.regs().rax & 0xFFFFFFFF, expected, "Should extract nibble {}", nibble_idx);
+        assert_eq!(
+            emu.regs().rax & 0xFFFFFFFF,
+            expected,
+            "Should extract nibble {}",
+            nibble_idx
+        );
     }
 }
 
@@ -283,10 +326,15 @@ fn test_bextr_byte_extraction() {
         emu.regs_mut().rbx = value;
         emu.regs_mut().rcx = (8 << 8) | (byte_idx * 8); // length=8, start=byte_idx*8
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
         let expected = (value >> (byte_idx * 8)) & 0xFF;
-        assert_eq!(emu.regs().rax & 0xFFFFFFFF, expected, "Should extract byte {}", byte_idx);
+        assert_eq!(
+            emu.regs().rax & 0xFFFFFFFF,
+            expected,
+            "Should extract byte {}",
+            byte_idx
+        );
     }
 }
 
@@ -303,7 +351,11 @@ fn test_bextr_alternating_pattern() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xAA, "EAX should contain extracted pattern");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xAA,
+        "EAX should contain extracted pattern"
+    );
 }
 
 #[test]
@@ -320,10 +372,15 @@ fn test_bextr_single_bit_scan() {
         emu.regs_mut().rbx = value;
         emu.regs_mut().rcx = (1 << 8) | bit_idx; // length=1, start=bit_idx
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
         let expected = ((value >> bit_idx) & 1) as u64;
-        assert_eq!(emu.regs().rax & 0xFFFFFFFF, expected, "Should extract bit {}", bit_idx);
+        assert_eq!(
+            emu.regs().rax & 0xFFFFFFFF,
+            expected,
+            "Should extract bit {}",
+            bit_idx
+        );
     }
 }
 
@@ -341,7 +398,11 @@ fn test_bextr_max_length_255() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xFFFFFFFF, "EAX should contain all 32 bits");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xFFFFFFFF,
+        "EAX should contain all 32 bits"
+    );
 }
 
 #[test]
@@ -358,8 +419,16 @@ fn test_bextr_preserves_source() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rbx & 0xFFFFFFFF, 0x12345678, "EBX should be unchanged");
-    assert_eq!(emu.regs().rcx & 0xFFFFFFFF, (8 << 8) | 4, "ECX should be unchanged");
+    assert_eq!(
+        emu.regs().rbx & 0xFFFFFFFF,
+        0x12345678,
+        "EBX should be unchanged"
+    );
+    assert_eq!(
+        emu.regs().rcx & 0xFFFFFFFF,
+        (8 << 8) | 4,
+        "ECX should be unchanged"
+    );
 }
 
 #[test]
@@ -377,7 +446,11 @@ fn test_bextr_zero_extension() {
     emu.run(None).unwrap();
 
     // 32-bit operation should zero upper 32 bits of RAX
-    assert_eq!(emu.regs().rax, 0xFF, "RAX should be zero-extended (upper bits cleared)");
+    assert_eq!(
+        emu.regs().rax,
+        0xFF,
+        "RAX should be zero-extended (upper bits cleared)"
+    );
 }
 
 #[test]
@@ -394,7 +467,11 @@ fn test_bextr_mask_creation() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xFFFF, "EAX should contain 16-bit mask");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xFFFF,
+        "EAX should contain 16-bit mask"
+    );
 }
 
 #[test]
@@ -410,7 +487,11 @@ fn test_bextr_field_alignment() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xDEAD, "EAX should contain upper 16 bits");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xDEAD,
+        "EAX should contain upper 16 bits"
+    );
 }
 
 #[test]
@@ -427,7 +508,11 @@ fn test_bextr_unaligned_field() {
     emu.run(None).unwrap();
 
     let expected = (0xFFFFFFFF >> 7) & 0x3FF;
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, expected, "EAX should contain 10 bits");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        expected,
+        "EAX should contain 10 bits"
+    );
 }
 
 #[test]
@@ -443,5 +528,9 @@ fn test_bextr_64bit_full_extraction() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x123456789ABCDEF0, "RAX should contain all 64 bits");
+    assert_eq!(
+        emu.regs().rax,
+        0x123456789ABCDEF0,
+        "RAX should contain all 64 bits"
+    );
 }

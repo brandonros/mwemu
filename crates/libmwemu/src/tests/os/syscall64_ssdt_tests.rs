@@ -1,9 +1,9 @@
 use std::sync::atomic::Ordering;
 
-use crate::windows::constants::*;
 use crate::maps::mem64::Permission;
 use crate::syscall::windows::syscall64;
 use crate::tests::helpers;
+use crate::windows::constants::*;
 use crate::*;
 
 fn setup_emu64_syscall() -> emu::Emu {
@@ -31,10 +31,11 @@ fn nt_query_virtual_memory_success_writes_output() {
     emu.regs_mut().rdx = 0x400100;
     emu.regs_mut().r8 = MEMORY_INFORMATION_CLASS_MEMORY_BASIC_INFORMATION;
     emu.regs_mut().r9 = 0x500100; // MEMORY_BASIC_INFORMATION output
-    emu.maps
-        .write_qword(emu.regs().rsp + 0x28, crate::windows::structures::MemoryBasicInformation64::SIZE); // out length
-    emu.maps
-        .write_qword(emu.regs().rsp + 0x30, 0x500080); // return length ptr
+    emu.maps.write_qword(
+        emu.regs().rsp + 0x28,
+        crate::windows::structures::MemoryBasicInformation64::SIZE,
+    ); // out length
+    emu.maps.write_qword(emu.regs().rsp + 0x30, 0x500080); // return length ptr
 
     syscall64::gateway(&mut emu);
 
@@ -99,7 +100,10 @@ fn nt_write_then_read_virtual_memory_roundtrip() {
     emu.maps.write_qword(emu.regs().rsp + 0x28, 0x550080); // bytes written ptr
     syscall64::gateway(&mut emu);
     assert_eq!(emu.regs().rax, STATUS_SUCCESS);
-    assert_eq!(emu.maps.read_qword(0x550080).unwrap_or(0), payload.len() as u64);
+    assert_eq!(
+        emu.maps.read_qword(0x550080).unwrap_or(0),
+        payload.len() as u64
+    );
 
     emu.regs_mut().rax = WIN64_NTREADVIRTUALMEMORY;
     emu.regs_mut().rcx = !0;
@@ -109,7 +113,10 @@ fn nt_write_then_read_virtual_memory_roundtrip() {
     emu.maps.write_qword(emu.regs().rsp + 0x28, 0x550088); // bytes read ptr
     syscall64::gateway(&mut emu);
     assert_eq!(emu.regs().rax, STATUS_SUCCESS);
-    assert_eq!(emu.maps.read_qword(0x550088).unwrap_or(0), payload.len() as u64);
+    assert_eq!(
+        emu.maps.read_qword(0x550088).unwrap_or(0),
+        payload.len() as u64
+    );
     assert_eq!(emu.maps.read_bytes(0x550100, payload.len()), payload);
 }
 

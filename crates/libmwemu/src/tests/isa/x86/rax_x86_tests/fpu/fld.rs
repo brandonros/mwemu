@@ -19,17 +19,20 @@ const DATA_ADDR: u64 = 0x2000;
 
 // Helper to write f32 to memory
 fn write_f32(mem: u64, addr: u64, value: f32) {
-    let mut emu = emu64();    emu.maps.write_bytes_slice(addr, &value.to_le_bytes());
+    let mut emu = emu64();
+    emu.maps.write_bytes_slice(addr, &value.to_le_bytes());
 }
 
 // Helper to write f64 to memory
 fn write_f64(mem: u64, addr: u64, value: f64) {
-    let mut emu = emu64();    emu.maps.write_bytes_slice(addr, &value.to_le_bytes());
+    let mut emu = emu64();
+    emu.maps.write_bytes_slice(addr, &value.to_le_bytes());
 }
 
 // Helper to read ST(0) as f64 from memory after FSTP
 fn read_st0_as_f64(mem: u64, addr: u64) -> f64 {
-    let emu = emu64();    let mut buf = [0u8; 8];
+    let emu = emu64();
+    let mut buf = [0u8; 8];
     emu.maps.read_bytes_buff(&mut buf, addr);
     f64::from_le_bytes(buf)
 }
@@ -40,9 +43,9 @@ fn read_st0_as_f64(mem: u64, addr: u64) -> f64 {
 
 #[test]
 fn test_fld_m32fp_positive_one() {
-    let mut emu = emu64();    // FLD dword ptr [0x2000]
-    // FSTP qword ptr [0x3000]  ; Store to verify
-    // HLT
+    let mut emu = emu64(); // FLD dword ptr [0x2000]
+                           // FSTP qword ptr [0x3000]  ; Store to verify
+                           // HLT
     let code = [
         0xD9, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD dword ptr [0x2000]
         0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword ptr [0x3000]
@@ -58,7 +61,8 @@ fn test_fld_m32fp_positive_one() {
 
 #[test]
 fn test_fld_m32fp_zero() {
-    let mut emu = emu64();    let code = [
+    let mut emu = emu64();
+    let code = [
         0xD9, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD dword ptr [0x2000]
         0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword ptr [0x3000]
         0xf4,
@@ -73,7 +77,8 @@ fn test_fld_m32fp_zero() {
 
 #[test]
 fn test_fld_m32fp_negative_zero() {
-    let mut emu = emu64();    let code = [
+    let mut emu = emu64();
+    let code = [
         0xD9, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD dword ptr [0x2000]
         0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword ptr [0x3000]
         0xf4,
@@ -88,7 +93,8 @@ fn test_fld_m32fp_negative_zero() {
 
 #[test]
 fn test_fld_m32fp_negative_one() {
-    let mut emu = emu64();    let code = [
+    let mut emu = emu64();
+    let code = [
         0xD9, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD dword ptr [0x2000]
         0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword ptr [0x3000]
         0xf4,
@@ -103,7 +109,8 @@ fn test_fld_m32fp_negative_one() {
 
 #[test]
 fn test_fld_m32fp_large_positive() {
-    let mut emu = emu64();    let code = [
+    let mut emu = emu64();
+    let code = [
         0xD9, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD dword ptr [0x2000]
         0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword ptr [0x3000]
         0xf4,
@@ -118,7 +125,8 @@ fn test_fld_m32fp_large_positive() {
 
 #[test]
 fn test_fld_m32fp_large_negative() {
-    let mut emu = emu64();    let code = [
+    let mut emu = emu64();
+    let code = [
         0xD9, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD dword ptr [0x2000]
         0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword ptr [0x3000]
         0xf4,
@@ -133,7 +141,8 @@ fn test_fld_m32fp_large_negative() {
 
 #[test]
 fn test_fld_m32fp_small_positive() {
-    let mut emu = emu64();    let code = [
+    let mut emu = emu64();
+    let code = [
         0xD9, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD dword ptr [0x2000]
         0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword ptr [0x3000]
         0xf4,
@@ -148,7 +157,8 @@ fn test_fld_m32fp_small_positive() {
 
 #[test]
 fn test_fld_m32fp_small_negative() {
-    let mut emu = emu64();    let code = [
+    let mut emu = emu64();
+    let code = [
         0xD9, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD dword ptr [0x2000]
         0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword ptr [0x3000]
         0xf4,
@@ -163,7 +173,8 @@ fn test_fld_m32fp_small_negative() {
 
 #[test]
 fn test_fld_m32fp_infinity_positive() {
-    let mut emu = emu64();    let code = [
+    let mut emu = emu64();
+    let code = [
         0xD9, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD dword ptr [0x2000]
         0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword ptr [0x3000]
         0xf4,
@@ -178,7 +189,8 @@ fn test_fld_m32fp_infinity_positive() {
 
 #[test]
 fn test_fld_m32fp_infinity_negative() {
-    let mut emu = emu64();    let code = [
+    let mut emu = emu64();
+    let code = [
         0xD9, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD dword ptr [0x2000]
         0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword ptr [0x3000]
         0xf4,
@@ -193,7 +205,8 @@ fn test_fld_m32fp_infinity_negative() {
 
 #[test]
 fn test_fld_m32fp_nan() {
-    let mut emu = emu64();    let code = [
+    let mut emu = emu64();
+    let code = [
         0xD9, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD dword ptr [0x2000]
         0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword ptr [0x3000]
         0xf4,
@@ -208,7 +221,8 @@ fn test_fld_m32fp_nan() {
 
 #[test]
 fn test_fld_m32fp_pi() {
-    let mut emu = emu64();    let code = [
+    let mut emu = emu64();
+    let code = [
         0xD9, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD dword ptr [0x2000]
         0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword ptr [0x3000]
         0xf4,
@@ -227,9 +241,9 @@ fn test_fld_m32fp_pi() {
 
 #[test]
 fn test_fld_m64fp_positive_one() {
-    let mut emu = emu64();    // FLD qword ptr [0x2000]
-    // FSTP qword ptr [0x3000]
-    // HLT
+    let mut emu = emu64(); // FLD qword ptr [0x2000]
+                           // FSTP qword ptr [0x3000]
+                           // HLT
     let code = [
         0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword ptr [0x2000]
         0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword ptr [0x3000]
@@ -245,7 +259,8 @@ fn test_fld_m64fp_positive_one() {
 
 #[test]
 fn test_fld_m64fp_zero() {
-    let mut emu = emu64();    let code = [
+    let mut emu = emu64();
+    let code = [
         0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword ptr [0x2000]
         0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword ptr [0x3000]
         0xf4,
@@ -260,7 +275,8 @@ fn test_fld_m64fp_zero() {
 
 #[test]
 fn test_fld_m64fp_negative_zero() {
-    let mut emu = emu64();    let code = [
+    let mut emu = emu64();
+    let code = [
         0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword ptr [0x2000]
         0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword ptr [0x3000]
         0xf4,
@@ -275,7 +291,8 @@ fn test_fld_m64fp_negative_zero() {
 
 #[test]
 fn test_fld_m64fp_negative_one() {
-    let mut emu = emu64();    let code = [
+    let mut emu = emu64();
+    let code = [
         0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword ptr [0x2000]
         0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword ptr [0x3000]
         0xf4,
@@ -290,7 +307,8 @@ fn test_fld_m64fp_negative_one() {
 
 #[test]
 fn test_fld_m64fp_large_positive() {
-    let mut emu = emu64();    let code = [
+    let mut emu = emu64();
+    let code = [
         0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword ptr [0x2000]
         0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword ptr [0x3000]
         0xf4,
@@ -305,7 +323,8 @@ fn test_fld_m64fp_large_positive() {
 
 #[test]
 fn test_fld_m64fp_large_negative() {
-    let mut emu = emu64();    let code = [
+    let mut emu = emu64();
+    let code = [
         0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword ptr [0x2000]
         0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword ptr [0x3000]
         0xf4,
@@ -320,7 +339,8 @@ fn test_fld_m64fp_large_negative() {
 
 #[test]
 fn test_fld_m64fp_small_positive() {
-    let mut emu = emu64();    let code = [
+    let mut emu = emu64();
+    let code = [
         0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword ptr [0x2000]
         0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword ptr [0x3000]
         0xf4,
@@ -335,7 +355,8 @@ fn test_fld_m64fp_small_positive() {
 
 #[test]
 fn test_fld_m64fp_small_negative() {
-    let mut emu = emu64();    let code = [
+    let mut emu = emu64();
+    let code = [
         0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword ptr [0x2000]
         0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword ptr [0x3000]
         0xf4,
@@ -350,7 +371,8 @@ fn test_fld_m64fp_small_negative() {
 
 #[test]
 fn test_fld_m64fp_infinity_positive() {
-    let mut emu = emu64();    let code = [
+    let mut emu = emu64();
+    let code = [
         0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword ptr [0x2000]
         0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword ptr [0x3000]
         0xf4,
@@ -365,7 +387,8 @@ fn test_fld_m64fp_infinity_positive() {
 
 #[test]
 fn test_fld_m64fp_infinity_negative() {
-    let mut emu = emu64();    let code = [
+    let mut emu = emu64();
+    let code = [
         0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword ptr [0x2000]
         0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword ptr [0x3000]
         0xf4,
@@ -380,7 +403,8 @@ fn test_fld_m64fp_infinity_negative() {
 
 #[test]
 fn test_fld_m64fp_nan() {
-    let mut emu = emu64();    let code = [
+    let mut emu = emu64();
+    let code = [
         0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword ptr [0x2000]
         0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword ptr [0x3000]
         0xf4,
@@ -395,7 +419,8 @@ fn test_fld_m64fp_nan() {
 
 #[test]
 fn test_fld_m64fp_pi() {
-    let mut emu = emu64();    let code = [
+    let mut emu = emu64();
+    let code = [
         0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword ptr [0x2000]
         0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword ptr [0x3000]
         0xf4,
@@ -410,7 +435,8 @@ fn test_fld_m64fp_pi() {
 
 #[test]
 fn test_fld_m64fp_e() {
-    let mut emu = emu64();    let code = [
+    let mut emu = emu64();
+    let code = [
         0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword ptr [0x2000]
         0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword ptr [0x3000]
         0xf4,
@@ -429,11 +455,11 @@ fn test_fld_m64fp_e() {
 
 #[test]
 fn test_fld_st0_duplicate_top() {
-    let mut emu = emu64();    // FLD qword ptr [0x2000]  ; Load 1.0 into ST(0)
-    // FLD ST(0)               ; Duplicate ST(0)
-    // FSTP qword ptr [0x3000] ; Store top (should be 1.0)
-    // FSTP qword ptr [0x4000] ; Store next (should also be 1.0)
-    // HLT
+    let mut emu = emu64(); // FLD qword ptr [0x2000]  ; Load 1.0 into ST(0)
+                           // FLD ST(0)               ; Duplicate ST(0)
+                           // FSTP qword ptr [0x3000] ; Store top (should be 1.0)
+                           // FSTP qword ptr [0x4000] ; Store next (should also be 1.0)
+                           // HLT
     let code = [
         0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword ptr [0x2000]
         0xD9, 0xC0, // FLD ST(0)
@@ -453,11 +479,11 @@ fn test_fld_st0_duplicate_top() {
 
 #[test]
 fn test_fld_st1() {
-    let mut emu = emu64();    // FLD qword ptr [0x2000]  ; Load 1.0 into ST(0)
-    // FLD qword ptr [0x2008]  ; Load 2.0 into ST(0), 1.0 is now ST(1)
-    // FLD ST(1)               ; Push ST(1) (1.0) onto stack
-    // FSTP qword ptr [0x3000] ; Store top (should be 1.0)
-    // HLT
+    let mut emu = emu64(); // FLD qword ptr [0x2000]  ; Load 1.0 into ST(0)
+                           // FLD qword ptr [0x2008]  ; Load 2.0 into ST(0), 1.0 is now ST(1)
+                           // FLD ST(1)               ; Push ST(1) (1.0) onto stack
+                           // FSTP qword ptr [0x3000] ; Store top (should be 1.0)
+                           // HLT
     let code = [
         0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword ptr [0x2000]
         0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00, // FLD qword ptr [0x2008]
@@ -476,7 +502,8 @@ fn test_fld_st1() {
 
 #[test]
 fn test_fld_st2() {
-    let mut emu = emu64();    let code = [
+    let mut emu = emu64();
+    let code = [
         0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword ptr [0x2000] ; 1.0
         0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00, // FLD qword ptr [0x2008] ; 2.0
         0xDD, 0x04, 0x25, 0x10, 0x20, 0x00, 0x00, // FLD qword ptr [0x2010] ; 3.0
@@ -500,7 +527,8 @@ fn test_fld_st2() {
 
 #[test]
 fn test_fld_stack_push_behavior() {
-    let mut emu = emu64();    let code = [
+    let mut emu = emu64();
+    let code = [
         0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword ptr [0x2000] ; 1.0
         0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00, // FLD qword ptr [0x2008] ; 2.0
         0xDD, 0x04, 0x25, 0x10, 0x20, 0x00, 0x00, // FLD qword ptr [0x2010] ; 3.0
@@ -522,11 +550,11 @@ fn test_fld_stack_push_behavior() {
 
 #[test]
 fn test_fld_multiple_formats() {
-    let mut emu = emu64();    // FLD dword ptr [0x2000]  ; Load f32
-    // FLD qword ptr [0x2008]  ; Load f64
-    // FSTP qword ptr [0x3000] ; Store f64 value
-    // FSTP qword ptr [0x3008] ; Store f32 value (converted to f64)
-    // HLT
+    let mut emu = emu64(); // FLD dword ptr [0x2000]  ; Load f32
+                           // FLD qword ptr [0x2008]  ; Load f64
+                           // FSTP qword ptr [0x3000] ; Store f64 value
+                           // FSTP qword ptr [0x3008] ; Store f32 value (converted to f64)
+                           // HLT
     let code = [
         0xD9, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD dword ptr [0x2000]
         0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00, // FLD qword ptr [0x2008]
@@ -549,7 +577,8 @@ fn test_fld_multiple_formats() {
 
 #[test]
 fn test_fld_max_f32() {
-    let mut emu = emu64();    let code = [
+    let mut emu = emu64();
+    let code = [
         0xD9, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD dword ptr [0x2000]
         0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword ptr [0x3000]
         0xf4,
@@ -564,7 +593,8 @@ fn test_fld_max_f32() {
 
 #[test]
 fn test_fld_min_positive_f32() {
-    let mut emu = emu64();    let code = [
+    let mut emu = emu64();
+    let code = [
         0xD9, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD dword ptr [0x2000]
         0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword ptr [0x3000]
         0xf4,
@@ -579,7 +609,8 @@ fn test_fld_min_positive_f32() {
 
 #[test]
 fn test_fld_max_f64() {
-    let mut emu = emu64();    let code = [
+    let mut emu = emu64();
+    let code = [
         0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword ptr [0x2000]
         0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword ptr [0x3000]
         0xf4,
@@ -594,7 +625,8 @@ fn test_fld_max_f64() {
 
 #[test]
 fn test_fld_min_positive_f64() {
-    let mut emu = emu64();    let code = [
+    let mut emu = emu64();
+    let code = [
         0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword ptr [0x2000]
         0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword ptr [0x3000]
         0xf4,
@@ -609,7 +641,8 @@ fn test_fld_min_positive_f64() {
 
 #[test]
 fn test_fld_various_fractions() {
-    let mut emu = emu64();    let code = [
+    let mut emu = emu64();
+    let code = [
         0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword ptr [0x2000]
         0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword ptr [0x3000]
         0xf4,
@@ -620,7 +653,7 @@ fn test_fld_various_fractions() {
         emu.load_code_bytes(&code);
         emu.maps.write_f64(DATA_ADDR, val);
 
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
         let result = emu.fpu_mut().get_st(0);
         assert_eq!(result, val, "Test value {} failed", i);
     }
@@ -628,7 +661,8 @@ fn test_fld_various_fractions() {
 
 #[test]
 fn test_fld_denormal_f32() {
-    let mut emu = emu64();    let code = [
+    let mut emu = emu64();
+    let code = [
         0xD9, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD dword ptr [0x2000]
         0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword ptr [0x3000]
         0xf4,
@@ -644,7 +678,8 @@ fn test_fld_denormal_f32() {
 
 #[test]
 fn test_fld_denormal_f64() {
-    let mut emu = emu64();    let code = [
+    let mut emu = emu64();
+    let code = [
         0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword ptr [0x2000]
         0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword ptr [0x3000]
         0xf4,
@@ -660,10 +695,9 @@ fn test_fld_denormal_f64() {
 
 #[test]
 fn test_fld_m32fp_subnormal() {
-    let mut emu = emu64();    let code = [
-        0xD9, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,
-        0xf4,
+    let mut emu = emu64();
+    let code = [
+        0xD9, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, 0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, 0xf4,
     ];
     emu.load_code_bytes(&code);
     let subnormal = f32::from_bits(0x00000001); // Smallest positive subnormal
@@ -676,10 +710,9 @@ fn test_fld_m32fp_subnormal() {
 
 #[test]
 fn test_fld_m64fp_subnormal() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,
-        0xf4,
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, 0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, 0xf4,
     ];
     emu.load_code_bytes(&code);
     let subnormal = f64::from_bits(0x0000000000000001); // Smallest positive subnormal
@@ -692,14 +725,14 @@ fn test_fld_m64fp_subnormal() {
 
 #[test]
 fn test_fld_st_all_registers() {
-    let mut emu = emu64();    let code = [
+    let mut emu = emu64();
+    let code = [
         0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD 1.0
         0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00, // FLD 2.0
         0xDD, 0x04, 0x25, 0x10, 0x20, 0x00, 0x00, // FLD 3.0
         0xDD, 0x04, 0x25, 0x18, 0x20, 0x00, 0x00, // FLD 4.0
         0xD9, 0xC3, // FLD ST(3) ; Push 1.0
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,
-        0xf4,
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, 0xf4,
     ];
     emu.load_code_bytes(&code);
     emu.maps.write_f64(DATA_ADDR, 1.0);

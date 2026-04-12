@@ -38,7 +38,7 @@ fn test_adc_al_imm8_no_carry() {
     // ADC AL, 5 with CF=0
     let code = [
         0x14, 0x05, // ADC AL, 5
-        0xf4,       // HLT
+        0xf4, // HLT
     ];
     emu.regs_mut().rax = 0x0A;
     emu.load_code_bytes(&code);
@@ -86,7 +86,7 @@ fn test_adc_r8_r8_no_carry() {
     // ADC AL, BL with CF=0
     let code = [
         0x10, 0xd8, // ADC AL, BL (ModRM: 11_011_000)
-        0xf4,       // HLT
+        0xf4, // HLT
     ];
     emu.regs_mut().rax = 0x20;
     emu.regs_mut().rbx = 0x15;
@@ -108,7 +108,11 @@ fn test_adc_r8_r8_with_carry() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFF, 0x81, "AL should be 0x81 (127 + 1 + 1)");
+    assert_eq!(
+        emu.regs().rax & 0xFF,
+        0x81,
+        "AL should be 0x81 (127 + 1 + 1)"
+    );
     assert!(emu.flags().f_sf, "SF should be set");
     assert!(emu.flags().f_of, "OF should be set (signed overflow)");
 }
@@ -118,9 +122,9 @@ fn test_adc_all_8bit_registers() {
     let DATA_ADDR = 0x7000;
     let mut emu = emu64();
     let test_cases = vec![
-        (0xd8, "AL"),  // ADC AL, BL
-        (0xc8, "AL"),  // ADC AL, CL
-        (0xd0, "AL"),  // ADC AL, DL
+        (0xd8, "AL"), // ADC AL, BL
+        (0xc8, "AL"), // ADC AL, CL
+        (0xd0, "AL"), // ADC AL, DL
     ];
 
     for (modrm, _name) in test_cases {
@@ -131,7 +135,7 @@ fn test_adc_all_8bit_registers() {
         emu.regs_mut().rdx = 0x07;
         emu.flags_mut().load(0x01); // Set CF
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
         // Result should include carry
         assert!((emu.regs().rax & 0xFF) > 0x10, "ADC should add carry");
@@ -145,7 +149,7 @@ fn test_adc_extended_r8_registers() {
     // ADC R8B, R9B with CF=1
     let code = [
         0x45, 0x10, 0xc8, // ADC R8B, R9B (REX.RB + 10 /r)
-        0xf4,             // HLT
+        0xf4, // HLT
     ];
     emu.regs_mut().r8 = 0x40;
     emu.regs_mut().r9 = 0x30;
@@ -153,7 +157,11 @@ fn test_adc_extended_r8_registers() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().r8 & 0xFF, 0x71, "R8B should be 0x71 (64 + 48 + 1)");
+    assert_eq!(
+        emu.regs().r8 & 0xFF,
+        0x71,
+        "R8B should be 0x71 (64 + 48 + 1)"
+    );
 }
 
 // ============================================================================
@@ -167,7 +175,7 @@ fn test_adc_ax_imm16_no_carry() {
     // ADC AX, 0x1234 with CF=0
     let code = [
         0x66, 0x15, 0x34, 0x12, // ADC AX, 0x1234
-        0xf4,                   // HLT
+        0xf4, // HLT
     ];
     emu.regs_mut().rax = 0x5678;
     emu.load_code_bytes(&code);
@@ -200,7 +208,7 @@ fn test_adc_r16_r16() {
     // ADC AX, BX with CF=1
     let code = [
         0x66, 0x11, 0xd8, // ADC AX, BX
-        0xf4,             // HLT
+        0xf4, // HLT
     ];
     emu.regs_mut().rax = 0x1000;
     emu.regs_mut().rbx = 0x2000;
@@ -218,7 +226,7 @@ fn test_adc_r16_imm8_sign_extended() {
     // ADC AX, -1 (sign-extended from imm8)
     let code = [
         0x66, 0x83, 0xd0, 0xFF, // ADC AX, -1 (sign-extended)
-        0xf4,                   // HLT
+        0xf4, // HLT
     ];
     emu.regs_mut().rax = 0x1000;
     emu.load_code_bytes(&code);
@@ -235,7 +243,7 @@ fn test_adc_extended_r16_registers() {
     // ADC R10W, R11W with CF=1
     let code = [
         0x66, 0x45, 0x11, 0xda, // ADC R10W, R11W
-        0xf4,                   // HLT
+        0xf4, // HLT
     ];
     emu.regs_mut().r10 = 0x8000;
     emu.regs_mut().r11 = 0x7FFF;
@@ -258,7 +266,7 @@ fn test_adc_eax_imm32_no_carry() {
     // ADC EAX, 0x12345678 with CF=0
     let code = [
         0x15, 0x78, 0x56, 0x34, 0x12, // ADC EAX, 0x12345678
-        0xf4,                         // HLT
+        0xf4, // HLT
     ];
     emu.regs_mut().rax = 0x11111111;
     emu.load_code_bytes(&code);
@@ -291,7 +299,7 @@ fn test_adc_r32_r32() {
     // ADC EAX, EBX with CF=1
     let code = [
         0x11, 0xd8, // ADC EAX, EBX
-        0xf4,       // HLT
+        0xf4, // HLT
     ];
     emu.regs_mut().rax = 0x80000000;
     emu.regs_mut().rbx = 0x7FFFFFFF;
@@ -310,7 +318,7 @@ fn test_adc_r32_imm8_sign_extended() {
     // ADC EAX, -1 (sign-extended from imm8)
     let code = [
         0x83, 0xd0, 0xFF, // ADC EAX, -1
-        0xf4,             // HLT
+        0xf4, // HLT
     ];
     emu.regs_mut().rax = 0x10000000;
     emu.load_code_bytes(&code);
@@ -326,7 +334,7 @@ fn test_adc_extended_r32_registers() {
     // ADC R12D, R13D with CF=1
     let code = [
         0x45, 0x11, 0xec, // ADC R12D, R13D
-        0xf4,             // HLT
+        0xf4, // HLT
     ];
     emu.regs_mut().r12 = 0xFFFFFFFF;
     emu.regs_mut().r13 = 0x00000001;
@@ -349,7 +357,7 @@ fn test_adc_rax_imm32_no_carry() {
     // ADC RAX, 0x12345678 (sign-extended to 64-bit)
     let code = [
         0x48, 0x15, 0x78, 0x56, 0x34, 0x12, // ADC RAX, 0x12345678
-        0xf4,                               // HLT
+        0xf4, // HLT
     ];
     emu.regs_mut().rax = 0x1111111111111111;
     emu.load_code_bytes(&code);
@@ -370,7 +378,11 @@ fn test_adc_rax_imm32_with_carry() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x0000000080000001, "RAX should be 0x80000001");
+    assert_eq!(
+        emu.regs().rax,
+        0x0000000080000001,
+        "RAX should be 0x80000001"
+    );
 }
 
 #[test]
@@ -380,7 +392,7 @@ fn test_adc_r64_r64() {
     // ADC RAX, RBX with CF=1
     let code = [
         0x48, 0x11, 0xd8, // ADC RAX, RBX
-        0xf4,             // HLT
+        0xf4, // HLT
     ];
     emu.regs_mut().rax = 0xFFFFFFFFFFFFFFFF;
     emu.regs_mut().rbx = 0x0000000000000001;
@@ -399,13 +411,17 @@ fn test_adc_r64_imm8_sign_extended() {
     // ADC RAX, -1 (sign-extended from imm8)
     let code = [
         0x48, 0x83, 0xd0, 0xFF, // ADC RAX, -1
-        0xf4,                   // HLT
+        0xf4, // HLT
     ];
     emu.regs_mut().rax = 0x1000000000000000;
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x0FFFFFFFFFFFFFFF, "RAX should be decremented");
+    assert_eq!(
+        emu.regs().rax,
+        0x0FFFFFFFFFFFFFFF,
+        "RAX should be decremented"
+    );
 }
 
 #[test]
@@ -415,7 +431,7 @@ fn test_adc_extended_r64_registers() {
     // ADC R14, R15 with CF=1
     let code = [
         0x4d, 0x11, 0xfe, // ADC R14, R15
-        0xf4,             // HLT
+        0xf4, // HLT
     ];
     emu.regs_mut().r14 = 0x8000000000000000;
     emu.regs_mut().r15 = 0x7FFFFFFFFFFFFFFF;
@@ -438,7 +454,7 @@ fn test_adc_byte_ptr_imm8() {
     // ADC BYTE PTR [mem], 0x10 with CF=1
     let code = [
         0x80, 0x15, 0xF9, 0x0F, 0x00, 0x00, 0x10, // ADC BYTE PTR [rip+0x0FF9], 0x10
-        0xf4,                                      // HLT
+        0xf4, // HLT
     ];
     emu.load_code_bytes(&code);
     emu.maps.write_byte(DATA_ADDR, 0x20);
@@ -457,8 +473,9 @@ fn test_adc_word_ptr_imm16() {
     let mut emu = emu64();
     // ADC WORD PTR [mem], 0x1000 with CF=1
     let code = [
-        0x66, 0x81, 0x15, 0xF7, 0x0F, 0x00, 0x00, 0x00, 0x10, // ADC WORD PTR [rip+0x0FF7], 0x1000
-        0xf4,                                                  // HLT
+        0x66, 0x81, 0x15, 0xF7, 0x0F, 0x00, 0x00, 0x00,
+        0x10, // ADC WORD PTR [rip+0x0FF7], 0x1000
+        0xf4, // HLT
     ];
     emu.load_code_bytes(&code);
     emu.maps.write_word(DATA_ADDR, 0x2000);
@@ -476,8 +493,9 @@ fn test_adc_dword_ptr_r32() {
     let mut emu = emu64();
     // ADC DWORD PTR [mem], EBX with CF=1
     let code = [
-        0x11, 0x1d, 0xFA, 0x0F, 0x00, 0x00, // ADC DWORD PTR [rip+0x0FFA], EBX (target: 0x2000)
-        0xf4,                               // HLT
+        0x11, 0x1d, 0xFA, 0x0F, 0x00,
+        0x00, // ADC DWORD PTR [rip+0x0FFA], EBX (target: 0x2000)
+        0xf4, // HLT
     ];
     emu.regs_mut().rbx = 0x30000000;
     emu.flags_mut().load(0x01); // Set CF
@@ -496,8 +514,9 @@ fn test_adc_qword_ptr_r64() {
     let mut emu = emu64();
     // ADC QWORD PTR [mem], RBX with CF=1
     let code = [
-        0x48, 0x11, 0x1d, 0xF9, 0x0F, 0x00, 0x00, // ADC QWORD PTR [rip+0x0FF9], RBX (target: 0x2000)
-        0xf4,                                      // HLT
+        0x48, 0x11, 0x1d, 0xF9, 0x0F, 0x00,
+        0x00, // ADC QWORD PTR [rip+0x0FF9], RBX (target: 0x2000)
+        0xf4, // HLT
     ];
     emu.load_code_bytes(&code);
     emu.maps.write_qword(DATA_ADDR, 0x1000000000000000);
@@ -517,7 +536,7 @@ fn test_adc_r64_from_memory() {
     // ADC RAX, QWORD PTR [mem] with CF=1
     let code = [
         0x48, 0x13, 0x05, 0xF9, 0x0F, 0x00, 0x00, // ADC RAX, QWORD PTR [rip+0x0FF6]
-        0xf4,                                      // HLT
+        0xf4, // HLT
     ];
     emu.load_code_bytes(&code);
     emu.maps.write_qword(DATA_ADDR, 0x0FFFFFFFFFFFFFFF);
@@ -526,7 +545,11 @@ fn test_adc_r64_from_memory() {
 
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x2000000000000000, "RAX should be correct sum");
+    assert_eq!(
+        emu.regs().rax,
+        0x2000000000000000,
+        "RAX should be correct sum"
+    );
 }
 
 // ============================================================================
@@ -620,17 +643,25 @@ fn test_adc_chain_64bit_addition() {
     let code = [
         0x48, 0x01, 0xd8, // ADD RAX, RBX (low 64 bits)
         0x49, 0x11, 0xc8, // ADC R8, RCX (high 64 bits, with carry)
-        0xf4,             // HLT
+        0xf4, // HLT
     ];
     emu.regs_mut().rax = 0xFFFFFFFFFFFFFFFF; // Low 64 bits of first number
-    emu.regs_mut().r8 = 0x0000000000000001;  // High 64 bits of first number
+    emu.regs_mut().r8 = 0x0000000000000001; // High 64 bits of first number
     emu.regs_mut().rbx = 0x0000000000000002; // Low 64 bits of second number
     emu.regs_mut().rcx = 0x0000000000000000; // High 64 bits of second number
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x0000000000000001, "Low 64 bits should be 1");
-    assert_eq!(emu.regs().r8, 0x0000000000000002, "High 64 bits should be 2 (with carry)");
+    assert_eq!(
+        emu.regs().rax,
+        0x0000000000000001,
+        "Low 64 bits should be 1"
+    );
+    assert_eq!(
+        emu.regs().r8,
+        0x0000000000000002,
+        "High 64 bits should be 2 (with carry)"
+    );
 }
 
 #[test]
@@ -642,7 +673,11 @@ fn test_adc_preserves_high_bits_8bit() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax >> 8, 0xDEADBEEF123456, "High bits should be preserved");
+    assert_eq!(
+        emu.regs().rax >> 8,
+        0xDEADBEEF123456,
+        "High bits should be preserved"
+    );
 }
 
 #[test]
@@ -654,7 +689,11 @@ fn test_adc_preserves_high_bits_16bit() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax >> 16, 0xDEADBEEF1234, "High bits should be preserved");
+    assert_eq!(
+        emu.regs().rax >> 16,
+        0xDEADBEEF1234,
+        "High bits should be preserved"
+    );
 }
 
 #[test]
@@ -667,7 +706,11 @@ fn test_adc_preserves_high_bits_32bit() {
     emu.run(None).unwrap();
 
     // EAX operation zeros high 32 bits
-    assert_eq!(emu.regs().rax >> 32, 0, "High 32 bits should be zeroed for 32-bit op");
+    assert_eq!(
+        emu.regs().rax >> 32,
+        0,
+        "High 32 bits should be zeroed for 32-bit op"
+    );
 }
 
 // ============================================================================

@@ -26,7 +26,11 @@ fn test_bsr_ax_bx_bit_0() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFF, 0, "AX should contain 0 (bit 0 is MSB)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0,
+        "AX should contain 0 (bit 0 is MSB)"
+    );
     assert!(!emu.flags().f_zf, "ZF should be clear (source is non-zero)");
 }
 
@@ -43,7 +47,11 @@ fn test_bsr_ax_bx_bit_15() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFF, 15, "AX should contain 15 (bit 15 is MSB)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        15,
+        "AX should contain 15 (bit 15 is MSB)"
+    );
     assert!(!emu.flags().f_zf, "ZF should be clear (source is non-zero)");
 }
 
@@ -60,7 +68,11 @@ fn test_bsr_eax_ebx_bit_0() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0, "EAX should contain 0 (bit 0 is MSB)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0,
+        "EAX should contain 0 (bit 0 is MSB)"
+    );
     assert!(!emu.flags().f_zf, "ZF should be clear (source is non-zero)");
 }
 
@@ -77,7 +89,11 @@ fn test_bsr_eax_ebx_bit_31() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 31, "EAX should contain 31 (bit 31 is MSB)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        31,
+        "EAX should contain 31 (bit 31 is MSB)"
+    );
     assert!(!emu.flags().f_zf, "ZF should be clear (source is non-zero)");
 }
 
@@ -144,7 +160,11 @@ fn test_bsr_multiple_bits_finds_highest() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 7, "EAX should contain 7 (highest bit set)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        7,
+        "EAX should contain 7 (highest bit set)"
+    );
     assert!(!emu.flags().f_zf, "ZF should be clear");
 }
 
@@ -161,7 +181,11 @@ fn test_bsr_all_bits_set() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 31, "EAX should contain 31 (bit 31 is highest)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        31,
+        "EAX should contain 31 (bit 31 is highest)"
+    );
     assert!(!emu.flags().f_zf, "ZF should be clear");
 }
 
@@ -178,7 +202,11 @@ fn test_bsr_alternating_bits() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 31, "EAX should contain 31 (highest bit set)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        31,
+        "EAX should contain 31 (highest bit set)"
+    );
     assert!(!emu.flags().f_zf, "ZF should be clear");
 }
 
@@ -195,7 +223,11 @@ fn test_bsr_alternating_bits_inverted() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 30, "EAX should contain 30 (highest bit set)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        30,
+        "EAX should contain 30 (highest bit set)"
+    );
     assert!(!emu.flags().f_zf, "ZF should be clear");
 }
 
@@ -210,9 +242,15 @@ fn test_bsr_single_bit_positions() {
         ];
         emu.regs_mut().rbx = 1u64 << bit_pos;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
-        assert_eq!(emu.regs().rax & 0xFFFFFFFF, bit_pos as u64, "EAX should contain {} for bit {}", bit_pos, bit_pos);
+        assert_eq!(
+            emu.regs().rax & 0xFFFFFFFF,
+            bit_pos as u64,
+            "EAX should contain {} for bit {}",
+            bit_pos,
+            bit_pos
+        );
         assert!(!emu.flags().f_zf, "ZF should be clear for bit {}", bit_pos);
     }
 }
@@ -365,7 +403,11 @@ fn test_bsr_sparse_pattern() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 31, "EAX should contain 31 (higher bit)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        31,
+        "EAX should contain 31 (higher bit)"
+    );
     assert!(!emu.flags().f_zf, "ZF should be clear");
 }
 
@@ -382,7 +424,11 @@ fn test_bsr_consecutive_bits() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 23, "EAX should contain 23 (highest of consecutive bits)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        23,
+        "EAX should contain 23 (highest of consecutive bits)"
+    );
     assert!(!emu.flags().f_zf, "ZF should be clear");
 }
 
@@ -399,7 +445,11 @@ fn test_bsr_preserves_source() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rbx & 0xFFFFFFFF, 0x12345678, "EBX should be unchanged");
+    assert_eq!(
+        emu.regs().rbx & 0xFFFFFFFF,
+        0x12345678,
+        "EBX should be unchanged"
+    );
 }
 
 #[test]
@@ -431,9 +481,15 @@ fn test_bsr_power_of_two() {
         ];
         emu.regs_mut().rbx = 1u64 << i;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
-        assert_eq!(emu.regs().rax & 0xFFFFFFFF, i as u64, "EAX should contain {} for 2^{}", i, i);
+        assert_eq!(
+            emu.regs().rax & 0xFFFFFFFF,
+            i as u64,
+            "EAX should contain {} for 2^{}",
+            i,
+            i
+        );
     }
 }
 
@@ -450,7 +506,11 @@ fn test_bsr_leading_zeros() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 11, "EAX should contain 11 (highest bit set)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        11,
+        "EAX should contain 11 (highest bit set)"
+    );
     assert!(!emu.flags().f_zf, "ZF should be clear");
 }
 

@@ -23,7 +23,11 @@ fn test_blsmsk_eax_ebx_bit_0() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0b0000_0001, "EAX should contain mask up to bit 0");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0b0000_0001,
+        "EAX should contain mask up to bit 0"
+    );
     assert!(!emu.flags().f_zf, "ZF should be clear (source is non-zero)");
     assert!(!emu.flags().f_cf, "CF should be clear (source is non-zero)");
 }
@@ -41,7 +45,11 @@ fn test_blsmsk_eax_ebx_bit_3() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0b0000_1111, "EAX should contain mask up to bit 3 (bits 0-3)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0b0000_1111,
+        "EAX should contain mask up to bit 3 (bits 0-3)"
+    );
     assert!(!emu.flags().f_zf, "ZF should be clear");
     assert!(!emu.flags().f_cf, "CF should be clear");
 }
@@ -59,7 +67,11 @@ fn test_blsmsk_eax_ebx_bit_31() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xFFFFFFFF, "EAX should contain mask up to bit 31 (all bits)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xFFFFFFFF,
+        "EAX should contain mask up to bit 31 (all bits)"
+    );
     assert!(!emu.flags().f_zf, "ZF should be clear");
 }
 
@@ -76,7 +88,11 @@ fn test_blsmsk_rax_rbx_bit_0() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0b0000_0001, "RAX should contain mask up to bit 0");
+    assert_eq!(
+        emu.regs().rax,
+        0b0000_0001,
+        "RAX should contain mask up to bit 0"
+    );
     assert!(!emu.flags().f_zf, "ZF should be clear");
 }
 
@@ -93,7 +109,11 @@ fn test_blsmsk_rax_rbx_bit_63() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0xFFFF_FFFF_FFFF_FFFF, "RAX should contain mask up to bit 63 (all bits)");
+    assert_eq!(
+        emu.regs().rax,
+        0xFFFF_FFFF_FFFF_FFFF,
+        "RAX should contain mask up to bit 63 (all bits)"
+    );
     assert!(!emu.flags().f_zf, "ZF should be clear");
 }
 
@@ -110,7 +130,11 @@ fn test_blsmsk_zero_source() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xFFFFFFFF, "EAX should be all ones (src ^ (src-1) = 0 ^ -1)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xFFFFFFFF,
+        "EAX should be all ones (src ^ (src-1) = 0 ^ -1)"
+    );
     assert!(!emu.flags().f_zf, "ZF should be clear (BLSMSK clears ZF)");
     assert!(emu.flags().f_cf, "CF should be set (source is zero)");
 }
@@ -128,7 +152,11 @@ fn test_blsmsk_multiple_bits_uses_lowest() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0b0000_1111, "EAX should contain mask up to bit 3 (lowest)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0b0000_1111,
+        "EAX should contain mask up to bit 3 (lowest)"
+    );
     assert!(!emu.flags().f_zf, "ZF should be clear");
 }
 
@@ -145,7 +173,11 @@ fn test_blsmsk_all_bits_set() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 1, "EAX should contain mask up to bit 0");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        1,
+        "EAX should contain mask up to bit 0"
+    );
     assert!(!emu.flags().f_zf, "ZF should be clear");
 }
 
@@ -162,7 +194,11 @@ fn test_blsmsk_alternating_pattern() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0b11, "EAX should contain mask up to bit 1");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0b11,
+        "EAX should contain mask up to bit 1"
+    );
     assert!(!emu.flags().f_zf, "ZF should be clear");
 }
 
@@ -179,7 +215,11 @@ fn test_blsmsk_alternating_pattern_inverted() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 1, "EAX should contain mask up to bit 0");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        1,
+        "EAX should contain mask up to bit 0"
+    );
     assert!(!emu.flags().f_zf, "ZF should be clear");
 }
 
@@ -194,10 +234,15 @@ fn test_blsmsk_single_bit_positions() {
         ];
         emu.regs_mut().rbx = 1u64 << bit_pos;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
         let expected = (1u64 << (bit_pos + 1)) - 1;
-        assert_eq!(emu.regs().rax & 0xFFFFFFFF, expected, "EAX should contain mask for bit {}", bit_pos);
+        assert_eq!(
+            emu.regs().rax & 0xFFFFFFFF,
+            expected,
+            "EAX should contain mask for bit {}",
+            bit_pos
+        );
         assert!(!emu.flags().f_zf, "ZF should be clear for bit {}", bit_pos);
     }
 }
@@ -215,7 +260,11 @@ fn test_blsmsk_with_extended_registers() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().r8 & 0xFFFFFFFF, 0b0001_1111, "R8D should contain mask up to bit 4");
+    assert_eq!(
+        emu.regs().r8 & 0xFFFFFFFF,
+        0b0001_1111,
+        "R8D should contain mask up to bit 4"
+    );
     assert!(!emu.flags().f_zf, "ZF should be clear");
 }
 
@@ -233,7 +282,11 @@ fn test_blsmsk_r15() {
     emu.run(None).unwrap();
 
     let expected = (1u64 << 33) - 1;
-    assert_eq!(emu.regs().r15, expected, "R15 should contain mask up to bit 32");
+    assert_eq!(
+        emu.regs().r15,
+        expected,
+        "R15 should contain mask up to bit 32"
+    );
 }
 
 #[test]
@@ -250,7 +303,11 @@ fn test_blsmsk_mem32() {
     emu.run(None).unwrap();
 
     let expected = (1u32 << 13) - 1;
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, expected as u64, "EAX should contain mask up to bit 12");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        expected as u64,
+        "EAX should contain mask up to bit 12"
+    );
 }
 
 #[test]
@@ -267,7 +324,11 @@ fn test_blsmsk_mem64() {
     emu.run(None).unwrap();
 
     let expected = (1u64 << 41) - 1;
-    assert_eq!(emu.regs().rax, expected, "RAX should contain mask up to bit 40");
+    assert_eq!(
+        emu.regs().rax,
+        expected,
+        "RAX should contain mask up to bit 40"
+    );
 }
 
 #[test]
@@ -284,7 +345,11 @@ fn test_blsmsk_trailing_zeros() {
     emu.run(None).unwrap();
 
     let expected = (1u32 << 13) - 1;
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, expected as u64, "EAX should contain 13-bit mask");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        expected as u64,
+        "EAX should contain 13-bit mask"
+    );
 }
 
 #[test]
@@ -301,7 +366,11 @@ fn test_blsmsk_sparse_pattern() {
     emu.run(None).unwrap();
 
     let expected = (1u32 << 13) - 1;
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, expected as u64, "EAX should contain mask up to bit 12 (lowest)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        expected as u64,
+        "EAX should contain mask up to bit 12 (lowest)"
+    );
 }
 
 #[test]
@@ -317,7 +386,11 @@ fn test_blsmsk_preserves_source() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rbx & 0xFFFFFFFF, 0x12345678, "EBX should be unchanged");
+    assert_eq!(
+        emu.regs().rbx & 0xFFFFFFFF,
+        0x12345678,
+        "EBX should be unchanged"
+    );
 }
 
 #[test]
@@ -335,7 +408,11 @@ fn test_blsmsk_vs_xor_sub1() {
     emu.run(None).unwrap();
 
     let expected = value ^ (value.wrapping_sub(1));
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, expected as u64, "BLSMSK should equal src ^ (src-1)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        expected as u64,
+        "BLSMSK should equal src ^ (src-1)"
+    );
 }
 
 #[test]
@@ -350,10 +427,16 @@ fn test_blsmsk_power_of_two() {
         ];
         emu.regs_mut().rbx = 1u64 << i;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
         let expected = (1u64 << (i + 1)) - 1;
-        assert_eq!(emu.regs().rax & 0xFFFFFFFF, expected, "BLSMSK(2^{}) should create {}-bit mask", i, i + 1);
+        assert_eq!(
+            emu.regs().rax & 0xFFFFFFFF,
+            expected,
+            "BLSMSK(2^{}) should create {}-bit mask",
+            i,
+            i + 1
+        );
     }
 }
 
@@ -371,7 +454,11 @@ fn test_blsmsk_consecutive_bits() {
     emu.run(None).unwrap();
 
     let expected = (1u32 << 17) - 1;
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, expected as u64, "EAX should contain mask up to bit 16");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        expected as u64,
+        "EAX should contain mask up to bit 16"
+    );
 }
 
 #[test]
@@ -387,7 +474,11 @@ fn test_blsmsk_sign_bit() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xFFFFFFFF, "EAX should contain all bits");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xFFFFFFFF,
+        "EAX should contain all bits"
+    );
 }
 
 #[test]
@@ -412,9 +503,15 @@ fn test_blsmsk_creates_bit_masks() {
         ];
         emu.regs_mut().rbx = input;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
-        assert_eq!(emu.regs().rax & 0xFFFFFFFF, expected, "BLSMSK(0x{:08X}) should be 0x{:08X}", input, expected);
+        assert_eq!(
+            emu.regs().rax & 0xFFFFFFFF,
+            expected,
+            "BLSMSK(0x{:08X}) should be 0x{:08X}",
+            input,
+            expected
+        );
     }
 }
 
@@ -449,7 +546,11 @@ fn test_blsmsk_mixed_high_low() {
     emu.run(None).unwrap();
 
     let expected = (1u64 << 9) - 1;
-    assert_eq!(emu.regs().rax, expected, "RAX should contain 9-bit mask (up to bit 8)");
+    assert_eq!(
+        emu.regs().rax,
+        expected,
+        "RAX should contain 9-bit mask (up to bit 8)"
+    );
 }
 
 #[test]

@@ -36,7 +36,11 @@ fn test_shrd_ax_bx_imm8() {
     // AX: 0001_0010_0011_0100 shifted right by 4
     // Bits from BX (1010_1011_1100_1101) fill from left
     // Result: 1101_0001_0010_0011
-    assert_eq!(emu.regs().rax & 0xFFFF, 0xD123, "AX: 0x1234 SHRD 4 from 0xABCD = 0xD123");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0xD123,
+        "AX: 0x1234 SHRD 4 from 0xABCD = 0xD123"
+    );
     assert!(!emu.flags().f_cf, "CF: bit shifted out was 0");
 }
 
@@ -49,7 +53,11 @@ fn test_shrd_ax_bx_cl() {
     emu.regs_mut().rcx = 0x08; // Shift by 8
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
-    assert_eq!(emu.regs().rax & 0xFFFF, 0xCD12, "AX: 0x1234 SHRD 8 from 0xABCD = 0xCD12");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0xCD12,
+        "AX: 0x1234 SHRD 8 from 0xABCD = 0xCD12"
+    );
 }
 
 #[test]
@@ -60,7 +68,11 @@ fn test_shrd_ax_bx_1bit() {
     emu.regs_mut().rbx = 0x0001; // Will put 1 in MSB position
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
-    assert_eq!(emu.regs().rax & 0xFFFF, 0x8001, "AX: 0x0002 SHRD 1 with MSB from source");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0x8001,
+        "AX: 0x0002 SHRD 1 with MSB from source"
+    );
     assert!(!emu.flags().f_cf, "CF: bit shifted out was 0");
     assert!(emu.flags().f_of, "OF: sign changed from + to -");
 }
@@ -73,7 +85,11 @@ fn test_shrd_ax_full_replacement() {
     emu.regs_mut().rbx = 0xABCD;
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
-    assert_eq!(emu.regs().rax & 0xFFFF, 0xABCD, "AX: completely replaced by BX");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0xABCD,
+        "AX: completely replaced by BX"
+    );
 }
 
 #[test]
@@ -84,7 +100,11 @@ fn test_shrd_cx_dx_imm8() {
     emu.regs_mut().rdx = 0x9ABC;
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
-    assert_eq!(emu.regs().rcx & 0xFFFF, 0xC567, "CX: 0x5678 SHRD 4 from 0x9ABC");
+    assert_eq!(
+        emu.regs().rcx & 0xFFFF,
+        0xC567,
+        "CX: 0x5678 SHRD 4 from 0x9ABC"
+    );
 }
 
 #[test]
@@ -96,7 +116,11 @@ fn test_shrd_dx_si_cl() {
     emu.regs_mut().rcx = 0x04;
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
-    assert_eq!(emu.regs().rdx & 0xFFFF, 0x2111, "DX: 0x1111 SHRD 4 from 0x2222");
+    assert_eq!(
+        emu.regs().rdx & 0xFFFF,
+        0x2111,
+        "DX: 0x1111 SHRD 4 from 0x2222"
+    );
 }
 
 #[test]
@@ -105,13 +129,21 @@ fn test_shrd_ax_zero_count() {
     let mut emu = emu64();
     emu.regs_mut().rax = 0x1234;
     emu.regs_mut().rbx = 0xABCD;
-            emu.load_code_bytes(&code);
-    emu.flags_mut().load(0x2 | (1 << flags::F_CF) | (1 << flags::F_OF));
+    emu.load_code_bytes(&code);
+    emu.flags_mut()
+        .load(0x2 | (1 << flags::F_CF) | (1 << flags::F_OF));
     let initial_flags = emu.flags().dump();
-        emu.run(None).unwrap();
-    assert_eq!(emu.regs().rax & 0xFFFF, 0x1234, "AX: unchanged with count 0");
-    assert_eq!(emu.flags().dump() & (flags::F_CF | flags::F_OF),
-               initial_flags & (flags::F_CF | flags::F_OF), "Flags preserved");
+    emu.run(None).unwrap();
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0x1234,
+        "AX: unchanged with count 0"
+    );
+    assert_eq!(
+        emu.flags().dump() & (flags::F_CF | flags::F_OF),
+        initial_flags & (flags::F_CF | flags::F_OF),
+        "Flags preserved"
+    );
 }
 
 // ============================================================================
@@ -128,7 +160,11 @@ fn test_shrd_eax_ebx_imm8() {
     emu.regs_mut().rbx = 0xABCDEF01;
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x11234567, "EAX: 0x12345678 SHRD 4 from 0xABCDEF01");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x11234567,
+        "EAX: 0x12345678 SHRD 4 from 0xABCDEF01"
+    );
 }
 
 #[test]
@@ -140,7 +176,11 @@ fn test_shrd_eax_ebx_cl() {
     emu.regs_mut().rcx = 0x08;
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x01123456, "EAX: 0x12345678 SHRD 8 from 0xABCDEF01");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x01123456,
+        "EAX: 0x12345678 SHRD 8 from 0xABCDEF01"
+    );
 }
 
 #[test]
@@ -162,7 +202,11 @@ fn test_shrd_eax_1bit() {
     emu.regs_mut().rbx = 0x00000001; // MSB will be set
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x80000001, "EAX: SHRD 1 with MSB");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x80000001,
+        "EAX: SHRD 1 with MSB"
+    );
     assert!(emu.flags().f_of, "OF: sign changed");
 }
 
@@ -175,7 +219,11 @@ fn test_shrd_eax_full_replacement() {
     emu.regs_mut().rbx = 0xABCDEF01;
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x12345678, "EAX: count masked to 0, no shift");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x12345678,
+        "EAX: count masked to 0, no shift"
+    );
 }
 
 #[test]
@@ -230,10 +278,10 @@ fn test_shrd_eax_zero_count() {
     let mut emu = emu64();
     emu.regs_mut().rax = 0x12345678;
     emu.regs_mut().rbx = 0xABCDEF01;
-        let initial = emu.regs().rax & 0xFFFFFFFF;
+    let initial = emu.regs().rax & 0xFFFFFFFF;
     emu.load_code_bytes(&code);
     emu.flags_mut().load(0x2 | (1 << flags::F_CF));
-        emu.run(None).unwrap();
+    emu.run(None).unwrap();
     assert_eq!(emu.regs().rax & 0xFFFFFFFF, initial, "EAX: unchanged");
 }
 
@@ -318,7 +366,11 @@ fn test_shrd_rax_full_replacement() {
     emu.regs_mut().rbx = 0xFEDCBA9876543210;
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
-    assert_eq!(emu.regs().rax, 0x123456789ABCDEF0, "RAX: count masked to 0, no shift");
+    assert_eq!(
+        emu.regs().rax,
+        0x123456789ABCDEF0,
+        "RAX: count masked to 0, no shift"
+    );
 }
 
 #[test]
@@ -420,10 +472,10 @@ fn test_shrd_rax_zero_count() {
     let mut emu = emu64();
     emu.regs_mut().rax = 0x123456789ABCDEF0;
     emu.regs_mut().rbx = 0xFEDCBA9876543210;
-        let initial = emu.regs().rax;
+    let initial = emu.regs().rax;
     emu.load_code_bytes(&code);
     emu.flags_mut().load(0x2 | (1 << flags::F_CF));
-        emu.run(None).unwrap();
+    emu.run(None).unwrap();
     assert_eq!(emu.regs().rax, initial, "RAX: unchanged");
 }
 
@@ -435,7 +487,11 @@ fn test_shrd_rax_zero_count() {
 fn test_shrd_mem16_imm8() {
     let DATA_ADDR = 0x7000;
     let code = [
-        0x66, 0x0f, 0xac, 0x14, 0x25, // SHRD word ptr [disp32], DX, imm8
+        0x66,
+        0x0f,
+        0xac,
+        0x14,
+        0x25, // SHRD word ptr [disp32], DX, imm8
         (DATA_ADDR & 0xFF) as u8,
         ((DATA_ADDR >> 8) & 0xFF) as u8,
         ((DATA_ADDR >> 16) & 0xFF) as u8,
@@ -444,19 +500,33 @@ fn test_shrd_mem16_imm8() {
         0xf4,
     ];
     let mut emu = emu64();
-    emu.maps.create_map("test_data", 0x7000, 0x1000, crate::maps::mem64::Permission::READ_WRITE).expect("failed to map test_data");
+    emu.maps
+        .create_map(
+            "test_data",
+            0x7000,
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE,
+        )
+        .expect("failed to map test_data");
     emu.regs_mut().rdx = 0xABCD;
     emu.load_code_bytes(&code);
     emu.maps.write_word(DATA_ADDR, 0x1234);
     emu.run(None).unwrap();
-    assert_eq!(emu.maps.read_word(DATA_ADDR).unwrap(), 0xD123, "Memory: 0x1234 SHRD 4 from 0xABCD");
+    assert_eq!(
+        emu.maps.read_word(DATA_ADDR).unwrap(),
+        0xD123,
+        "Memory: 0x1234 SHRD 4 from 0xABCD"
+    );
 }
 
 #[test]
 fn test_shrd_mem32_cl() {
     let DATA_ADDR = 0x7000;
     let code = [
-        0x0f, 0xad, 0x14, 0x25, // SHRD dword ptr [disp32], EDX, CL
+        0x0f,
+        0xad,
+        0x14,
+        0x25, // SHRD dword ptr [disp32], EDX, CL
         (DATA_ADDR & 0xFF) as u8,
         ((DATA_ADDR >> 8) & 0xFF) as u8,
         ((DATA_ADDR >> 16) & 0xFF) as u8,
@@ -464,20 +534,35 @@ fn test_shrd_mem32_cl() {
         0xf4,
     ];
     let mut emu = emu64();
-    emu.maps.create_map("test_data", 0x7000, 0x1000, crate::maps::mem64::Permission::READ_WRITE).expect("failed to map test_data");
+    emu.maps
+        .create_map(
+            "test_data",
+            0x7000,
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE,
+        )
+        .expect("failed to map test_data");
     emu.regs_mut().rdx = 0xABCDEF01;
     emu.regs_mut().rcx = 0x08;
     emu.load_code_bytes(&code);
     emu.maps.write_dword(DATA_ADDR, 0x12345678);
     emu.run(None).unwrap();
-    assert_eq!(emu.maps.read_dword(DATA_ADDR).unwrap(), 0x01123456, "Memory: SHRD 8");
+    assert_eq!(
+        emu.maps.read_dword(DATA_ADDR).unwrap(),
+        0x01123456,
+        "Memory: SHRD 8"
+    );
 }
 
 #[test]
 fn test_shrd_mem64_imm8() {
     let DATA_ADDR = 0x7000;
     let code = [
-        0x48, 0x0f, 0xac, 0x14, 0x25, // SHRD qword ptr [disp32], RDX, imm8
+        0x48,
+        0x0f,
+        0xac,
+        0x14,
+        0x25, // SHRD qword ptr [disp32], RDX, imm8
         (DATA_ADDR & 0xFF) as u8,
         ((DATA_ADDR >> 8) & 0xFF) as u8,
         ((DATA_ADDR >> 16) & 0xFF) as u8,
@@ -486,12 +571,23 @@ fn test_shrd_mem64_imm8() {
         0xf4,
     ];
     let mut emu = emu64();
-    emu.maps.create_map("test_data", 0x7000, 0x1000, crate::maps::mem64::Permission::READ_WRITE).expect("failed to map test_data");
+    emu.maps
+        .create_map(
+            "test_data",
+            0x7000,
+            0x1000,
+            crate::maps::mem64::Permission::READ_WRITE,
+        )
+        .expect("failed to map test_data");
     emu.regs_mut().rdx = 0xAAAABBBBCCCCDDDD;
     emu.load_code_bytes(&code);
     emu.maps.write_qword(DATA_ADDR, 0x123456789ABCDEF0);
     emu.run(None).unwrap();
-    assert_eq!(emu.maps.read_qword(DATA_ADDR).unwrap(), 0xDDDD123456789ABC, "Memory: SHRD 16");
+    assert_eq!(
+        emu.maps.read_qword(DATA_ADDR).unwrap(),
+        0xDDDD123456789ABC,
+        "Memory: SHRD 16"
+    );
 }
 
 // ============================================================================
@@ -559,7 +655,11 @@ fn test_shrd_all_ones() {
     emu.regs_mut().rbx = 0xFFFFFFFF;
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xFFFFFFFF, "All ones stays all ones");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xFFFFFFFF,
+        "All ones stays all ones"
+    );
 }
 
 #[test]
@@ -572,5 +672,9 @@ fn test_shrd_alternating_bits() {
     emu.regs_mut().rbx = 0x55555555;
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xD5555555, "Alternating bits shift");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xD5555555,
+        "Alternating bits shift"
+    );
 }

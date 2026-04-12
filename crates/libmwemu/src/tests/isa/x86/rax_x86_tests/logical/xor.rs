@@ -51,7 +51,11 @@ fn test_xor_al_imm8_identity() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFF, 0x42, "AL: 0x42 XOR 0 = 0x42 (identity)");
+    assert_eq!(
+        emu.regs().rax & 0xFF,
+        0x42,
+        "AL: 0x42 XOR 0 = 0x42 (identity)"
+    );
 }
 
 #[test]
@@ -63,7 +67,11 @@ fn test_xor_al_imm8_invert() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFF, 0x55, "AL: 0xAA XOR 0xFF = 0x55 (inverted)");
+    assert_eq!(
+        emu.regs().rax & 0xFF,
+        0x55,
+        "AL: 0xAA XOR 0xFF = 0x55 (inverted)"
+    );
 }
 
 #[test]
@@ -118,7 +126,11 @@ fn test_xor_ax_imm16_basic() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFF, 0x123B, "AX: 0x1234 XOR 0x000F = 0x123B");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0x123B,
+        "AX: 0x1234 XOR 0x000F = 0x123B"
+    );
 }
 
 #[test]
@@ -263,7 +275,11 @@ fn test_xor_rm64_r64_rax_rbx() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0xFFFFFFFFFFFFFFFF, "RAX: all bits different");
+    assert_eq!(
+        emu.regs().rax,
+        0xFFFFFFFFFFFFFFFF,
+        "RAX: all bits different"
+    );
 }
 
 // ============================================================================
@@ -490,7 +506,8 @@ fn test_xor_word_ptr_imm16() {
     let DATA_ADDR = 0x7000;
     let mut emu = emu64();
     let code = [
-        0x66, 0x81, 0x35, 0xf7, 0x0f, 0x00, 0x00, 0xFF, 0xFF, // XOR WORD PTR [rip+0x0FF7], 0xFFFF
+        0x66, 0x81, 0x35, 0xf7, 0x0f, 0x00, 0x00, 0xFF,
+        0xFF, // XOR WORD PTR [rip+0x0FF7], 0xFFFF
         0xf4,
     ];
     emu.load_code_bytes(&code);
@@ -507,7 +524,8 @@ fn test_xor_dword_ptr_imm32() {
     let DATA_ADDR = 0x7000;
     let mut emu = emu64();
     let code = [
-        0x81, 0x35, 0xf6, 0x0f, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, // XOR DWORD PTR [rip+0x0FF6], 0x0000FFFF
+        0x81, 0x35, 0xf6, 0x0f, 0x00, 0x00, 0xFF, 0xFF, 0x00,
+        0x00, // XOR DWORD PTR [rip+0x0FF6], 0x0000FFFF
         0xf4,
     ];
     emu.load_code_bytes(&code);
@@ -524,7 +542,8 @@ fn test_xor_qword_ptr_imm32() {
     let DATA_ADDR = 0x7000;
     let mut emu = emu64();
     let code = [
-        0x48, 0x81, 0x35, 0xf5, 0x0f, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, // XOR QWORD PTR [rip+0x0FF5], 0xFFFFFFFF
+        0x48, 0x81, 0x35, 0xf5, 0x0f, 0x00, 0x00, 0xFF, 0xFF, 0xFF,
+        0xFF, // XOR QWORD PTR [rip+0x0FF5], 0xFFFFFFFF
         0xf4,
     ];
     emu.load_code_bytes(&code);
@@ -567,14 +586,22 @@ fn test_xor_toggle_bit() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFF, 0x1F, "Toggle bit 4 on: 0x0F ^ 0x10 = 0x1F");
+    assert_eq!(
+        emu.regs().rax & 0xFF,
+        0x1F,
+        "Toggle bit 4 on: 0x0F ^ 0x10 = 0x1F"
+    );
 
     let code = [0x34, 0x10, 0xf4];
     emu.regs_mut().rax = 0x1F;
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFF, 0x0F, "Toggle bit 4 off: 0x1F ^ 0x10 = 0x0F");
+    assert_eq!(
+        emu.regs().rax & 0xFF,
+        0x0F,
+        "Toggle bit 4 off: 0x1F ^ 0x10 = 0x0F"
+    );
 }
 
 #[test]
@@ -595,7 +622,11 @@ fn test_xor_encryption_basic() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFF, plaintext, "XOR encryption/decryption");
+    assert_eq!(
+        emu.regs().rax & 0xFF,
+        plaintext,
+        "XOR encryption/decryption"
+    );
 }
 
 #[test]
@@ -616,7 +647,11 @@ fn test_xor_commutative() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFF, emu.regs().rax & 0xFF, "XOR is commutative");
+    assert_eq!(
+        emu.regs().rax & 0xFF,
+        emu.regs().rax & 0xFF,
+        "XOR is commutative"
+    );
 }
 
 #[test]
@@ -638,5 +673,9 @@ fn test_xor_associative() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFF, emu.regs().rax & 0xFF, "XOR is associative");
+    assert_eq!(
+        emu.regs().rax & 0xFF,
+        emu.regs().rax & 0xFF,
+        "XOR is associative"
+    );
 }

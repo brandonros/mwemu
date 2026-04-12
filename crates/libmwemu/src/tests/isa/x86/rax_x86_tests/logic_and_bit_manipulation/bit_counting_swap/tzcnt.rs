@@ -24,7 +24,11 @@ fn test_tzcnt_ax_bx_all_zeros() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFF, 16, "AX should contain 16 (all bits are zero)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        16,
+        "AX should contain 16 (all bits are zero)"
+    );
     assert!(emu.flags().f_cf, "CF should be set (source is zero)");
     assert!(!emu.flags().f_zf, "ZF should be clear (count is non-zero)");
 }
@@ -42,7 +46,11 @@ fn test_tzcnt_ax_bx_lsb_set() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFF, 0, "AX should contain 0 (no trailing zeros)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0,
+        "AX should contain 0 (no trailing zeros)"
+    );
     assert!(!emu.flags().f_cf, "CF should be clear (source is non-zero)");
     assert!(emu.flags().f_zf, "ZF should be set (count is zero)");
 }
@@ -60,7 +68,11 @@ fn test_tzcnt_eax_ebx_all_zeros() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 32, "EAX should contain 32 (all bits are zero)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        32,
+        "EAX should contain 32 (all bits are zero)"
+    );
     assert!(emu.flags().f_cf, "CF should be set (source is zero)");
 }
 
@@ -77,7 +89,11 @@ fn test_tzcnt_eax_ebx_lsb_set() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0, "EAX should contain 0 (no trailing zeros)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0,
+        "EAX should contain 0 (no trailing zeros)"
+    );
     assert!(!emu.flags().f_cf, "CF should be clear (source is non-zero)");
     assert!(emu.flags().f_zf, "ZF should be set (count is zero)");
 }
@@ -95,7 +111,11 @@ fn test_tzcnt_rax_rbx_all_zeros() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 64, "RAX should contain 64 (all bits are zero)");
+    assert_eq!(
+        emu.regs().rax,
+        64,
+        "RAX should contain 64 (all bits are zero)"
+    );
     assert!(emu.flags().f_cf, "CF should be set (source is zero)");
 }
 
@@ -112,7 +132,11 @@ fn test_tzcnt_rax_rbx_lsb_set() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0, "RAX should contain 0 (no trailing zeros)");
+    assert_eq!(
+        emu.regs().rax,
+        0,
+        "RAX should contain 0 (no trailing zeros)"
+    );
     assert!(!emu.flags().f_cf, "CF should be clear (source is non-zero)");
     assert!(emu.flags().f_zf, "ZF should be set (count is zero)");
 }
@@ -130,7 +154,11 @@ fn test_tzcnt_eax_ebx_one_trailing_zero() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 1, "EAX should contain 1 (one trailing zero)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        1,
+        "EAX should contain 1 (one trailing zero)"
+    );
     assert!(!emu.flags().f_cf, "CF should be clear");
 }
 
@@ -147,7 +175,11 @@ fn test_tzcnt_eax_ebx_multiple_trailing_zeros() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 16, "EAX should contain 16 (sixteen trailing zeros)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        16,
+        "EAX should contain 16 (sixteen trailing zeros)"
+    );
     assert!(!emu.flags().f_cf, "CF should be clear");
 }
 
@@ -162,9 +194,15 @@ fn test_tzcnt_power_of_two() {
         ];
         emu.regs_mut().rbx = 1u64 << bit_pos;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
-        assert_eq!(emu.regs().rax & 0xFFFFFFFF, bit_pos as u64, "TZCNT(2^{}) should be {}", bit_pos, bit_pos);
+        assert_eq!(
+            emu.regs().rax & 0xFFFFFFFF,
+            bit_pos as u64,
+            "TZCNT(2^{}) should be {}",
+            bit_pos,
+            bit_pos
+        );
     }
 }
 
@@ -261,7 +299,11 @@ fn test_tzcnt_preserves_source() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rbx & 0xFFFFFFFF, 0x12345678, "EBX should be unchanged");
+    assert_eq!(
+        emu.regs().rbx & 0xFFFFFFFF,
+        0x12345678,
+        "EBX should be unchanged"
+    );
 }
 
 #[test]
@@ -277,7 +319,11 @@ fn test_tzcnt_all_ones() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0, "EAX should contain 0 (no trailing zeros)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0,
+        "EAX should contain 0 (no trailing zeros)"
+    );
     assert!(emu.flags().f_zf, "ZF should be set");
 }
 
@@ -303,9 +349,15 @@ fn test_tzcnt_single_bit_patterns() {
         ];
         emu.regs_mut().rbx = value;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
-        assert_eq!(emu.regs().rax & 0xFFFFFFFF, expected, "TZCNT(0x{:08X}) should be {}", value, expected);
+        assert_eq!(
+            emu.regs().rax & 0xFFFFFFFF,
+            expected,
+            "TZCNT(0x{:08X}) should be {}",
+            value,
+            expected
+        );
     }
 }
 
@@ -322,7 +374,11 @@ fn test_tzcnt_alternating_pattern() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 1, "EAX should contain 1 (one trailing zero)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        1,
+        "EAX should contain 1 (one trailing zero)"
+    );
 }
 
 #[test]
@@ -391,9 +447,15 @@ fn test_tzcnt_byte_values() {
         ];
         emu.regs_mut().rbx = value;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
-        assert_eq!(emu.regs().rax & 0xFFFFFFFF, expected, "TZCNT(0x{:08X}) should be {}", value, expected);
+        assert_eq!(
+            emu.regs().rax & 0xFFFFFFFF,
+            expected,
+            "TZCNT(0x{:08X}) should be {}",
+            value,
+            expected
+        );
     }
 }
 
@@ -410,7 +472,11 @@ fn test_tzcnt_vs_bsf_similarity() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 16, "TZCNT should find first set bit at position 16");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        16,
+        "TZCNT should find first set bit at position 16"
+    );
 }
 
 #[test]
@@ -451,10 +517,10 @@ fn test_tzcnt_alignment_detection() {
     let mut emu = emu64();
     // TZCNT can detect alignment (power of 2 divisibility)
     let test_cases = vec![
-        (0x00000001, 0), // 2^0 aligned
-        (0x00000002, 1), // 2^1 aligned
-        (0x00000004, 2), // 2^2 aligned
-        (0x00000008, 3), // 2^3 aligned
+        (0x00000001, 0),  // 2^0 aligned
+        (0x00000002, 1),  // 2^1 aligned
+        (0x00000004, 2),  // 2^2 aligned
+        (0x00000008, 3),  // 2^3 aligned
         (0x00001000, 12), // 2^12 aligned (4KB)
     ];
 
@@ -465,9 +531,15 @@ fn test_tzcnt_alignment_detection() {
         ];
         emu.regs_mut().rbx = value;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
-        assert_eq!(emu.regs().rax & 0xFFFFFFFF, expected, "Value 0x{:08X} is 2^{} aligned", value, expected);
+        assert_eq!(
+            emu.regs().rax & 0xFFFFFFFF,
+            expected,
+            "Value 0x{:08X} is 2^{} aligned",
+            value,
+            expected
+        );
     }
 }
 
@@ -484,9 +556,14 @@ fn test_tzcnt_odd_numbers() {
         ];
         emu.regs_mut().rbx = value;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
-        assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0, "Odd number {} should have 0 trailing zeros", value);
+        assert_eq!(
+            emu.regs().rax & 0xFFFFFFFF,
+            0,
+            "Odd number {} should have 0 trailing zeros",
+            value
+        );
     }
 }
 
@@ -495,12 +572,12 @@ fn test_tzcnt_even_numbers() {
     let DATA_ADDR = 0x7000;
     let mut emu = emu64();
     let test_cases = vec![
-        (2, 1),   // one trailing zero
-        (4, 2),   // two trailing zeros
-        (6, 1),   // one trailing zero
-        (8, 3),   // three trailing zeros
-        (12, 2),  // two trailing zeros
-        (16, 4),  // four trailing zeros
+        (2, 1),  // one trailing zero
+        (4, 2),  // two trailing zeros
+        (6, 1),  // one trailing zero
+        (8, 3),  // three trailing zeros
+        (12, 2), // two trailing zeros
+        (16, 4), // four trailing zeros
     ];
 
     for (value, expected) in test_cases {
@@ -510,8 +587,14 @@ fn test_tzcnt_even_numbers() {
         ];
         emu.regs_mut().rbx = value;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
-        assert_eq!(emu.regs().rax & 0xFFFFFFFF, expected, "Even number {} should have {} trailing zeros", value, expected);
+        assert_eq!(
+            emu.regs().rax & 0xFFFFFFFF,
+            expected,
+            "Even number {} should have {} trailing zeros",
+            value,
+            expected
+        );
     }
 }

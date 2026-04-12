@@ -13,8 +13,8 @@
 // decimal arithmetic.
 
 pub mod aaa;
-pub mod aas;
-pub mod aam;
 pub mod aad;
+pub mod aam;
+pub mod aas;
 pub mod daa;
 pub mod das;

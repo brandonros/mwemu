@@ -1,4 +1,5 @@
 mod elf64_aarch64_basic;
+mod elf64lin_dynamic_hello;
 mod elf64lin_cpu_arithmetics;
 mod elf64lin_flags;
 mod elf64lin_fpu;

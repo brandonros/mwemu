@@ -5,8 +5,9 @@ use crate::emu::Emu;
 use crate::loaders::elf::elf32::Elf32;
 use crate::loaders::elf::elf64::Elf64;
 use crate::loaders::macho::macho64::Macho64;
-use crate::loaders::pe::pe32::PE32;
-use crate::loaders::pe::pe64::PE64;
+use crate::loaders::pe::{
+    pe_machine_type, IMAGE_FILE_MACHINE_AMD64, IMAGE_FILE_MACHINE_ARM64, IMAGE_FILE_MACHINE_I386,
+};
 use crate::maps::mem64::Permission;
 use crate::winapi::winapi64;
 use crate::windows::constants;
@@ -35,7 +36,7 @@ impl Emu {
             log::trace!("elf32 detected.");
             let mut elf32 = Elf32::parse(filename).unwrap();
             elf32.load(&mut self.maps);
-            self.regs_mut().rip = elf32.elf_hdr.e_entry.into();
+            self.regs_mut().rip = (elf32.elf_hdr.e_entry as u64) + elf32.base();
             let stack_sz = 0x30000;
             let stack = self.alloc("stack", stack_sz, Permission::READ_WRITE);
             self.regs_mut().rsp = stack + (stack_sz / 2);
@@ -61,14 +62,32 @@ impl Emu {
 
             // Set maps folder for macOS dylibs (try repo root, then relative from crate)
             if self.cfg.maps_folder.is_empty() {
-                if std::path::Path::new("maps/maps_macos").exists() {
-                    self.cfg.maps_folder = "maps/maps_macos/".to_string();
-                } else if std::path::Path::new("../../maps/maps_macos").exists() {
-                    self.cfg.maps_folder = "../../maps/maps_macos/".to_string();
+                if std::path::Path::new("maps/macos/aarch64").exists() {
+                    self.cfg.maps_folder = "maps/macos/aarch64/".to_string();
+                } else if std::path::Path::new("../../maps/macos/aarch64").exists() {
+                    self.cfg.maps_folder = "../../maps/macos/aarch64/".to_string();
                 }
             }
 
             log::trace!("macho64 aarch64 detected.");
+            self.load_macho64(filename);
+
+        // Mach-O x86_64
+        } else if Macho64::is_macho64_x64(filename) && !self.cfg.shellcode {
+            self.cfg.arch = Arch::X86_64;
+            self.maps.is_64bits = true;
+            self.maps.clear();
+
+            // Set maps folder for macOS dylibs (try repo root, then relative from crate)
+            if self.cfg.maps_folder.is_empty() {
+                if std::path::Path::new("maps/macos/x86_64").exists() {
+                    self.cfg.maps_folder = "maps/macos/x86_64/".to_string();
+                } else if std::path::Path::new("../../maps/macos/x86_64").exists() {
+                    self.cfg.maps_folder = "../../maps/macos/x86_64/".to_string();
+                }
+            }
+
+            log::trace!("macho64 x86_64 detected.");
             self.load_macho64(filename);
 
         // ELF64 x86_64
@@ -80,11 +99,25 @@ impl Emu {
             log::trace!("elf64 x86_64 detected.");
             self.load_elf64(filename);
 
-        // PE32
-        } else if !self.cfg.is_x64() && PE32::is_pe32(filename) && !self.cfg.shellcode {
-            log::trace!("PE32 header detected.");
+        // PE: use COFF Machine field to distinguish x86 / x86_64 / ARM64
+        } else if !self.cfg.shellcode
+            && pe_machine_type(filename) == Some(IMAGE_FILE_MACHINE_I386)
+        {
+            log::trace!("PE32 x86 header detected (Machine=0x{:04x}).", IMAGE_FILE_MACHINE_I386);
             let clear_registers = false; // TODO: this needs to be more dynamic, like if we have a register set via args or not
             let clear_flags = false; // TODO: this needs to be more dynamic, like if we have a flag set via args or not
+            self.cfg.arch = Arch::X86;
+            self.os = crate::arch::OperatingSystem::Windows;
+
+            // Set maps folder for Windows DLLs (try repo root, then relative from crate)
+            if self.cfg.maps_folder.is_empty() {
+                if std::path::Path::new("maps/windows/x86").exists() {
+                    self.cfg.maps_folder = "maps/windows/x86/".to_string();
+                } else if std::path::Path::new("../../maps/windows/x86").exists() {
+                    self.cfg.maps_folder = "../../maps/windows/x86/".to_string();
+                }
+            }
+
             self.init_win32(clear_registers, clear_flags);
             let (base, _pe_off) = self.load_pe32(filename, true, 0);
             let ep = self.regs().rip;
@@ -100,11 +133,68 @@ impl Emu {
 
             self.regs_mut().rip = ep;
 
-        // PE64
-        } else if self.cfg.is_x64() && PE64::is_pe64(filename) && !self.cfg.shellcode {
-            log::trace!("PE64 header detected.");
+        // PE64 ARM64
+        } else if !self.cfg.shellcode
+            && pe_machine_type(filename) == Some(IMAGE_FILE_MACHINE_ARM64)
+        {
+            log::trace!(
+                "PE64 ARM64 header detected (Machine=0x{:04x}). Windows AArch64 PE recognized.",
+                IMAGE_FILE_MACHINE_ARM64
+            );
+            self.cfg.arch = Arch::Aarch64;
+            self.os = crate::arch::OperatingSystem::Windows;
+            self.maps.is_64bits = true;
+
+            // Set maps folder for Windows ARM64 DLLs
+            if self.cfg.maps_folder.is_empty() {
+                if std::path::Path::new("maps/windows/aarch64").exists() {
+                    self.cfg.maps_folder = "maps/windows/aarch64/".to_string();
+                } else if std::path::Path::new("../../maps/windows/aarch64").exists() {
+                    self.cfg.maps_folder = "../../maps/windows/aarch64/".to_string();
+                }
+            }
+
+            let clear_registers = false;
+            let clear_flags = false;
+            self.init_win32(clear_registers, clear_flags);
+            let (base, _pe_off) = self.load_pe64(filename, true, 0);
+            let ep = self.pc();
+
+            match self.pe64 {
+                Some(ref pe64) => {
+                    if pe64.is_dll() {
+                        let regs = self.regs_aarch64_mut();
+                        regs.x[0] = base;   // hinstDLL
+                        regs.x[1] = 1;      // fdwReason = DLL_PROCESS_ATTACH
+                        regs.x[2] = 0;      // lpvReserved
+                    }
+                }
+                _ => {
+                    log::error!("No Pe64 found inside self");
+                }
+            }
+
+            self.set_pc(ep);
+
+        // PE64 x86_64
+        } else if !self.cfg.shellcode
+            && pe_machine_type(filename) == Some(IMAGE_FILE_MACHINE_AMD64)
+        {
+            log::trace!("PE64 x86_64 header detected (Machine=0x{:04x}).", IMAGE_FILE_MACHINE_AMD64);
             let clear_registers = false; // TODO: this needs to be more dynamic, like if we have a register set via args or not
             let clear_flags = false; // TODO: this needs to be more dynamic, like if we have a flag set via args or not
+            self.cfg.arch = Arch::X86_64;
+            self.os = crate::arch::OperatingSystem::Windows;
+
+            // Set maps folder for Windows DLLs (try repo root, then relative from crate)
+            if self.cfg.maps_folder.is_empty() {
+                if std::path::Path::new("maps/windows/x86_64").exists() {
+                    self.cfg.maps_folder = "maps/windows/x86_64/".to_string();
+                } else if std::path::Path::new("../../maps/windows/x86_64").exists() {
+                    self.cfg.maps_folder = "../../maps/windows/x86_64/".to_string();
+                }
+            }
+
             self.init_win32(clear_registers, clear_flags);
             let (base, _pe_off) = self.load_pe64(filename, true, 0);
             let ep = self.regs().rip;

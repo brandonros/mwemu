@@ -24,12 +24,14 @@ const DATA_ADDR: u64 = 0x7000;
 
 // Helper function to write f64 to memory
 fn write_f64(mem: u64, addr: u64, val: f64) {
-    let mut emu = emu64();    emu.maps.write_bytes_slice(addr, &val.to_le_bytes());
+    let mut emu = emu64();
+    emu.maps.write_bytes_slice(addr, &val.to_le_bytes());
 }
 
 // Helper function to read f64 from memory
 fn read_f64(mem: u64, addr: u64) -> f64 {
-    let emu = emu64();    let mut buf = [0u8; 8];
+    let emu = emu64();
+    let mut buf = [0u8; 8];
     emu.maps.read_bytes_buff(&mut buf, addr);
     f64::from_le_bytes(buf)
 }
@@ -40,12 +42,12 @@ fn read_f64(mem: u64, addr: u64) -> f64 {
 
 #[test]
 fn test_f2xm1_zero() {
-    let mut emu = emu64();    // 2^0 - 1 = 1 - 1 = 0
+    let mut emu = emu64(); // 2^0 - 1 = 1 - 1 = 0
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xF0,                                  // F2XM1
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xF0, // F2XM1
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -59,11 +61,12 @@ fn test_f2xm1_zero() {
 
 #[test]
 fn test_f2xm1_positive_zero() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xF0,                                  // F2XM1
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xF0, // F2XM1
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -78,12 +81,12 @@ fn test_f2xm1_positive_zero() {
 
 #[test]
 fn test_f2xm1_negative_zero() {
-    let mut emu = emu64();    // 2^(-0) - 1 = 1 - 1 = -0
+    let mut emu = emu64(); // 2^(-0) - 1 = 1 - 1 = -0
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xF0,                                  // F2XM1
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xF0, // F2XM1
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -102,12 +105,12 @@ fn test_f2xm1_negative_zero() {
 
 #[test]
 fn test_f2xm1_one() {
-    let mut emu = emu64();    // 2^1 - 1 = 2 - 1 = 1
+    let mut emu = emu64(); // 2^1 - 1 = 2 - 1 = 1
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xF0,                                  // F2XM1
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xF0, // F2XM1
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -125,12 +128,12 @@ fn test_f2xm1_one() {
 
 #[test]
 fn test_f2xm1_half() {
-    let mut emu = emu64();    // 2^0.5 - 1 = sqrt(2) - 1 ≈ 0.414
+    let mut emu = emu64(); // 2^0.5 - 1 = sqrt(2) - 1 ≈ 0.414
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xF0,                                  // F2XM1
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xF0, // F2XM1
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -140,17 +143,20 @@ fn test_f2xm1_half() {
 
     let result = emu.maps.read_f64(0x3000).unwrap();
     let expected = 2.0f64.powf(0.5) - 1.0;
-    assert!((result - expected).abs() < 1e-10, "2^0.5 - 1 should be approximately 0.414");
+    assert!(
+        (result - expected).abs() < 1e-10,
+        "2^0.5 - 1 should be approximately 0.414"
+    );
 }
 
 #[test]
 fn test_f2xm1_quarter() {
-    let mut emu = emu64();    // 2^0.25 - 1
+    let mut emu = emu64(); // 2^0.25 - 1
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xF0,                                  // F2XM1
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xF0, // F2XM1
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -165,12 +171,12 @@ fn test_f2xm1_quarter() {
 
 #[test]
 fn test_f2xm1_three_quarters() {
-    let mut emu = emu64();    // 2^0.75 - 1
+    let mut emu = emu64(); // 2^0.75 - 1
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xF0,                                  // F2XM1
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xF0, // F2XM1
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -185,12 +191,12 @@ fn test_f2xm1_three_quarters() {
 
 #[test]
 fn test_f2xm1_small_positive() {
-    let mut emu = emu64();    // 2^0.1 - 1
+    let mut emu = emu64(); // 2^0.1 - 1
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xF0,                                  // F2XM1
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xF0, // F2XM1
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -205,12 +211,12 @@ fn test_f2xm1_small_positive() {
 
 #[test]
 fn test_f2xm1_very_small_positive() {
-    let mut emu = emu64();    // 2^0.01 - 1
+    let mut emu = emu64(); // 2^0.01 - 1
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xF0,                                  // F2XM1
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xF0, // F2XM1
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -229,12 +235,12 @@ fn test_f2xm1_very_small_positive() {
 
 #[test]
 fn test_f2xm1_negative_one() {
-    let mut emu = emu64();    // 2^(-1) - 1 = 0.5 - 1 = -0.5
+    let mut emu = emu64(); // 2^(-1) - 1 = 0.5 - 1 = -0.5
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xF0,                                  // F2XM1
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xF0, // F2XM1
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -248,12 +254,12 @@ fn test_f2xm1_negative_one() {
 
 #[test]
 fn test_f2xm1_negative_half() {
-    let mut emu = emu64();    // 2^(-0.5) - 1 = 1/sqrt(2) - 1 ≈ -0.293
+    let mut emu = emu64(); // 2^(-0.5) - 1 = 1/sqrt(2) - 1 ≈ -0.293
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xF0,                                  // F2XM1
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xF0, // F2XM1
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -263,17 +269,20 @@ fn test_f2xm1_negative_half() {
 
     let result = emu.maps.read_f64(0x3000).unwrap();
     let expected = 2.0f64.powf(-0.5) - 1.0;
-    assert!((result - expected).abs() < 1e-10, "2^(-0.5) - 1 calculation");
+    assert!(
+        (result - expected).abs() < 1e-10,
+        "2^(-0.5) - 1 calculation"
+    );
 }
 
 #[test]
 fn test_f2xm1_negative_quarter() {
-    let mut emu = emu64();    // 2^(-0.25) - 1
+    let mut emu = emu64(); // 2^(-0.25) - 1
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xF0,                                  // F2XM1
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xF0, // F2XM1
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -283,17 +292,20 @@ fn test_f2xm1_negative_quarter() {
 
     let result = emu.maps.read_f64(0x3000).unwrap();
     let expected = 2.0f64.powf(-0.25) - 1.0;
-    assert!((result - expected).abs() < 1e-10, "2^(-0.25) - 1 calculation");
+    assert!(
+        (result - expected).abs() < 1e-10,
+        "2^(-0.25) - 1 calculation"
+    );
 }
 
 #[test]
 fn test_f2xm1_small_negative() {
-    let mut emu = emu64();    // 2^(-0.1) - 1
+    let mut emu = emu64(); // 2^(-0.1) - 1
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xF0,                                  // F2XM1
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xF0, // F2XM1
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -303,17 +315,20 @@ fn test_f2xm1_small_negative() {
 
     let result = emu.maps.read_f64(0x3000).unwrap();
     let expected = 2.0f64.powf(-0.1) - 1.0;
-    assert!((result - expected).abs() < 1e-10, "2^(-0.1) - 1 calculation");
+    assert!(
+        (result - expected).abs() < 1e-10,
+        "2^(-0.1) - 1 calculation"
+    );
 }
 
 #[test]
 fn test_f2xm1_very_small_negative() {
-    let mut emu = emu64();    // 2^(-0.01) - 1
+    let mut emu = emu64(); // 2^(-0.01) - 1
     let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xF0,                                  // F2XM1
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xF0, // F2XM1
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -323,7 +338,10 @@ fn test_f2xm1_very_small_negative() {
 
     let result = emu.maps.read_f64(0x3000).unwrap();
     let expected = 2.0f64.powf(-0.01) - 1.0;
-    assert!((result - expected).abs() < 1e-10, "2^(-0.01) - 1 calculation");
+    assert!(
+        (result - expected).abs() < 1e-10,
+        "2^(-0.01) - 1 calculation"
+    );
 }
 
 // ============================================================================
@@ -332,11 +350,12 @@ fn test_f2xm1_very_small_negative() {
 
 #[test]
 fn test_f2xm1_upper_limit() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xF0,                                  // F2XM1
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xF0, // F2XM1
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -346,16 +365,20 @@ fn test_f2xm1_upper_limit() {
 
     let result = emu.maps.read_f64(0x3000).unwrap();
     let expected = 2.0f64.powf(1.0) - 1.0;
-    assert!((result - expected).abs() < 1e-10, "Upper limit: 2^1 - 1 = 1.0");
+    assert!(
+        (result - expected).abs() < 1e-10,
+        "Upper limit: 2^1 - 1 = 1.0"
+    );
 }
 
 #[test]
 fn test_f2xm1_lower_limit() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xF0,                                  // F2XM1
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xF0, // F2XM1
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -365,16 +388,20 @@ fn test_f2xm1_lower_limit() {
 
     let result = emu.maps.read_f64(0x3000).unwrap();
     let expected = 2.0f64.powf(-1.0) - 1.0;
-    assert!((result - expected).abs() < 1e-10, "Lower limit: 2^(-1) - 1 = -0.5");
+    assert!(
+        (result - expected).abs() < 1e-10,
+        "Lower limit: 2^(-1) - 1 = -0.5"
+    );
 }
 
 #[test]
 fn test_f2xm1_near_upper_limit() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xF0,                                  // F2XM1
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xF0, // F2XM1
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -389,11 +416,12 @@ fn test_f2xm1_near_upper_limit() {
 
 #[test]
 fn test_f2xm1_near_lower_limit() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xF0,                                  // F2XM1
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xF0, // F2XM1
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -403,7 +431,10 @@ fn test_f2xm1_near_lower_limit() {
 
     let result = emu.maps.read_f64(0x3000).unwrap();
     let expected = 2.0f64.powf(-0.99) - 1.0;
-    assert!((result - expected).abs() < 1e-10, "2^(-0.99) - 1 calculation");
+    assert!(
+        (result - expected).abs() < 1e-10,
+        "2^(-0.99) - 1 calculation"
+    );
 }
 
 // ============================================================================
@@ -412,54 +443,53 @@ fn test_f2xm1_near_lower_limit() {
 
 #[test]
 fn test_f2xm1_various_values() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xF0,                                  // F2XM1
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xF0, // F2XM1
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
-    let test_values = vec![
-        -0.9, -0.75, -0.5, -0.25, -0.1,
-        0.1, 0.25, 0.5, 0.75, 0.9,
-    ];
+    let test_values = vec![-0.9, -0.75, -0.5, -0.25, -0.1, 0.1, 0.25, 0.5, 0.75, 0.9];
 
     for val in test_values {
         emu.load_code_bytes(&code);
         emu.maps.write_f64(0x2000, val);
 
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
         let result = emu.maps.read_f64(0x3000).unwrap();
         let expected = 2.0f64.powf(val) - 1.0;
-        assert!((result - expected).abs() < 1e-10, "2^{} - 1 should match", val);
+        assert!(
+            (result - expected).abs() < 1e-10,
+            "2^{} - 1 should match",
+            val
+        );
     }
 }
 
 #[test]
 fn test_f2xm1_symmetric_values() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xF0,                                  // F2XM1
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xF0, // F2XM1
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
-    let test_pairs = vec![
-        (0.5, -0.5),
-        (0.25, -0.25),
-        (0.75, -0.75),
-    ];
+    let test_pairs = vec![(0.5, -0.5), (0.25, -0.25), (0.75, -0.75)];
 
     for (pos, neg) in test_pairs {
         emu.load_code_bytes(&code);
         emu.maps.write_f64(0x2000, pos);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
         let result_pos = emu.maps.read_f64(0x3000).unwrap();
 
         emu.load_code_bytes(&code);
         emu.maps.write_f64(0x2000, neg);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
         let result_neg = emu.maps.read_f64(0x3000).unwrap();
 
         let expected_pos = 2.0f64.powf(pos) - 1.0;
@@ -476,14 +506,15 @@ fn test_f2xm1_symmetric_values() {
 
 #[test]
 fn test_f2xm1_sequence() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xF0,                                  // F2XM1
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00,  // FLD qword [0x2008]
-        0xD9, 0xF0,                                  // F2XM1
-        0xDD, 0x1C, 0x25, 0x08, 0x30, 0x00, 0x00,  // FSTP qword [0x3008]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xF0, // F2XM1
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xDD, 0x04, 0x25, 0x08, 0x20, 0x00, 0x00, // FLD qword [0x2008]
+        0xD9, 0xF0, // F2XM1
+        0xDD, 0x1C, 0x25, 0x08, 0x30, 0x00, 0x00, // FSTP qword [0x3008]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -507,11 +538,12 @@ fn test_f2xm1_sequence() {
 
 #[test]
 fn test_f2xm1_tiny_value() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xF0,                                  // F2XM1
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xF0, // F2XM1
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     emu.load_code_bytes(&code);
@@ -526,11 +558,12 @@ fn test_f2xm1_tiny_value() {
 
 #[test]
 fn test_f2xm1_precision_boundary() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xF0,                                  // F2XM1
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xF0, // F2XM1
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     let test_values = vec![0.125, 0.375, 0.625, 0.875];
@@ -539,7 +572,7 @@ fn test_f2xm1_precision_boundary() {
         emu.load_code_bytes(&code);
         emu.maps.write_f64(0x2000, val);
 
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
         let result = emu.maps.read_f64(0x3000).unwrap();
         let expected = 2.0f64.powf(val) - 1.0;
@@ -549,11 +582,12 @@ fn test_f2xm1_precision_boundary() {
 
 #[test]
 fn test_f2xm1_fractional_precision() {
-    let mut emu = emu64();    let code = [
-        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00,  // FLD qword [0x2000]
-        0xD9, 0xF0,                                  // F2XM1
-        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00,  // FSTP qword [0x3000]
-        0xF4,                                        // HLT
+    let mut emu = emu64();
+    let code = [
+        0xDD, 0x04, 0x25, 0x00, 0x20, 0x00, 0x00, // FLD qword [0x2000]
+        0xD9, 0xF0, // F2XM1
+        0xDD, 0x1C, 0x25, 0x00, 0x30, 0x00, 0x00, // FSTP qword [0x3000]
+        0xF4, // HLT
     ];
 
     let test_values = vec![0.2, 0.3, 0.4, 0.6, 0.7, 0.8];
@@ -562,10 +596,14 @@ fn test_f2xm1_fractional_precision() {
         emu.load_code_bytes(&code);
         emu.maps.write_f64(0x2000, val);
 
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
         let result = emu.maps.read_f64(0x3000).unwrap();
         let expected = 2.0f64.powf(val) - 1.0;
-        assert!((result - expected).abs() < 1e-10, "2^{} - 1 should match", val);
+        assert!(
+            (result - expected).abs() < 1e-10,
+            "2^{} - 1 should match",
+            val
+        );
     }
 }

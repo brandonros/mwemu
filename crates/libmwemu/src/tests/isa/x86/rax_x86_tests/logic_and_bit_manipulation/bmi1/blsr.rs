@@ -23,9 +23,16 @@ fn test_blsr_eax_ebx_bit_0() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0b0000_0000, "EAX should be zero (bit 0 reset)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0b0000_0000,
+        "EAX should be zero (bit 0 reset)"
+    );
     assert!(emu.flags().f_zf, "ZF should be set (result is zero)");
-    assert!(!emu.flags().f_cf, "CF should be clear (source was non-zero)");
+    assert!(
+        !emu.flags().f_cf,
+        "CF should be clear (source was non-zero)"
+    );
 }
 
 #[test]
@@ -41,7 +48,11 @@ fn test_blsr_eax_ebx_bit_3() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0b0000_0000, "EAX should be zero");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0b0000_0000,
+        "EAX should be zero"
+    );
     assert!(emu.flags().f_zf, "ZF should be set");
 }
 
@@ -58,7 +69,11 @@ fn test_blsr_eax_ebx_multiple_bits() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0b1010_0000, "EAX should have bit 3 reset (bits 5,7 remain)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0b1010_0000,
+        "EAX should have bit 3 reset (bits 5,7 remain)"
+    );
     assert!(!emu.flags().f_zf, "ZF should be clear (result is non-zero)");
 }
 
@@ -75,7 +90,11 @@ fn test_blsr_eax_ebx_bit_31() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x00000000, "EAX should be zero");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x00000000,
+        "EAX should be zero"
+    );
     assert!(emu.flags().f_zf, "ZF should be set");
 }
 
@@ -126,7 +145,11 @@ fn test_blsr_zero_source() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0, "EAX should be zero (0 & -1 = 0)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0,
+        "EAX should be zero (0 & -1 = 0)"
+    );
     assert!(emu.flags().f_zf, "ZF should be set (result is zero)");
     assert!(emu.flags().f_cf, "CF should be set (source was zero)");
 }
@@ -144,7 +167,11 @@ fn test_blsr_all_bits_set() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xFFFFFFFE, "EAX should have bit 0 reset");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xFFFFFFFE,
+        "EAX should have bit 0 reset"
+    );
     assert!(!emu.flags().f_zf, "ZF should be clear");
 }
 
@@ -161,7 +188,11 @@ fn test_blsr_alternating_pattern() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xAAAAAAA8, "EAX should have bit 1 reset");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xAAAAAAA8,
+        "EAX should have bit 1 reset"
+    );
     assert!(!emu.flags().f_zf, "ZF should be clear");
 }
 
@@ -178,7 +209,11 @@ fn test_blsr_alternating_pattern_inverted() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x55555554, "EAX should have bit 0 reset");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x55555554,
+        "EAX should have bit 0 reset"
+    );
     assert!(!emu.flags().f_zf, "ZF should be clear");
 }
 
@@ -193,9 +228,14 @@ fn test_blsr_single_bit_positions() {
         ];
         emu.regs_mut().rbx = 1u64 << bit_pos;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
-        assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0, "EAX should be zero for single bit {}", bit_pos);
+        assert_eq!(
+            emu.regs().rax & 0xFFFFFFFF,
+            0,
+            "EAX should be zero for single bit {}",
+            bit_pos
+        );
         assert!(emu.flags().f_zf, "ZF should be set for bit {}", bit_pos);
     }
 }
@@ -213,7 +253,11 @@ fn test_blsr_with_extended_registers() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().r8 & 0xFFFFFFFF, 0b0001_0000, "R8D should have bit 3 reset (bit 4 remains)");
+    assert_eq!(
+        emu.regs().r8 & 0xFFFFFFFF,
+        0b0001_0000,
+        "R8D should have bit 3 reset (bit 4 remains)"
+    );
     assert!(!emu.flags().f_zf, "ZF should be clear");
 }
 
@@ -230,7 +274,11 @@ fn test_blsr_r15() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().r15, 0x1_0000_0000, "R15 should have bit 0 reset (bit 32 remains)");
+    assert_eq!(
+        emu.regs().r15,
+        0x1_0000_0000,
+        "R15 should have bit 0 reset (bit 32 remains)"
+    );
 }
 
 #[test]
@@ -246,7 +294,11 @@ fn test_blsr_mem32() {
     emu.maps.write_dword(DATA_ADDR, 0xFFFFF000); // bits 12-31 set
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xFFFFE000, "EAX should have bit 12 reset");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xFFFFE000,
+        "EAX should have bit 12 reset"
+    );
 }
 
 #[test]
@@ -262,7 +314,11 @@ fn test_blsr_mem64() {
     emu.maps.write_qword(DATA_ADDR, 0x100_0000_0001); // bits 0 and 40 set
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x100_0000_0000, "RAX should have bit 0 reset (bit 40 remains)");
+    assert_eq!(
+        emu.regs().rax,
+        0x100_0000_0000,
+        "RAX should have bit 0 reset (bit 40 remains)"
+    );
 }
 
 #[test]
@@ -278,7 +334,11 @@ fn test_blsr_trailing_zeros() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xFFFFE000, "EAX should have bit 12 reset");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xFFFFE000,
+        "EAX should have bit 12 reset"
+    );
 }
 
 #[test]
@@ -294,7 +354,11 @@ fn test_blsr_sparse_pattern() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x80000000, "EAX should have bit 12 reset (bit 31 remains)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x80000000,
+        "EAX should have bit 12 reset (bit 31 remains)"
+    );
 }
 
 #[test]
@@ -310,7 +374,11 @@ fn test_blsr_preserves_source() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rbx & 0xFFFFFFFF, 0x12345678, "EBX should be unchanged");
+    assert_eq!(
+        emu.regs().rbx & 0xFFFFFFFF,
+        0x12345678,
+        "EBX should be unchanged"
+    );
 }
 
 #[test]
@@ -328,7 +396,11 @@ fn test_blsr_vs_and_sub1() {
     emu.run(None).unwrap();
 
     let expected = value & (value.wrapping_sub(1));
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, expected as u64, "BLSR should equal src & (src-1)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        expected as u64,
+        "BLSR should equal src & (src-1)"
+    );
 }
 
 #[test]
@@ -343,9 +415,14 @@ fn test_blsr_power_of_two() {
         ];
         emu.regs_mut().rbx = 1u64 << i;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
-        assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0, "BLSR(2^{}) should be zero", i);
+        assert_eq!(
+            emu.regs().rax & 0xFFFFFFFF,
+            0,
+            "BLSR(2^{}) should be zero",
+            i
+        );
         assert!(emu.flags().f_zf, "ZF should be set for 2^{}", i);
     }
 }
@@ -363,7 +440,11 @@ fn test_blsr_consecutive_bits() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x00FE0000, "EAX should have bit 16 reset (bits 17-23 remain)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x00FE0000,
+        "EAX should have bit 16 reset (bits 17-23 remain)"
+    );
 }
 
 #[test]
@@ -398,9 +479,13 @@ fn test_blsr_iterative_clearing() {
     for &expected in &expected_values {
         emu.regs_mut().rbx = value;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
 
-        assert_eq!(emu.regs().rax & 0xFFFFFFFF, expected, "Should progressively clear bits");
+        assert_eq!(
+            emu.regs().rax & 0xFFFFFFFF,
+            expected,
+            "Should progressively clear bits"
+        );
         value = emu.regs().rax;
     }
 }
@@ -435,7 +520,11 @@ fn test_blsr_mixed_high_low() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x8000_0000_0000_0000, "RAX should have bit 8 reset (bit 63 remains)");
+    assert_eq!(
+        emu.regs().rax,
+        0x8000_0000_0000_0000,
+        "RAX should have bit 8 reset (bit 63 remains)"
+    );
 }
 
 #[test]
@@ -455,11 +544,15 @@ fn test_blsr_count_set_bits() {
         count += 1;
         emu.regs_mut().rbx = value;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
         value = emu.regs().rax & 0xFFFFFFFF;
     }
 
-    assert_eq!(count, 0x12345678u32.count_ones(), "Should count all set bits");
+    assert_eq!(
+        count,
+        0x12345678u32.count_ones(),
+        "Should count all set bits"
+    );
 }
 
 #[test]
@@ -507,7 +600,10 @@ fn test_blsr_complement_of_blsi() {
 
     // BLSR | BLSI should equal original value
     let combined = (emu_blsr.regs().rax | emu_blsi.regs().rax) & 0xFFFFFFFF;
-    assert_eq!(combined, value, "BLSR | BLSI should reconstruct original value");
+    assert_eq!(
+        combined, value,
+        "BLSR | BLSI should reconstruct original value"
+    );
 }
 
 #[test]
@@ -523,6 +619,10 @@ fn test_blsr_two_bits_set() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0b0000_0100, "EAX should have bit 0 reset (bit 2 remains)");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0b0000_0100,
+        "EAX should have bit 0 reset (bit 2 remains)"
+    );
     assert!(!emu.flags().f_zf, "ZF should be clear (result is non-zero)");
 }

@@ -8,16 +8,15 @@ pub fn exe64win_enigma() {
     helpers::setup();
 
     let mut emu = emu64();
-    emu.cfg.maps_folder = "../../maps/maps64/".to_string();
+    emu.cfg.maps_folder = "../../maps/windows/x86_64/".to_string();
 
     let sample = "../../test/exe64win_enigma.bin";
     emu.load_code(sample);
     emu.run_to(5_000_000 + 5);
     assert!(emu.pos >= 5_000_000);
     /*
-    too slow for a test: 
+    too slow for a test:
     emu.run_to(102072786);
     assert!(emu.pos > 102072780);
     */
-
 }

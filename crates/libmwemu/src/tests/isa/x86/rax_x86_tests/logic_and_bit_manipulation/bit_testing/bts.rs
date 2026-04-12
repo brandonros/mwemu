@@ -30,7 +30,11 @@ fn test_bts_ax_bx_bit_0_set() {
     emu.run(None).unwrap();
 
     assert!(emu.flags().f_cf, "CF should be set (bit 0 was 1)");
-    assert_eq!(emu.regs().rax & 0xFFFF, 0b0000_0000_0000_0001, "AX: bit 0 should remain set");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0b0000_0000_0000_0001,
+        "AX: bit 0 should remain set"
+    );
 }
 
 #[test]
@@ -48,7 +52,11 @@ fn test_bts_ax_bx_bit_0_clear() {
     emu.run(None).unwrap();
 
     assert!(!emu.flags().f_cf, "CF should be clear (bit 0 was 0)");
-    assert_eq!(emu.regs().rax & 0xFFFF, 0b0000_0000_0000_0001, "AX: bit 0 should be set to 1");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0b0000_0000_0000_0001,
+        "AX: bit 0 should be set to 1"
+    );
 }
 
 #[test]
@@ -66,7 +74,11 @@ fn test_bts_ax_bx_bit_15() {
     emu.run(None).unwrap();
 
     assert!(!emu.flags().f_cf, "CF should be clear (bit 15 was 0)");
-    assert_eq!(emu.regs().rax & 0xFFFF, 0x8000, "AX: bit 15 should be set to 1");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0x8000,
+        "AX: bit 15 should be set to 1"
+    );
 }
 
 #[test]
@@ -84,7 +96,11 @@ fn test_bts_eax_ebx_bit_0() {
     emu.run(None).unwrap();
 
     assert!(!emu.flags().f_cf, "CF should be clear (bit 0 was 0)");
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0b0000_0001, "EAX: bit 0 should be set to 1");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0b0000_0001,
+        "EAX: bit 0 should be set to 1"
+    );
 }
 
 #[test]
@@ -102,7 +118,11 @@ fn test_bts_eax_ebx_bit_31() {
     emu.run(None).unwrap();
 
     assert!(!emu.flags().f_cf, "CF should be clear (bit 31 was 0)");
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x80000000, "EAX: bit 31 should be set to 1");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x80000000,
+        "EAX: bit 31 should be set to 1"
+    );
 }
 
 #[test]
@@ -138,7 +158,11 @@ fn test_bts_rax_rbx_bit_63() {
     emu.run(None).unwrap();
 
     assert!(!emu.flags().f_cf, "CF should be clear (bit 63 was 0)");
-    assert_eq!(emu.regs().rax, 0x8000_0000_0000_0000, "RAX: bit 63 should be set to 1");
+    assert_eq!(
+        emu.regs().rax,
+        0x8000_0000_0000_0000,
+        "RAX: bit 63 should be set to 1"
+    );
 }
 
 #[test]
@@ -155,7 +179,11 @@ fn test_bts_ax_imm8_bit_0() {
     emu.run(None).unwrap();
 
     assert!(!emu.flags().f_cf, "CF should be clear (bit 0 was 0)");
-    assert_eq!(emu.regs().rax & 0xFFFF, 0b0000_0000_0000_0001, "AX: bit 0 should be set to 1");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0b0000_0000_0000_0001,
+        "AX: bit 0 should be set to 1"
+    );
 }
 
 #[test]
@@ -172,7 +200,11 @@ fn test_bts_ax_imm8_bit_15() {
     emu.run(None).unwrap();
 
     assert!(!emu.flags().f_cf, "CF should be clear (bit 15 was 0)");
-    assert_eq!(emu.regs().rax & 0xFFFF, 0x8000, "AX: bit 15 should be set to 1");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0x8000,
+        "AX: bit 15 should be set to 1"
+    );
 }
 
 #[test]
@@ -189,7 +221,11 @@ fn test_bts_eax_imm8_bit_0() {
     emu.run(None).unwrap();
 
     assert!(!emu.flags().f_cf, "CF should be clear (bit 0 was 0)");
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0b0000_0001, "EAX: bit 0 should be set to 1");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0b0000_0001,
+        "EAX: bit 0 should be set to 1"
+    );
 }
 
 #[test]
@@ -206,7 +242,11 @@ fn test_bts_eax_imm8_bit_31() {
     emu.run(None).unwrap();
 
     assert!(!emu.flags().f_cf, "CF should be clear (bit 31 was 0)");
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x80000000, "EAX: bit 31 should be set to 1");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x80000000,
+        "EAX: bit 31 should be set to 1"
+    );
 }
 
 #[test]
@@ -240,7 +280,11 @@ fn test_bts_rax_imm8_bit_63() {
     emu.run(None).unwrap();
 
     assert!(!emu.flags().f_cf, "CF should be clear (bit 63 was 0)");
-    assert_eq!(emu.regs().rax, 0x8000_0000_0000_0000, "RAX: bit 63 should be set to 1");
+    assert_eq!(
+        emu.regs().rax,
+        0x8000_0000_0000_0000,
+        "RAX: bit 63 should be set to 1"
+    );
 }
 
 #[test]
@@ -258,7 +302,11 @@ fn test_bts_idempotent() {
     emu.run(None).unwrap();
 
     let expected = 0x12345678 | (1 << 5);
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, expected, "EAX: double set should have same result");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        expected,
+        "EAX: double set should have same result"
+    );
 }
 
 #[test]
@@ -275,7 +323,11 @@ fn test_bts_alternating_bits() {
     emu.run(None).unwrap();
 
     assert!(!emu.flags().f_cf, "CF should be clear (bit 0 was 0)");
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xAAAAAAAA | 0x1, "EAX: bit 0 should be set");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xAAAAAAAA | 0x1,
+        "EAX: bit 0 should be set"
+    );
 }
 
 #[test]
@@ -292,7 +344,11 @@ fn test_bts_preserves_other_bits() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 1 << 5, "EAX: only bit 5 should be set");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        1 << 5,
+        "EAX: only bit 5 should be set"
+    );
 }
 
 #[test]
@@ -310,7 +366,11 @@ fn test_bts_with_extended_registers() {
     emu.run(None).unwrap();
 
     assert!(!emu.flags().f_cf, "CF should be clear (bit 0 was 0)");
-    assert_eq!(emu.regs().r8 & 0xFFFFFFFF, 0b0000_0001, "R8D: bit 0 should be set to 1");
+    assert_eq!(
+        emu.regs().r8 & 0xFFFFFFFF,
+        0b0000_0001,
+        "R8D: bit 0 should be set to 1"
+    );
 }
 
 #[test]
@@ -327,7 +387,11 @@ fn test_bts_r15_imm8() {
     emu.run(None).unwrap();
 
     assert!(!emu.flags().f_cf, "CF should be clear (bit 32 was 0)");
-    assert_eq!(emu.regs().r15, 0x1_0000_0000, "R15: bit 32 should be set to 1");
+    assert_eq!(
+        emu.regs().r15,
+        0x1_0000_0000,
+        "R15: bit 32 should be set to 1"
+    );
 }
 
 #[test]
@@ -419,7 +483,11 @@ fn test_bts_all_bits_set() {
     emu.run(None).unwrap();
 
     assert!(emu.flags().f_cf, "CF should be set (bit 17 was 1)");
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0xFFFFFFFF, "EAX: should remain all ones");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0xFFFFFFFF,
+        "EAX: should remain all ones"
+    );
 }
 
 #[test]
@@ -436,7 +504,11 @@ fn test_bts_all_bits_clear() {
     emu.run(None).unwrap();
 
     assert!(!emu.flags().f_cf, "CF should be clear (bit 17 was 0)");
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 1 << 17, "EAX: bit 17 should be set");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        1 << 17,
+        "EAX: bit 17 should be set"
+    );
 }
 
 #[test]
@@ -470,7 +542,11 @@ fn test_bts_bit_position_modulo_32() {
     emu.run(None).unwrap();
 
     assert!(!emu.flags().f_cf, "CF should be clear (bit 0 was 0)");
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x0001, "EAX: bit 0 should be set");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x0001,
+        "EAX: bit 0 should be set"
+    );
 }
 
 #[test]
@@ -503,7 +579,11 @@ fn test_bts_creates_single_bit() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 1 << 20, "EAX: only bit 20 should be set");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        1 << 20,
+        "EAX: only bit 20 should be set"
+    );
 }
 
 #[test]
@@ -519,7 +599,11 @@ fn test_bts_multiple_bits_sequential() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 1 << 5, "EAX: bit 5 should be set");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        1 << 5,
+        "EAX: bit 5 should be set"
+    );
 
     let code = [
         0x0f, 0xab, 0xd8, // BTS EAX, EBX
@@ -529,7 +613,11 @@ fn test_bts_multiple_bits_sequential() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, (1 << 5) | (1 << 10), "EAX: bits 5 and 10 should be set");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        (1 << 5) | (1 << 10),
+        "EAX: bits 5 and 10 should be set"
+    );
 }
 
 #[test]
@@ -546,7 +634,11 @@ fn test_bts_no_effect_on_set_bit() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x12345679, "EAX: should be unchanged");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x12345679,
+        "EAX: should be unchanged"
+    );
 }
 
 #[test]
@@ -563,7 +655,11 @@ fn test_bts_creates_mask() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 1 << 8, "EAX: creates mask with bit 8 set");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        1 << 8,
+        "EAX: creates mask with bit 8 set"
+    );
 }
 
 #[test]
@@ -579,7 +675,11 @@ fn test_bts_sparse_bits() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFFFFFF, 0x80000001, "EAX: bits 0 and 31 should be set");
+    assert_eq!(
+        emu.regs().rax & 0xFFFFFFFF,
+        0x80000001,
+        "EAX: bits 0 and 31 should be set"
+    );
 }
 
 #[test]
@@ -612,7 +712,7 @@ fn test_bts_build_bitmask() {
         emu.regs_mut().rax = result as u64;
         emu.regs_mut().rbx = bit_pos;
         emu.load_code_bytes(&code);
-    emu.run(None).unwrap();
+        emu.run(None).unwrap();
         result = (emu.regs().rax & 0xFFFFFFFF) as u32;
     }
 

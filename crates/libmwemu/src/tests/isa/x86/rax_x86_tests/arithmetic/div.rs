@@ -31,15 +31,19 @@ fn test_div_al_simple() {
     // AX = 100 (AH=0, AL=100)
     let code = [
         0xf6, 0xf3, // DIV BL (F6 /6, ModRM=11_110_011)
-        0xf4,       // HLT
+        0xf4, // HLT
     ];
-    emu.regs_mut().rax = 100;  // AX = 100 (AH=0, AL=100)
-    emu.regs_mut().rbx = 10;   // BL = 10
+    emu.regs_mut().rax = 100; // AX = 100 (AH=0, AL=100)
+    emu.regs_mut().rbx = 10; // BL = 10
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
     assert_eq!(emu.regs().rax & 0xFF, 10, "AL (quotient) = 100 / 10 = 10");
-    assert_eq!((emu.regs().rax >> 8) & 0xFF, 0, "AH (remainder) = 100 % 10 = 0");
+    assert_eq!(
+        (emu.regs().rax >> 8) & 0xFF,
+        0,
+        "AH (remainder) = 100 % 10 = 0"
+    );
 }
 
 #[test]
@@ -54,7 +58,11 @@ fn test_div_al_with_remainder() {
     emu.run(None).unwrap();
 
     assert_eq!(emu.regs().rax & 0xFF, 14, "AL (quotient) = 100 / 7 = 14");
-    assert_eq!((emu.regs().rax >> 8) & 0xFF, 2, "AH (remainder) = 100 % 7 = 2");
+    assert_eq!(
+        (emu.regs().rax >> 8) & 0xFF,
+        2,
+        "AH (remainder) = 100 % 7 = 2"
+    );
 }
 
 #[test]
@@ -120,7 +128,11 @@ fn test_div_ax_simple() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFF, 100, "AX (quotient) = 1000 / 10 = 100");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        100,
+        "AX (quotient) = 1000 / 10 = 100"
+    );
     assert_eq!(emu.regs().rdx & 0xFFFF, 0, "DX (remainder) = 0");
 }
 
@@ -145,8 +157,8 @@ fn test_div_ax_dx_nonzero() {
     let mut emu = emu64();
     // (DX:AX) = 0x00011000 (69632) / 100 = 696 remainder 32
     let code = [0x66, 0xf7, 0xf3, 0xf4]; // DIV BX
-    emu.regs_mut().rax = 0x1000;  // 4096
-    emu.regs_mut().rdx = 0x0001;  // High 16 bits = 1
+    emu.regs_mut().rax = 0x1000; // 4096
+    emu.regs_mut().rdx = 0x0001; // High 16 bits = 1
     emu.regs_mut().rbx = 100;
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
@@ -302,8 +314,8 @@ fn test_div_rax_rdx_nonzero() {
     // 2^64 / 0x100000001 = 0xFFFFFFFF remainder 1
     let code = [0x48, 0xf7, 0xf3, 0xf4]; // DIV RBX
     emu.regs_mut().rax = 0x0000000000000000;
-    emu.regs_mut().rdx = 0x0000000000000001;  // RDX:RAX = 2^64
-    emu.regs_mut().rbx = 0x100000001;  // Divisor = 2^32 + 1 = 4294967297
+    emu.regs_mut().rdx = 0x0000000000000001; // RDX:RAX = 2^64
+    emu.regs_mut().rbx = 0x100000001; // Divisor = 2^32 + 1 = 4294967297
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
@@ -367,9 +379,9 @@ fn test_div_cx_16bit() {
     let mut emu = emu64();
     // DIV CX (16-bit) - ModRM 11_110_001 = 0xF1
     let code = [0x66, 0xf7, 0xf1, 0xf4]; // DIV CX
-    emu.regs_mut().rax = 10000;  // AX = 10000
-    emu.regs_mut().rdx = 0;      // DX = 0 (high part of dividend)
-    emu.regs_mut().rcx = 100;    // CX = 100 (divisor)
+    emu.regs_mut().rax = 10000; // AX = 10000
+    emu.regs_mut().rdx = 0; // DX = 0 (high part of dividend)
+    emu.regs_mut().rcx = 100; // CX = 100 (divisor)
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
@@ -548,8 +560,8 @@ fn test_div_result_in_upper() {
     // 2^33 / 0x80000000 = 4 remainder 0
     let code = [0xf7, 0xf3, 0xf4]; // DIV EBX
     emu.regs_mut().rax = 0x00000000;
-    emu.regs_mut().rdx = 0x00000002;  // EDX:EAX = 2 * 2^32 = 2^33
-    emu.regs_mut().rbx = 0x80000000;  // Divisor = 2^31
+    emu.regs_mut().rdx = 0x00000002; // EDX:EAX = 2 * 2^32 = 2^33
+    emu.regs_mut().rbx = 0x80000000; // Divisor = 2^31
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 

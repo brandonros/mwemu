@@ -113,7 +113,11 @@ fn test_shr_count_masked_8bit() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFF, 0x11, "AL: 0x88 >> 3 = 0x11 (count masked)");
+    assert_eq!(
+        emu.regs().rax & 0xFF,
+        0x11,
+        "AL: 0x88 >> 3 = 0x11 (count masked)"
+    );
 }
 
 #[test]
@@ -122,13 +126,18 @@ fn test_shr_count_zero_preserves_flags() {
     let mut emu = emu64();
     let code = [0xc0, 0xe8, 0x00, 0xf4]; // SHR AL, 0
     emu.regs_mut().rax = 0x42;
-    emu.flags_mut().load(0x2 | flags::F_CF | flags::F_ZF | flags::F_OF);
+    emu.flags_mut()
+        .load(0x2 | flags::F_CF | flags::F_ZF | flags::F_OF);
     let initial_flags = emu.flags().dump();
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
     assert_eq!(emu.regs().rax & 0xFF, 0x42, "AL unchanged");
-    assert_eq!(emu.flags().dump(), initial_flags, "Flags unchanged when count is 0");
+    assert_eq!(
+        emu.flags().dump(),
+        initial_flags,
+        "Flags unchanged when count is 0"
+    );
 }
 
 #[test]
@@ -240,7 +249,11 @@ fn test_shr_eax_1() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x12345678, "EAX: 0x2468ACF0 >> 1 = 0x12345678");
+    assert_eq!(
+        emu.regs().rax,
+        0x12345678,
+        "EAX: 0x2468ACF0 >> 1 = 0x12345678"
+    );
     assert!(!emu.flags().f_cf, "CF clear");
 }
 
@@ -254,7 +267,11 @@ fn test_shr_ebx_cl() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rbx, 0x00000001, "EBX: 0x80000000 >> 31 = 0x00000001");
+    assert_eq!(
+        emu.regs().rbx,
+        0x00000001,
+        "EBX: 0x80000000 >> 31 = 0x00000001"
+    );
     assert!(!emu.flags().f_cf, "CF: last bit shifted out was 0");
 }
 
@@ -267,7 +284,11 @@ fn test_shr_ecx_imm8() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rcx, 0x00123456, "ECX: 0x12345600 >> 8 = 0x00123456");
+    assert_eq!(
+        emu.regs().rcx,
+        0x00123456,
+        "ECX: 0x12345600 >> 8 = 0x00123456"
+    );
 }
 
 #[test]
@@ -279,7 +300,11 @@ fn test_shr_esi_with_carry() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rsi, 0x00005678, "ESI: 0x56780000 >> 16 = 0x00005678");
+    assert_eq!(
+        emu.regs().rsi,
+        0x00005678,
+        "ESI: 0x56780000 >> 16 = 0x00005678"
+    );
 }
 
 #[test]
@@ -288,7 +313,7 @@ fn test_shr_edi_to_zero() {
     let mut emu = emu64();
     let code = [
         0xc1, 0xef, 0x1f, // SHR EDI, 31
-        0xd1, 0xef,       // SHR EDI, 1
+        0xd1, 0xef, // SHR EDI, 1
         0xf4,
     ];
     emu.regs_mut().rdi = 0x12345678;
@@ -326,7 +351,11 @@ fn test_shr_rbx_cl() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rbx, 0x0000000000000001, "RBX: 0x8000...0 >> 63 = 0x01");
+    assert_eq!(
+        emu.regs().rbx,
+        0x0000000000000001,
+        "RBX: 0x8000...0 >> 63 = 0x01"
+    );
     assert!(!emu.flags().f_cf, "CF: last bit shifted out was 0");
 }
 
@@ -360,14 +389,18 @@ fn test_shr_rdi_to_zero() {
     let mut emu = emu64();
     let code = [
         0x48, 0xc1, 0xef, 0x3f, // SHR RDI, 63
-        0x48, 0xd1, 0xef,       // SHR RDI, 1
+        0x48, 0xd1, 0xef, // SHR RDI, 1
         0xf4,
     ];
     emu.regs_mut().rdi = 0x123456789ABCDEF0;
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rdi, 0x0000000000000000, "RDI: all bits shifted out");
+    assert_eq!(
+        emu.regs().rdi,
+        0x0000000000000000,
+        "RDI: all bits shifted out"
+    );
     assert!(emu.flags().f_zf, "ZF set");
 }
 
@@ -381,7 +414,11 @@ fn test_shr_count_masked_64bit() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0x0000000000000001, "RAX: 0x08 >> 3 = 0x01 (count masked)");
+    assert_eq!(
+        emu.regs().rax,
+        0x0000000000000001,
+        "RAX: 0x08 >> 3 = 0x01 (count masked)"
+    );
 }
 
 // ============================================================================
@@ -530,7 +567,11 @@ fn test_shr_no_sign_extension() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFF, 0x0F, "AL: 0xFF >> 4 = 0x0F (no sign extension)");
+    assert_eq!(
+        emu.regs().rax & 0xFF,
+        0x0F,
+        "AL: 0xFF >> 4 = 0x0F (no sign extension)"
+    );
 }
 
 #[test]

@@ -18,19 +18,19 @@
 // - SUB (Integer Subtraction)
 // - CMP (Compare Two Operands)
 
-pub mod neg;
-pub mod inc_dec;
-pub mod imul;
-pub mod mul;
-pub mod div;
-pub mod idiv;
-pub mod adcx_adox;
-pub mod bcd;
 pub mod aaa_aas;
 pub mod aam_aad;
-pub mod daa_das;
 pub mod adc_extended;
-pub mod sbb_extended;
+pub mod adcx_adox;
 pub mod add_extended;
-pub mod sub_extended;
+pub mod bcd;
 pub mod cmp_extended;
+pub mod daa_das;
+pub mod div;
+pub mod idiv;
+pub mod imul;
+pub mod inc_dec;
+pub mod mul;
+pub mod neg;
+pub mod sbb_extended;
+pub mod sub_extended;

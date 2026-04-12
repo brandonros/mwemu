@@ -48,7 +48,11 @@ fn test_or_al_imm8_zero_identity() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFF, 0x42, "AL: 0x42 OR 0 = 0x42 (identity)");
+    assert_eq!(
+        emu.regs().rax & 0xFF,
+        0x42,
+        "AL: 0x42 OR 0 = 0x42 (identity)"
+    );
 }
 
 #[test]
@@ -128,7 +132,11 @@ fn test_or_ax_imm16_basic() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFF, 0x123F, "AX: 0x1230 OR 0x000F = 0x123F");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0x123F,
+        "AX: 0x1230 OR 0x000F = 0x123F"
+    );
 }
 
 #[test]
@@ -261,7 +269,11 @@ fn test_or_rm8_imm8_dh() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!((emu.regs().rdx >> 8) & 0xFF, 0xFF, "DH: 0xAA OR 0x55 = 0xFF");
+    assert_eq!(
+        (emu.regs().rdx >> 8) & 0xFF,
+        0xFF,
+        "DH: 0xAA OR 0x55 = 0xFF"
+    );
 }
 
 // ============================================================================
@@ -277,7 +289,11 @@ fn test_or_rm16_imm16_bx() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rbx & 0xFFFF, 0xFF0F, "BX: 0xFF00 OR 0x000F = 0xFF0F");
+    assert_eq!(
+        emu.regs().rbx & 0xFFFF,
+        0xFF0F,
+        "BX: 0xFF00 OR 0x000F = 0xFF0F"
+    );
 }
 
 #[test]
@@ -373,7 +389,11 @@ fn test_or_rm32_imm8_sign_ext() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rbx, 0x0000000F, "EBX: OR with sign-extended imm8");
+    assert_eq!(
+        emu.regs().rbx,
+        0x0000000F,
+        "EBX: OR with sign-extended imm8"
+    );
 }
 
 #[test]
@@ -415,7 +435,11 @@ fn test_or_rm16_r16_ax_bx() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFF, 0xFFFF, "AX: 0xFF00 OR 0x00FF = 0xFFFF");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0xFFFF,
+        "AX: 0xFF00 OR 0x00FF = 0xFFFF"
+    );
 }
 
 #[test]
@@ -471,7 +495,11 @@ fn test_or_r16_rm16_ax_bx() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFFFF, 0x1F3F, "AX: 0x1234 OR 0x0F0F = 0x1F3F");
+    assert_eq!(
+        emu.regs().rax & 0xFFFF,
+        0x1F3F,
+        "AX: 0x1234 OR 0x0F0F = 0x1F3F"
+    );
 }
 
 #[test]
@@ -484,7 +512,11 @@ fn test_or_r32_rm32_eax_ebx() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0xFFFFFFFF, "EAX: alternating bits OR = all ones");
+    assert_eq!(
+        emu.regs().rax,
+        0xFFFFFFFF,
+        "EAX: alternating bits OR = all ones"
+    );
 }
 
 #[test]
@@ -497,7 +529,11 @@ fn test_or_r64_rm64_rax_rbx() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax, 0xFFFFFFFFFFFFFFFF, "RAX: alternating bytes OR = all ones");
+    assert_eq!(
+        emu.regs().rax,
+        0xFFFFFFFFFFFFFFFF,
+        "RAX: alternating bytes OR = all ones"
+    );
 }
 
 // ============================================================================
@@ -527,7 +563,11 @@ fn test_or_ecx_edx() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rcx, 0xFFFFFFFF, "ECX: complementary patterns OR = all ones");
+    assert_eq!(
+        emu.regs().rcx,
+        0xFFFFFFFF,
+        "ECX: complementary patterns OR = all ones"
+    );
 }
 
 #[test]
@@ -647,7 +687,8 @@ fn test_or_word_ptr_imm16() {
     let DATA_ADDR = 0x7000;
     let mut emu = emu64();
     let code = [
-        0x66, 0x81, 0x0d, 0xf7, 0x0f, 0x00, 0x00, 0x0F, 0x00, // OR WORD PTR [rip+0x0FF7], 0x000F
+        0x66, 0x81, 0x0d, 0xf7, 0x0f, 0x00, 0x00, 0x0F,
+        0x00, // OR WORD PTR [rip+0x0FF7], 0x000F
         0xf4,
     ];
     emu.load_code_bytes(&code);
@@ -664,7 +705,8 @@ fn test_or_dword_ptr_imm32() {
     let DATA_ADDR = 0x7000;
     let mut emu = emu64();
     let code = [
-        0x81, 0x0d, 0xf6, 0x0f, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, // OR DWORD PTR [rip+0x0FF6], 0x000000FF
+        0x81, 0x0d, 0xf6, 0x0f, 0x00, 0x00, 0xFF, 0x00, 0x00,
+        0x00, // OR DWORD PTR [rip+0x0FF6], 0x000000FF
         0xf4,
     ];
     emu.load_code_bytes(&code);
@@ -681,7 +723,8 @@ fn test_or_qword_ptr_imm32() {
     let DATA_ADDR = 0x7000;
     let mut emu = emu64();
     let code = [
-        0x48, 0x81, 0x0d, 0xf5, 0x0f, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, // OR QWORD PTR [rip+0x0FF5], 0x0000FFFF
+        0x48, 0x81, 0x0d, 0xf5, 0x0f, 0x00, 0x00, 0xFF, 0xFF, 0x00,
+        0x00, // OR QWORD PTR [rip+0x0FF5], 0x0000FFFF
         0xf4,
     ];
     emu.load_code_bytes(&code);
@@ -736,7 +779,11 @@ fn test_or_combine_flags() {
     emu.load_code_bytes(&code);
     emu.run(None).unwrap();
 
-    assert_eq!(emu.regs().rax & 0xFF, 0x05, "Combine flags: 0x01 | 0x04 = 0x05");
+    assert_eq!(
+        emu.regs().rax & 0xFF,
+        0x05,
+        "Combine flags: 0x01 | 0x04 = 0x05"
+    );
 }
 
 #[test]

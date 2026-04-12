@@ -35,7 +35,12 @@ fn test_rol_all_counts_8bit() {
             8 => 0xAB, // Back to original
             _ => unreachable!(),
         };
-        assert_eq!(emu.regs().rax & 0xFF, expected, "ROL AL by {} failed", count);
+        assert_eq!(
+            emu.regs().rax & 0xFF,
+            expected,
+            "ROL AL by {} failed",
+            count
+        );
     }
 }
 
@@ -61,7 +66,12 @@ fn test_ror_all_counts_8bit() {
             8 => 0xAB, // Back to original
             _ => unreachable!(),
         };
-        assert_eq!(emu.regs().rax & 0xFF, expected, "ROR AL by {} failed", count);
+        assert_eq!(
+            emu.regs().rax & 0xFF,
+            expected,
+            "ROR AL by {} failed",
+            count
+        );
     }
 }
 
@@ -150,7 +160,12 @@ fn test_rol_boundary_32bit() {
         emu.run(None).unwrap();
 
         let expected = ((value << 1) | (value >> 31)) & 0xFFFFFFFF;
-        assert_eq!(emu.regs().rax & 0xFFFFFFFF, expected, "ROL 0x{:08X} by 1", value);
+        assert_eq!(
+            emu.regs().rax & 0xFFFFFFFF,
+            expected,
+            "ROL 0x{:08X} by 1",
+            value
+        );
     }
 }
 
@@ -165,7 +180,12 @@ fn test_ror_boundary_32bit() {
         emu.run(None).unwrap();
 
         let expected = ((value >> 1) | (value << 31)) & 0xFFFFFFFF;
-        assert_eq!(emu.regs().rax & 0xFFFFFFFF, expected, "ROR 0x{:08X} by 1", value);
+        assert_eq!(
+            emu.regs().rax & 0xFFFFFFFF,
+            expected,
+            "ROR 0x{:08X} by 1",
+            value
+        );
     }
 }
 
@@ -270,7 +290,11 @@ fn test_rol_count_masking_32bit() {
     emu.regs_mut().rax = 0x12345678;
     emu.run(None).unwrap();
 
-    assert_eq!(rax & 0xFFFFFFFF, emu.regs().rax & 0xFFFFFFFF, "Count masking for 32-bit");
+    assert_eq!(
+        rax & 0xFFFFFFFF,
+        emu.regs().rax & 0xFFFFFFFF,
+        "Count masking for 32-bit"
+    );
 }
 
 #[test]
@@ -289,7 +313,11 @@ fn test_ror_count_masking_32bit() {
     emu.regs_mut().rax = 0x12345678;
     emu.run(None).unwrap();
 
-    assert_eq!(rax & 0xFFFFFFFF, emu.regs().rax & 0xFFFFFFFF, "Count masking for 32-bit");
+    assert_eq!(
+        rax & 0xFFFFFFFF,
+        emu.regs().rax & 0xFFFFFFFF,
+        "Count masking for 32-bit"
+    );
 }
 
 #[test]
@@ -323,7 +351,7 @@ fn test_ror_count_masking_64bit() {
 
     let code2 = [0x48, 0xc1, 0xc8, 0x08, 0xf4];
     let mut emu = emu64();
-    emu.load_code_bytes(&code2);  
+    emu.load_code_bytes(&code2);
     emu.regs_mut().rax = 0x123456789ABCDEF0;
     emu.run(None).unwrap();
 
@@ -489,6 +517,11 @@ fn test_rol_power_of_two() {
         emu.run(None).unwrap();
 
         let expected = ((value << 3) | (value >> 5)) & 0xFF;
-        assert_eq!(emu.regs().rax & 0xFF, expected as u64, "ROL power of 2 value 0x{:02X}", value);
+        assert_eq!(
+            emu.regs().rax & 0xFF,
+            expected as u64,
+            "ROL power of 2 value 0x{:02X}",
+            value
+        );
     }
 }
