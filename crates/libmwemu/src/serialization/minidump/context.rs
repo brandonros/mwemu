@@ -4,23 +4,41 @@ use byteorder::{LittleEndian, WriteBytesExt};
 use minidump::format as md;
 
 use crate::arch::Arch;
+use crate::arch::aarch64::regs::RegsAarch64;
 use crate::flags::Flags;
 use crate::regs64::Regs64;
 
 const CONTEXT_X86_SIZE: usize = 716;
 const CONTEXT_AMD64_SIZE: usize = 1232;
+const CONTEXT_ARM64_SIZE: usize = 912;
 
-pub(super) fn build_thread_context(
-    arch: Arch,
-    regs: &Regs64,
-    flags: &Flags,
-) -> io::Result<Vec<u8>> {
-    match arch {
-        Arch::X86 => build_x86_context(regs, flags),
-        Arch::X86_64 => build_amd64_context(regs, flags),
-        Arch::Aarch64 => Err(io::Error::new(
+pub(super) enum ThreadContextInput<'a> {
+    X86 {
+        arch: Arch,
+        regs: &'a Regs64,
+        flags: &'a Flags,
+    },
+    AArch64 {
+        regs: &'a RegsAarch64,
+    },
+}
+
+pub(super) fn build_thread_context(input: ThreadContextInput<'_>) -> io::Result<Vec<u8>> {
+    match input {
+        ThreadContextInput::X86 {
+            arch: Arch::X86,
+            regs,
+            flags,
+        } => build_x86_context(regs, flags),
+        ThreadContextInput::X86 {
+            arch: Arch::X86_64,
+            regs,
+            flags,
+        } => build_amd64_context(regs, flags),
+        ThreadContextInput::AArch64 { regs } => build_arm64_context(regs),
+        _ => Err(io::Error::new(
             io::ErrorKind::InvalidInput,
-            "aarch64 thread export is not implemented yet",
+            "unexpected architecture for thread context",
         )),
     }
 }
@@ -118,6 +136,61 @@ fn build_amd64_context(regs: &Regs64, flags: &Flags) -> io::Result<Vec<u8>> {
     }
 
     debug_assert_eq!(output.len(), CONTEXT_AMD64_SIZE);
+    Ok(output)
+}
+
+fn build_arm64_context(regs: &RegsAarch64) -> io::Result<Vec<u8>> {
+    let mut output = Vec::with_capacity(CONTEXT_ARM64_SIZE);
+
+    // context_flags (u32)
+    output.write_u32::<LittleEndian>(md::ContextFlagsArm64::CONTEXT_ARM64_ALL.bits())?;
+
+    // cpsr (u32) - NZCV flags packed into bits [31:28]
+    output.write_u32::<LittleEndian>(regs.nzcv.as_u64() as u32)?;
+
+    // iregs[31] (x0-x28, fp=x29, lr=x30)
+    for i in 0..31 {
+        output.write_u64::<LittleEndian>(regs.x[i])?;
+    }
+
+    // sp (u64)
+    output.write_u64::<LittleEndian>(regs.sp)?;
+
+    // pc (u64)
+    output.write_u64::<LittleEndian>(regs.pc)?;
+
+    // float_regs[32] (V0-V31 as u128)
+    for i in 0..32 {
+        write_u128(&mut output, regs.v[i])?;
+    }
+
+    // fpcr (u32)
+    output.write_u32::<LittleEndian>(regs.fpcr as u32)?;
+
+    // fpsr (u32)
+    output.write_u32::<LittleEndian>(regs.fpsr as u32)?;
+
+    // bcr[8] (u32 each) - breakpoint control registers
+    for _ in 0..8 {
+        output.write_u32::<LittleEndian>(0)?;
+    }
+
+    // bvr[8] (u64 each) - breakpoint value registers
+    for _ in 0..8 {
+        output.write_u64::<LittleEndian>(0)?;
+    }
+
+    // wcr[2] (u32 each) - watchpoint control registers
+    for _ in 0..2 {
+        output.write_u32::<LittleEndian>(0)?;
+    }
+
+    // wvr[2] (u64 each) - watchpoint value registers
+    for _ in 0..2 {
+        output.write_u64::<LittleEndian>(0)?;
+    }
+
+    debug_assert_eq!(output.len(), CONTEXT_ARM64_SIZE);
     Ok(output)
 }
 

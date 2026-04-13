@@ -29,6 +29,7 @@ use crate::windows::structures::MemoryOperation;
 
 use crate::emu::disassemble::InstructionCache;
 use crate::emu::object_handle::HandleManagement;
+use crate::arch::Arch;
 use crate::emu::ArchState;
 use crate::threading::context::ArchThreadState;
 
@@ -555,5 +556,34 @@ impl SerializableEmu {
 
     pub fn set_pe64(&mut self, pe64: Option<SerializablePE64>) {
         self.pe64 = pe64;
+    }
+
+    pub fn set_regs_aarch64(&mut self, regs: RegsAarch64) {
+        match &mut self.current_thread {
+            SerializableCurrentThreadState::AArch64 {
+                regs: current_regs,
+                pre_op_regs,
+                post_op_regs,
+            } => {
+                *current_regs = regs;
+                *pre_op_regs = regs;
+                *post_op_regs = regs;
+            }
+            SerializableCurrentThreadState::X86 { .. } => {
+                panic!("set_regs_aarch64 called on x86 serialized thread state")
+            }
+        }
+    }
+
+    pub fn default_for_arch(arch: Arch) -> Self {
+        let mut emu = match arch {
+            Arch::Aarch64 => crate::emu_aarch64(),
+            Arch::X86_64 => crate::emu64(),
+            Arch::X86 => crate::emu32(),
+        };
+        // Ensure thread context matches architecture (emu_aarch64 doesn't
+        // re-init threads automatically).
+        emu.init_cpu();
+        SerializableEmu::from(&emu)
     }
 }

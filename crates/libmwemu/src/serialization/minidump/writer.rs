@@ -7,7 +7,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use byteorder::{LittleEndian, WriteBytesExt};
 use minidump::format as md;
 
-use super::context::build_thread_context;
+use super::context::{build_thread_context, ThreadContextInput};
 use crate::arch::{Arch, OperatingSystem};
 use crate::emu::Emu;
 use crate::maps::mem64::Permission;
@@ -54,16 +54,6 @@ pub struct MinidumpWriter;
 
 impl MinidumpWriter {
     pub fn write_to_file(emu: &Emu, filename: &str) -> io::Result<()> {
-        if !matches!(emu.cfg.arch, Arch::X86 | Arch::X86_64) {
-            return Err(io::Error::new(
-                io::ErrorKind::InvalidInput,
-                format!(
-                    "minidump export currently supports x86/x86_64 guests, got {:?}",
-                    emu.cfg.arch
-                ),
-            ));
-        }
-
         let regions = collect_memory_regions(emu);
         let modules = collect_modules(emu, &regions);
         let stream_count = 5u32;
@@ -412,22 +402,30 @@ fn build_thread_list_stream(
     let mut trailing_data = Vec::new();
 
     for (thread_idx, thread) in emu.threads.iter().enumerate() {
-        let (regs, flags) = match &thread.arch {
-            ArchThreadState::X86 { regs, flags, .. } => (regs, flags),
-            ArchThreadState::AArch64 { .. } => {
-                return Err(io::Error::new(
-                    io::ErrorKind::InvalidInput,
-                    "aarch64 thread export is not implemented yet",
-                ))
+        let (context, sp) = match &thread.arch {
+            ArchThreadState::X86 { regs, flags, .. } => {
+                let ctx = build_thread_context(ThreadContextInput::X86 {
+                    arch: emu.cfg.arch,
+                    regs,
+                    flags,
+                })?;
+                let sp = match emu.cfg.arch {
+                    Arch::X86 => regs.get_esp(),
+                    Arch::X86_64 => regs.rsp,
+                    _ => 0,
+                };
+                (ctx, sp)
+            }
+            ArchThreadState::AArch64 { regs, .. } => {
+                let ctx = build_thread_context(ThreadContextInput::AArch64 { regs })?;
+                (ctx, regs.sp)
             }
         };
 
-        let context = build_thread_context(emu.cfg.arch, regs, flags)?;
         let context_rva = next_context_rva;
         next_context_rva += context.len() as u32;
         let (stack_base, stack_location) = stack_location_for_thread(
-            emu.cfg.arch,
-            regs,
+            sp,
             regions,
             memory_locations,
         );
@@ -471,17 +469,10 @@ fn build_thread_list_stream(
 }
 
 fn stack_location_for_thread(
-    arch: Arch,
-    regs: &crate::regs64::Regs64,
+    sp: u64,
     regions: &[MemoryRegion<'_>],
     memory_locations: &BTreeMap<u64, MemoryLocation>,
 ) -> (u64, MemoryLocation) {
-    let sp = match arch {
-        Arch::X86 => regs.get_esp(),
-        Arch::X86_64 => regs.rsp,
-        Arch::Aarch64 => 0,
-    };
-
     let Some(region) = regions
         .iter()
         .find(|region| sp >= region.base && sp < (region.base + region.bytes.len() as u64))

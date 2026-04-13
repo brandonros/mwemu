@@ -8,6 +8,7 @@ use std::error::Error;
 use std::ops::Deref;
 
 use crate::arch::{Arch, OperatingSystem};
+use crate::arch::aarch64::regs::RegsAarch64;
 use crate::flags::Flags;
 use crate::maps::mem64::{Mem64, Permission};
 use crate::maps::tlb::TLB;
@@ -18,13 +19,14 @@ use crate::serialization::maps::SerializableMaps;
 use crate::serialization::pe32::SerializablePE32;
 use crate::serialization::pe64::SerializablePE64;
 
+enum ExtractedContext {
+    X86 { regs: Regs64, flags: Flags },
+    AArch64 { regs: RegsAarch64 },
+}
+
 pub struct MinidumpReader;
 
 impl MinidumpReader {
-    fn unsupported_aarch64_minidump() -> Box<dyn Error> {
-        "AArch64/ARM64 minidump import is not implemented yet; the current serialization path is still x86/x86_64-centric".into()
-    }
-
     fn get_pe_offset(data: &[u8]) -> Option<usize> {
         if data.len() < 0x3C + 4 {
             return None;
@@ -43,7 +45,7 @@ impl MinidumpReader {
         }
         // Check machine type in PE header - 0x8664 = x64
         let machine = u16::from_le_bytes([data[pe_offset + 4], data[pe_offset + 5]]);
-        machine == 0x8664
+        machine == 0x8664 || machine == 0xAA64
     }
 
     fn extract_pe_modules<T: Deref<Target = [u8]>>(
@@ -171,7 +173,10 @@ impl MinidumpReader {
         }
 
         let system_info = dump.get_stream::<MinidumpSystemInfo>()?;
-        let is_64bits = matches!(system_info.cpu, minidump::system_info::Cpu::X86_64);
+        let is_64bits = matches!(
+            system_info.cpu,
+            minidump::system_info::Cpu::X86_64 | minidump::system_info::Cpu::Arm64
+        );
 
         let banzai = false;
         let tlb = RefCell::new(TLB::new());
@@ -184,7 +189,7 @@ impl MinidumpReader {
     fn extract_thread_context<T: Deref<Target = [u8]>>(
         dump: &minidump::Minidump<'static, T>,
         system_info: &MinidumpSystemInfo,
-    ) -> Result<(Regs64, Flags), Box<dyn Error>> {
+    ) -> Result<ExtractedContext, Box<dyn Error>> {
         let threads = dump.get_stream::<MinidumpThreadList>()?;
         let thread = threads
             .threads
@@ -195,11 +200,10 @@ impl MinidumpReader {
             .context(system_info, misc.as_ref())
             .ok_or("No thread context found in minidump")?;
 
-        let mut regs = Regs64::default();
-        let mut flags = Flags::new();
-
         match &context.raw {
             MinidumpRawContext::X86(raw) => {
+                let mut regs = Regs64::default();
+                let mut flags = Flags::new();
                 regs.dr0 = raw.dr0 as u64;
                 regs.dr1 = raw.dr1 as u64;
                 regs.dr2 = raw.dr2 as u64;
@@ -218,8 +222,11 @@ impl MinidumpReader {
                 regs.fs = raw.fs as u64;
                 regs.gs = raw.gs as u64;
                 flags.load(raw.eflags);
+                Ok(ExtractedContext::X86 { regs, flags })
             }
             MinidumpRawContext::Amd64(raw) => {
+                let mut regs = Regs64::default();
+                let mut flags = Flags::new();
                 regs.dr0 = raw.dr0;
                 regs.dr1 = raw.dr1;
                 regs.dr2 = raw.dr2;
@@ -246,14 +253,40 @@ impl MinidumpReader {
                 regs.fs = raw.fs as u64;
                 regs.gs = raw.gs as u64;
                 flags.load(raw.eflags);
+                Ok(ExtractedContext::X86 { regs, flags })
             }
-            MinidumpRawContext::Arm64(_) | MinidumpRawContext::OldArm64(_) => {
-                return Err(Self::unsupported_aarch64_minidump())
+            MinidumpRawContext::Arm64(raw) => {
+                let mut regs = RegsAarch64::new();
+                for i in 0..31 {
+                    regs.x[i] = raw.iregs[i];
+                }
+                regs.sp = raw.sp;
+                regs.pc = raw.pc;
+                regs.nzcv.from_u64(raw.cpsr as u64);
+                regs.fpcr = raw.fpcr as u64;
+                regs.fpsr = raw.fpsr as u64;
+                for i in 0..32 {
+                    regs.v[i] = raw.float_regs[i];
+                }
+                Ok(ExtractedContext::AArch64 { regs })
             }
-            _ => return Err("Unsupported minidump CPU context".into()),
+            MinidumpRawContext::OldArm64(raw) => {
+                let mut regs = RegsAarch64::new();
+                for i in 0..31 {
+                    regs.x[i] = raw.iregs[i];
+                }
+                regs.sp = raw.sp;
+                regs.pc = raw.pc;
+                regs.nzcv.from_u64(raw.cpsr as u64);
+                regs.fpcr = raw.fpcr as u64;
+                regs.fpsr = raw.fpsr as u64;
+                for i in 0..32 {
+                    regs.v[i] = raw.float_regs[i];
+                }
+                Ok(ExtractedContext::AArch64 { regs })
+            }
+            _ => Err("Unsupported minidump CPU context".into()),
         }
-
-        Ok((regs, flags))
     }
 
     pub fn from_minidump_file(path: &str) -> Result<SerializableEmu, Box<dyn Error>> {
@@ -261,9 +294,13 @@ impl MinidumpReader {
 
         // Get basic streams we need
         let system_info = dump.get_stream::<MinidumpSystemInfo>()?;
-        if matches!(system_info.cpu, minidump::system_info::Cpu::Arm64) {
-            return Err(Self::unsupported_aarch64_minidump());
-        }
+
+        let arch = match system_info.cpu {
+            minidump::system_info::Cpu::X86 => Arch::X86,
+            minidump::system_info::Cpu::X86_64 => Arch::X86_64,
+            minidump::system_info::Cpu::Arm64 => Arch::Aarch64,
+            _ => Arch::X86,
+        };
 
         // Extract PE modules
         let (pe32, pe64) = Self::extract_pe_modules(&dump)?;
@@ -272,21 +309,25 @@ impl MinidumpReader {
         let maps = Self::extract_memory_maps(&dump)?;
 
         // Extract thread context when present.
-        let (regs, flags) = Self::extract_thread_context(&dump, &system_info)?;
+        let extracted = Self::extract_thread_context(&dump, &system_info)?;
 
-        // Basic serializable emu with minimal data
-        let mut serializable_emu = SerializableEmu::default();
+        // Build serializable emu with the correct architecture
+        let mut serializable_emu = SerializableEmu::default_for_arch(arch);
         serializable_emu.set_maps(maps);
-        serializable_emu.set_regs(regs);
-        serializable_emu.set_flags(flags);
         serializable_emu.set_pe32(pe32);
         serializable_emu.set_pe64(pe64);
-        serializable_emu.cfg.arch = match system_info.cpu {
-            minidump::system_info::Cpu::X86 => Arch::X86,
-            minidump::system_info::Cpu::X86_64 => Arch::X86_64,
-            minidump::system_info::Cpu::Arm64 => Arch::Aarch64,
-            _ => Arch::X86,
-        };
+        serializable_emu.cfg.arch = arch;
+
+        match extracted {
+            ExtractedContext::X86 { regs, flags } => {
+                serializable_emu.set_regs(regs);
+                serializable_emu.set_flags(flags);
+            }
+            ExtractedContext::AArch64 { regs } => {
+                serializable_emu.set_regs_aarch64(regs);
+            }
+        }
+
         serializable_emu.os = match system_info.os {
             minidump::system_info::Os::Windows => OperatingSystem::Windows,
             minidump::system_info::Os::Linux => OperatingSystem::Linux,
