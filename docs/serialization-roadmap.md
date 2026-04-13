@@ -46,4 +46,4 @@ Current status:
 ## Remaining
 
 - [ ] Validate generated ARM64 dumps with at least one external consumer (Ghidra or WinDbg).
-- [ ] Consider refactoring `Emu::new()` to accept an `Arch` parameter to avoid the two-step init_cpu pattern.
+- [x] Refactor `Emu::new()` to accept an `Arch` parameter to avoid the two-step init_cpu pattern.

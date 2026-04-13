@@ -56,7 +56,7 @@ pub enum SerializableCurrentThreadState {
         seh: u64,
         veh: u64,
         uef: u64,
-        eh_ctx: u32,
+        eh_ctx: u64,
         tls32: Vec<u32>,
         tls64: Vec<u64>,
         fls: Vec<u32>,
@@ -512,7 +512,7 @@ impl From<SerializableEmu> for Emu {
 
 impl Default for SerializableEmu {
     fn default() -> Self {
-        SerializableEmu::from(&Emu::new())
+        SerializableEmu::from(&Emu::new(crate::arch::Arch::X86))
     }
 }
 
@@ -581,8 +581,6 @@ impl SerializableEmu {
             Arch::X86_64 => crate::emu64(),
             Arch::X86 => crate::emu32(),
         };
-        // Ensure thread context matches architecture (emu_aarch64 doesn't
-        // re-init threads automatically).
         emu.init_cpu();
         SerializableEmu::from(&emu)
     }
