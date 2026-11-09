@@ -95,3 +95,8 @@ pub fn get_library_handle(emu: &mut emu::Emu, libname: &str) -> u64 {
 
     peb64::get_module_base(&dll, emu).unwrap_or(0)
 }
+
+/// `C:\<exe_name>`, matching the main image's LDR FullDllName.
+pub fn main_module_path(emu: &emu::Emu) -> String {
+    format!("C:\\{}", emu.cfg.exe_name)
+}

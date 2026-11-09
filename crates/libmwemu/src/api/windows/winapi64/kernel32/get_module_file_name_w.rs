@@ -1,3 +1,4 @@
+use crate::windows::loader64::main_module_path;
 use crate::{emu, windows::constants};
 
 pub fn GetModuleFileNameW(emu: &mut emu::Emu) {
@@ -76,9 +77,4 @@ pub fn module_path(emu: &emu::Emu, handle: u64) -> Option<String> {
     emu.export_indexes
         .get_by_base(handle)
         .map(|module| format!("C:\\Windows\\System32\\{}", module.module_name))
-}
-
-/// `C:\<exe_name>`, matching the main image's LDR FullDllName.
-pub fn main_module_path(emu: &emu::Emu) -> String {
-    format!("C:\\{}", emu.cfg.exe_name)
 }
